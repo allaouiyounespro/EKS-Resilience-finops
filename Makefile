@@ -10,6 +10,7 @@
 SHELL := /usr/bin/env bash
 
 STACK        ?= infra-a
+RUNS         ?= 3
 STACK_DIR    := terraform/stacks/$(STACK)
 MODULES      := $(wildcard terraform/modules/*)
 BACKEND      := terraform/backend.hcl
@@ -91,8 +92,20 @@ up: apply ## Apply the stack and bootstrap the cluster onto it
 	./scripts/bootstrap-cluster.sh $(STACK)
 
 .PHONY: experiment
-experiment: ## Run the AZ-failure experiment against STACK
+experiment: ## Run ONE AZ-failure experiment against STACK
 	./scripts/run-experiment.sh $(STACK)
+
+.PHONY: campaign
+campaign: ## Run RUNS experiments against STACK and aggregate them into a median (default 3)
+	@# One run is an anecdote: RDS failover varies by tens of seconds between runs.
+	@# The stack stays up between runs - rebuilding would cost 35min of EKS
+	@# create/delete each time and would measure a cold cluster three times
+	@# instead of the same cluster three times.
+	./scripts/run-campaign.sh $(STACK) $(RUNS)
+
+.PHONY: reset
+reset: ## Return STACK to its starting state (fails the DB writer back to the target AZ)
+	./scripts/reset-stack.sh $(STACK)
 
 .PHONY: down
 down: ## Destroy STACK

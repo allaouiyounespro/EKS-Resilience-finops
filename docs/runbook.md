@@ -78,9 +78,12 @@ cp terraform/backend.hcl.example terraform/backend.hcl    # then edit
 
 * * *
 
-## 4. Procedure — one experiment run
+## 4. Procedure — one campaign
 
-Total wall-clock: **~55 min** (20 build + 10 bootstrap + 25 experiment).
+Total wall-clock per stack: **~1 h 45 (infra-a) / ~2 h 15 (infra-b)** for a
+3-run campaign, including build and teardown. AWS cost for the whole thing:
+**~$5**. The binding constraint is time, not money — EKS create + delete is ~35
+min per stack and nothing shortens it.
 
 ### 4.1 Build and bootstrap
 
@@ -116,26 +119,70 @@ For infra-b, confirm the spread is 2/2/2 across zones. A 4/1/1 spread is legal
 under `ScheduleAnyway` but weakens the comparison — delete pods until the
 scheduler rebalances, or note it in the run log.
 
-### 4.3 Run
+### 4.3 Run the campaign
 
 ```bash
-make experiment STACK=infra-a
+make campaign STACK=infra-a RUNS=3
 ```
 
-The runner is sequenced deliberately; do not "help" it:
+**Three runs, not one.** RDS failover time varies by tens of seconds between
+runs and Karpenter's node launch depends on whatever capacity EC2 happens to
+have that minute. A single number from a single run is a coin flip presented as
+a measurement. The stack stays up between runs — rebuilding would cost 35 min of
+EKS create/delete each time and would measure a *cold* cluster three times
+instead of the same cluster three times. Each extra run costs ~30 min and ~$0.20.
+
+Each run is `reset → inject → observe → report`, and the runner is sequenced
+deliberately. Do not "help" it:
 
 | Phase | Duration | What it guards |
 |---|---|---|
+| reset (§ 4.3.1) | 2–5 min | the run starts from the same state run #1 did |
 | probes start | — | they must predate the fault or the RTO has no baseline |
 | baseline | 60 s | **aborts on a single failed request** — you cannot measure recovery from a state that was never healthy |
 | FIS injection | ~15 min | clock anchored to FIS's own `startTime`, not the operator's enter key |
 | settle | 10 min | FIS restarting instances is not the service being back; most of infra-a's recovery happens here |
 | report | — | writes `results/<stack>/<ts>/result.json`; raw NDJSON is never overwritten |
+| cool-down | 2 min | CloudWatch, the ALB target group and Karpenter's consolidation loop all settle |
+
+#### 4.3.1 Why the reset exists — read this before skipping it
+
+`scripts/reset-stack.sh` runs before **every** injection, including the first.
+It closes a trap that produces perfectly normal-looking, completely worthless
+data:
+
+> Run #1 forces the RDS writer to fail over from `eu-west-3a` to its standby in
+> `eu-west-3b`. **The FIS template still targets `eu-west-3a`** — that AZ is
+> baked in at `terraform apply` time and does not follow the database.
+>
+> So run #2 would isolate an AZ that no longer holds the writer. The database is
+> never touched. Fewer pods die. The RTO comes out flatteringly low, the
+> `result.json` looks entirely normal, and the median across three runs is
+> quietly meaningless.
+>
+> Nothing errors. Nothing warns. That is what makes it dangerous.
+
+The reset fails the writer back to the target AZ, waits for 6/6 replicas, and
+**aborts** if the pods ended up packed into fewer zones than the architecture
+claims (a previous recovery can leave them concentrated, which would silently
+shrink the next run's blast radius).
 
 ### 4.4 Record
 
-Paste `result.json` into `docs/results.md`, attach the run directory, note
-anything anomalous. An unrecorded run is a spent budget with nothing to show.
+```bash
+python3 -m chaos.aggregate --stack infra-a --markdown results/infra-a/*/result.json
+```
+
+The campaign prints this table for you. Paste it into `docs/results.md`, keep the
+run directories, note anything anomalous.
+
+**A run that never recovered is not dropped from the median** — it is counted and
+flagged, and if non-recovery is the majority outcome the aggregate refuses to
+report an RTO at all. Publishing "infra-a recovers in 21 minutes" from a campaign
+in which one run never came back would be the most dishonest thing this tooling
+could do, so it is made structurally impossible rather than left to discipline.
+
+An unrecorded run is a spent budget with nothing to show.
 
 * * *
 
@@ -172,6 +219,8 @@ cause is a tag that leaked onto resources outside the stack.
 | Pods Pending, zero node launches, **infra-a** | **Expected. That is the finding.** | `KarpenterCannotProvision` should be firing. |
 | Pods Pending, zero node launches, **infra-b** | NodePool zone list or subnet discovery tags. | `kubectl logs -n kube-system deploy/karpenter | grep -i "no instance type"` |
 | infra-b RTO ≈ infra-a RTO | Karpenter controller died with the AZ — check where its replicas were scheduled. | The measurement is of a broken control loop, not the topology. Re-run after confirming the anti-affinity held. |
+| Run #2 or #3 much faster than run #1 | **The reset was skipped or failed.** The RDS writer is no longer in the targeted AZ, so the fault missed the database entirely. | `aws rds describe-db-instances --query 'DBInstances[0].AvailabilityZone'` must equal `fis_target_az`. Discard the run — it is not comparable. |
+| Aggregate says "RTO NOT MEASURABLE" | The majority of runs never recovered. | Not a tooling bug. It is the aggregate refusing to report a median of the luckiest runs. For infra-a this may be the honest answer. |
 | RPO > 0 on infra-b | The most interesting possible result — Multi-AZ says this cannot happen. | Verify the writer only recorded `committed: true` on genuine 200s, then `aws rds describe-events` to confirm the failover actually occurred. Escalate to a re-run before publishing. |
 | NetworkPolicy suspected (timeouts, nothing in logs) | Egress deny eating DNS or 443. | `kubectl -n witness describe networkpolicy witness-allow`; remember enforcement needs `enableNetworkPolicy` in the CNI addon config. |
 
