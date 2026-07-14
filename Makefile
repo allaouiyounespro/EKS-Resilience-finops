@@ -108,13 +108,14 @@ reset: ## Return STACK to its starting state (fails the DB writer back to the ta
 	./scripts/reset-stack.sh $(STACK)
 
 .PHONY: down
-down: ## Destroy STACK
-	@# The ALB is created by the AWS Load Balancer Controller, not by Terraform,
-	@# so Terraform does not know it exists and will hang for 20 minutes trying to
-	@# delete a VPC whose ENIs are still held by a load balancer it cannot see.
-	@# Deleting the Gateway first - and waiting for the deletion - is not optional.
-	-kubectl delete gateway witness -n witness --ignore-not-found --timeout=5m
-	terraform -chdir=$(STACK_DIR) destroy
+down: ## Destroy STACK, including everything Terraform cannot see
+	@# Three controllers create AWS resources Terraform never learns about: the LB
+	@# Controller (the ALB), Karpenter (its instances), and the EBS CSI driver
+	@# (Prometheus's volumes). The first two hold ENIs and make destroy fail; the
+	@# third simply survives, billing 1.86 USD/month per volume, silently, forever.
+	@# teardown.sh asks each controller to clean up, waits for AWS to agree, then
+	@# runs destroy - and sweeps whatever is left.
+	./scripts/teardown.sh $(STACK)
 
 .PHONY: cost-today
 cost-today: ## What the two stacks have actually cost so far, from Cost Explorer
