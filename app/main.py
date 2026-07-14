@@ -30,10 +30,13 @@ measure as a fragile one.
 
 from __future__ import annotations
 
+import json
 import logging
 import os
+import ssl
 import threading
 import time
+import urllib.request
 from contextlib import contextmanager
 
 import psycopg
@@ -49,8 +52,11 @@ log = logging.getLogger("witness")
 
 app = Flask(__name__)
 
+SA_DIR = "/var/run/secrets/kubernetes.io/serviceaccount"
+
+
 def _resolve_zone() -> str:
-    """Work out which AZ this pod is running in.
+    """Work out which AZ this pod is running in, by asking the Kubernetes API.
 
     Every response carries the zone, which is what lets the availability probe
     distinguish "the surviving AZs took over" from "the doomed AZ answered again".
@@ -58,20 +64,54 @@ def _resolve_zone() -> str:
     story rests on faith.
 
     Kubernetes does not expose *node* labels through the downward API - only pod
-    fields - so an initContainer reads topology.kubernetes.io/zone off the node
-    and drops it here. Reading it from EC2 instance metadata instead would be
-    less code and more fragile: Karpenter's default EC2NodeClass sets the IMDS
-    hop limit to 1 precisely to stop pods from reaching it.
+    fields - so this reads topology.kubernetes.io/zone off the Node object with
+    the pod's own service account token. The witness ServiceAccount is granted
+    exactly one verb for exactly one resource (get nodes) and nothing else.
+
+    Two approaches were tried and discarded:
+
+      - an initContainer running kubectl. bitnami/kubectl disappeared from Docker
+        Hub, and the official registry.k8s.io/kubectl image is distroless, so the
+        `sh -c` wrapper it needed could not execute. Both failures were only
+        visible on a real cluster, and both cost a deploy cycle to find.
+
+      - EC2 instance metadata. Karpenter's EC2NodeClass sets the IMDS hop limit
+        to 1 specifically to keep pods away from the node's credentials, and
+        weakening that for a convenience lookup is a bad trade.
+
+    Doing it in-process removes an image dependency, a volume, a container, and
+    an entire class of startup failure.
     """
     zone = os.environ.get("POD_ZONE", "").strip()
     if zone:
         return zone
 
-    zone_file = os.environ.get("ZONE_FILE", "/podinfo/zone")
+    node = os.environ.get("NODE_NAME", "").strip()
+    if not node:
+        return "unknown"
+
     try:
-        with open(zone_file, encoding="utf-8") as handle:
-            return handle.read().strip() or "unknown"
-    except OSError:
+        with open(f"{SA_DIR}/token", encoding="utf-8") as handle:
+            token = handle.read().strip()
+
+        host = os.environ.get("KUBERNETES_SERVICE_HOST", "kubernetes.default.svc")
+        port = os.environ.get("KUBERNETES_SERVICE_PORT", "443")
+
+        request = urllib.request.Request(
+            f"https://{host}:{port}/api/v1/nodes/{node}",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        context = ssl.create_default_context(cafile=f"{SA_DIR}/ca.crt")
+
+        with urllib.request.urlopen(request, timeout=5, context=context) as response:
+            labels = json.loads(response.read()).get("metadata", {}).get("labels", {})
+
+        return labels.get("topology.kubernetes.io/zone", "unknown")
+
+    except Exception as exc:  # noqa: BLE001
+        # A pod that cannot name its zone is still a pod that can serve traffic.
+        # Failing startup here would turn a reporting gap into an outage.
+        log.warning("could not resolve zone from the Kubernetes API: %s", exc)
         return "unknown"
 
 

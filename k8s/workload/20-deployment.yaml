@@ -23,7 +23,6 @@ data:
   DB_NAME: "resilience"
   DB_USER: "app"
   DB_PASSWORD_FILE: "/etc/db/password"
-  ZONE_FILE: "/podinfo/zone"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -88,6 +87,24 @@ spec:
       # infrastructure, not in the application - which is exactly the claim the
       # experiment is testing.
       # ---------------------------------------------------------------------
+      # Spread across ZONES only. There is deliberately no hostname spread here,
+      # and the reason cost 172 USD/month to learn:
+      #
+      # A `kubernetes.io/hostname` constraint with maxSkew 1 means one pod per
+      # node. Karpenter's scheduler simulates the constraint before it launches
+      # anything, concludes it needs six nodes to place six pods, and launches
+      # six nodes - even though all six pods together fit on one t3.medium with
+      # room to spare. The cluster comes up green, the dashboard looks fine, and
+      # the compute bill is 6x what the cost model predicted. Nothing warns you.
+      #
+      # Dropping it, Karpenter packs the pods per zone: one node in infra-a
+      # (all six pods), three in infra-b (two per zone). Which is exactly what
+      # the FinOps model prices, and exactly what the resilience story needs -
+      # the failure domain being tested is the AZ, not the node.
+      #
+      # The tradeoff is real and worth stating: losing a single node now costs
+      # two pods in infra-b rather than one. That is acceptable. Paying for five
+      # idle nodes to soften a failure mode nobody is measuring is not.
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: topology.kubernetes.io/zone
@@ -95,13 +112,6 @@ spec:
           # would refuse to place replacement pods into the surviving AZs
           # because doing so would breach the skew against the dead zone - the
           # constraint would enforce the outage it was meant to survive.
-          whenUnsatisfiable: ScheduleAnyway
-          labelSelector:
-            matchLabels:
-              app.kubernetes.io/name: witness
-
-        - maxSkew: 1
-          topologyKey: kubernetes.io/hostname
           whenUnsatisfiable: ScheduleAnyway
           labelSelector:
             matchLabels:
@@ -119,43 +129,6 @@ spec:
           operator: Equal
           value: app
           effect: NoSchedule
-
-      # ---------------------------------------------------------------------
-      # Zone discovery
-      # ---------------------------------------------------------------------
-      initContainers:
-        - name: resolve-zone
-          image: bitnami/kubectl:1.31
-          command:
-            - /bin/sh
-            - -c
-            - |
-              set -eu
-              kubectl get node "${NODE_NAME}" \
-                -o jsonpath='{.metadata.labels.topology\.kubernetes\.io/zone}' \
-                > /podinfo/zone
-              echo "resolved zone: $(cat /podinfo/zone)"
-          env:
-            - name: NODE_NAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: spec.nodeName
-          volumeMounts:
-            - name: podinfo
-              mountPath: /podinfo
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 10001
-            capabilities:
-              drop: ["ALL"]
-          resources:
-            requests:
-              cpu: 10m
-              memory: 32Mi
-            limits:
-              memory: 64Mi
 
       containers:
         - name: witness
@@ -238,9 +211,6 @@ spec:
               drop: ["ALL"]
 
           volumeMounts:
-            - name: podinfo
-              mountPath: /podinfo
-              readOnly: true
             - name: db-credentials
               mountPath: /etc/db
               readOnly: true
@@ -248,8 +218,6 @@ spec:
               mountPath: /tmp
 
       volumes:
-        - name: podinfo
-          emptyDir: {}
         - name: db-credentials
           secret:
             # Created by scripts/bootstrap-cluster.sh from the RDS-managed secret

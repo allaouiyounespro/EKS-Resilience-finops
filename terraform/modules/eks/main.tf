@@ -13,8 +13,22 @@
 # ---------------------------------------------------------------------------
 
 data "aws_partition" "current" {}
+data "aws_caller_identity" "current" {}
 
 locals {
+  # bootstrap_cluster_creator_admin_permissions already gives the principal
+  # running this apply a cluster-admin access entry. Creating a second one for
+  # the same ARN fails with a 409 ResourceInUseException - after the cluster is
+  # built, so you pay ten minutes to find out.
+  #
+  # Rather than documenting "do not put yourself in this list" and waiting for
+  # someone to do it anyway, filter the caller out here. cluster_admin_arns is
+  # for *other* principals: a CI role, a colleague, an incident-response role.
+  admin_arns = setsubtract(
+    toset(var.cluster_admin_arns),
+    [data.aws_caller_identity.current.arn],
+  )
+
   tags = merge(
     var.tags,
     {
@@ -390,7 +404,7 @@ resource "aws_eks_addon" "ebs_csi" {
 # ---------------------------------------------------------------------------
 
 resource "aws_eks_access_entry" "admin" {
-  for_each = toset(var.cluster_admin_arns)
+  for_each = local.admin_arns
 
   cluster_name  = aws_eks_cluster.this.name
   principal_arn = each.value
@@ -400,7 +414,7 @@ resource "aws_eks_access_entry" "admin" {
 }
 
 resource "aws_eks_access_policy_association" "admin" {
-  for_each = toset(var.cluster_admin_arns)
+  for_each = local.admin_arns
 
   cluster_name  = aws_eks_cluster.this.name
   principal_arn = each.value

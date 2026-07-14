@@ -77,12 +77,22 @@ spec:
         - protocol: TCP
           port: 5432
 
-    # The Kubernetes API, for the resolve-zone initContainer's single
-    # `kubectl get node`. The control plane ENIs sit inside these VPC ranges,
-    # so 443 to the VPC covers it. Miss this and every pod hangs in Init
-    # forever - and because initContainers share the pod's labels, the deny
-    # applies to them too, which is easy to forget.
+    # The Kubernetes API, so the app can read its node's zone label.
+    #
+    # 172.20.0.0/16 is the EKS *service* CIDR, and it is the whole point of this
+    # rule. Pods reach the API server through the `kubernetes.default.svc`
+    # ClusterIP - 172.20.0.1 - not through the control plane's VPC addresses.
+    # An egress rule that allows 443 to the VPC ranges therefore allows exactly
+    # nothing: the packet is addressed to a virtual IP that lives in neither.
+    #
+    # The failure is silent in the worst way. The pod starts, passes readiness,
+    # serves traffic, and simply reports zone="unknown" forever - which quietly
+    # destroys the ability to tell "the surviving AZs took over" from "the doomed
+    # AZ answered again", and with it the entire experiment. No log anywhere says
+    # "NetworkPolicy".
     - to:
+        - ipBlock:
+            cidr: 172.20.0.0/16
         - ipBlock:
             cidr: 10.10.0.0/16
         - ipBlock:

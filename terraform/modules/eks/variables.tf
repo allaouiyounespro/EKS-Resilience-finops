@@ -113,7 +113,7 @@ variable "log_retention_days" {
 }
 
 variable "cluster_admin_arns" {
-  description = "IAM principals granted cluster-admin through EKS access entries. Empty means only the creating principal can reach the API."
+  description = "IAM principals granted cluster-admin through EKS access entries. The principal running the apply is granted admin automatically and is filtered out of this list - adding it here would collide with the entry EKS creates itself."
   type        = list(string)
   default     = []
 }
