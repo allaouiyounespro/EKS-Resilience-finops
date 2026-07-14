@@ -258,6 +258,51 @@ make down STACK=infra-a
 Controller, not Terraform; skip this and `terraform destroy` hangs 20 minutes on
 a VPC whose ENIs are still held by a load balancer it cannot see, then fails.
 
+### 7.1b When the graceful teardown fails — and after a real fault, it will
+
+Observed on the infra-a campaign. **The Gateway deletion itself timed out**,
+because the cluster was still broken from the experiment. The ALB survived, kept
+its ENIs in the subnets, and `terraform destroy` failed on `DependencyViolation`
+— twice.
+
+The tidy path assumes a healthy cluster. After a chaos run, a healthy cluster is
+precisely what you do not have. Plan for this.
+
+Three orphans, none of them known to Terraform, every one created by a controller:
+
+| orphan | created by | what it blocks |
+|---|---|---|
+| the ALB | AWS Load Balancer Controller | the subnets |
+| a Karpenter instance | Karpenter | the subnets |
+| 3 security groups (`k8s-traffic-*`, `k8s-witness-*`, `eks-cluster-sg-*`) | LB Controller, VPC CNI, EKS | **the VPC itself** |
+
+The security groups are the sting in the tail: they cross-reference each other,
+so none can be deleted until the rules are revoked first.
+
+```bash
+./scripts/panic.sh --destroy          # ALB, instances, clusters, databases, NAT
+
+# then, if the VPC still refuses to go:
+VPC=<vpc-id>
+SGS=$(aws ec2 describe-security-groups --region eu-west-3 \
+  --filters "Name=vpc-id,Values=$VPC" \
+  --query 'SecurityGroups[?GroupName!=`default`].GroupId' --output text)
+
+for sg in $SGS; do
+  aws ec2 describe-security-groups --region eu-west-3 --group-ids "$sg" \
+    --query 'SecurityGroups[0].IpPermissions' --output json > /tmp/in.json
+  aws ec2 revoke-security-group-ingress --region eu-west-3 --group-id "$sg" \
+    --ip-permissions file:///tmp/in.json 2>/dev/null || true
+  aws ec2 delete-security-group --region eu-west-3 --group-id "$sg"
+done
+
+terraform -chdir=terraform/stacks/<stack> destroy -auto-approve
+```
+
+`panic.sh` works here for exactly the reason it was written: it reads **AWS's**
+view of the world rather than Terraform's, and the moment you need it is, by
+definition, the moment those two have diverged.
+
 ### 7.2 Verify nothing survived
 
 ```bash
