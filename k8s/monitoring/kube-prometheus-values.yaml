@@ -16,6 +16,31 @@
 
 prometheus:
   prometheusSpec:
+    # TWO replicas, anti-affine across zones. This is not belt-and-braces; it is
+    # the fix for the single most instructive failure of the infra-a campaign.
+    #
+    # An EBS volume is AZ-scoped. Prometheus ran as one replica on a system node
+    # inside the target AZ, so when the AZ died Prometheus died with it - and it
+    # could not be rescheduled anywhere, because its volume was stranded in the
+    # dead zone. kube-state-metrics went the same way. Over a 90-minute window
+    # containing a 15-minute total outage, kube-state-metrics produced THREE data
+    # points, and the Grafana "Pending pods" panel read zero for the whole outage:
+    # not because no pods were pending, but because nobody was left alive to count
+    # them.
+    #
+    # In infra-b, one replica lives in a surviving zone and keeps scraping. The
+    # architecture that is supposed to survive an AZ failure should be able to
+    # *show* that it survived one.
+    #
+    # In infra-a this constraint cannot be satisfied - there is one zone - so the
+    # second replica sits Pending forever, exactly as Karpenter's does. Leave it
+    # there. It is the cluster saying out loud that it has no second failure
+    # domain to put anything in.
+    replicas: 2
+
+    podAntiAffinity: hard
+    podAntiAffinityTopologyKey: topology.kubernetes.io/zone
+
     # 15s global scrape. Anything coarser and a 60-90s failover is resolved by
     # only a handful of samples.
     scrapeInterval: 15s
@@ -38,10 +63,14 @@ prometheus:
     # the experiment, which would destroy the evidence at precisely the moment it
     # became interesting.
     #
-    # Note the constraint this creates: an EBS volume is AZ-scoped. If the AZ
-    # holding this volume dies, Prometheus cannot be rescheduled elsewhere until
-    # the AZ returns. That is a real limitation, honestly stated - and the reason
-    # scripts/probe.py exists outside the cluster as the authoritative record.
+    # The constraint this creates is why there are two replicas above: an EBS
+    # volume is AZ-scoped, so a replica whose zone dies cannot be rescheduled
+    # anywhere - its volume is stranded. One replica per zone means one of them
+    # is always in a zone that is still standing.
+    #
+    # Even so, scripts/probe.py remains the authoritative record. Prometheus lives
+    # inside the cluster under test, and a witness with skin in the game is a
+    # witness you corroborate, not one you trust.
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -55,12 +84,20 @@ prometheus:
             requests:
               storage: 20Gi
 
+    # Right-sized down from 2Gi so two replicas actually fit. This cluster scrapes
+    # a dozen targets over a 7-day retention; 1Gi is generous. The old 2Gi request
+    # was copied from a kube-prometheus default sized for clusters two orders of
+    # magnitude larger, and it is what made a second replica unschedulable on a
+    # t3.medium that also has to carry Karpenter, Grafana and the LB Controller.
+    #
+    # An oversized request is not free caution. Here it was the difference between
+    # a monitoring stack that survives an AZ failure and one that does not.
     resources:
       requests:
-        cpu: 500m
-        memory: 2Gi
+        cpu: 250m
+        memory: 1Gi
       limits:
-        memory: 4Gi
+        memory: 2Gi
 
 grafana:
   enabled: true

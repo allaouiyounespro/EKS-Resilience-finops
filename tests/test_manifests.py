@@ -217,6 +217,41 @@ class TestPodDisruptionBudget(unittest.TestCase):
         )
 
 
+class TestBootstrapAppliesEverything(unittest.TestCase):
+    """Every manifest in k8s/ must be applied by the bootstrap script.
+
+    This test exists because a manifest was written, applied by hand during a
+    debugging session, and never added to the script. The next cluster came up
+    without it. Nothing failed - the Karpenter ServiceMonitor was simply absent,
+    so Karpenter was never scraped, so the "Karpenter nodes" panel was empty for
+    an entire campaign, and the empty panel was indistinguishable from the finding
+    it was supposed to prove.
+
+    A file that exists in the repo but never reaches the cluster is worse than a
+    file that does not exist, because everyone assumes it is doing its job.
+    """
+
+    def test_every_manifest_is_referenced_by_the_bootstrap(self):
+        bootstrap = (REPO / "scripts" / "bootstrap-cluster.sh").read_text(encoding="utf-8")
+
+        # .tpl files are rendered through envsubst and piped in, so they are
+        # referenced by their template name. The dashboard JSON goes in as a
+        # ConfigMap. Everything else is a plain kubectl apply -f.
+        manifests = sorted(
+            p for p in K8S.rglob("*.yaml")
+            if "values" not in p.name  # Helm inputs, passed with --values
+        )
+        self.assertGreater(len(manifests), 0)
+
+        for path in manifests:
+            with self.subTest(manifest=path.name):
+                self.assertIn(
+                    path.name, bootstrap,
+                    f"{path.relative_to(REPO)} exists but the bootstrap script never applies it - "
+                    f"it will be silently absent from every cluster",
+                )
+
+
 class TestGateway(unittest.TestCase):
     """The Gateway API chain: GatewayClass -> Gateway -> HTTPRoute -> Service.
 

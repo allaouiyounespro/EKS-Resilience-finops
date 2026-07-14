@@ -34,7 +34,7 @@ owner: **allaouiyounespro** · portfolio: [github.com/allaouiyounespro](https://
 ![Architecture — infra-a (single-AZ) vs infra-b (multi-AZ + DR)](architecture.svg)
 
 Same modules, same region, same workload, same fault. The entire difference
-between the $280.99/month architecture and the $529.73/month one is a **15-line
+between the $282.85/month architecture and the $533.44/month one is a **15-line
 diff between two `main.tf` files**:
 
 ```console
@@ -47,7 +47,7 @@ $ diff terraform/stacks/infra-a/main.tf terraform/stacks/infra-b/main.tf
 | NAT Gateways | 1 | 3 (one per AZ) |
 | RDS PostgreSQL 16 | single-AZ, PITR only | Multi-AZ standby + read replica |
 | Karpenter permitted zones | 1 | 3 |
-| **Cost** | **$280.99/mo** | **$529.73/mo** |
+| **Cost** | **$282.85/mo** | **$533.44/mo** |
 | Predicted RTO | 20–40 min | 60–120 s |
 | Predicted RPO | ≤ 5 min | 0 s |
 
@@ -100,8 +100,8 @@ EKS-Resilience-finops/
 │   │   ├── fis/               # the AZ-failure experiment template
 │   │   └── platform/          # composes all six; stacks differ only by inputs
 │   └── stacks/
-│       ├── infra-a/           # single-AZ   (~$281/mo)
-│       └── infra-b/           # multi-AZ+DR (~$530/mo)
+│       ├── infra-a/           # single-AZ   (~$283/mo)
+│       └── infra-b/           # multi-AZ+DR (~$533/mo)
 ├── app/                       # witness service: /healthz /readyz /write /last
 ├── k8s/
 │   ├── workload/              # Deployment, Gateway API (ALB), PDB, NetworkPolicy
@@ -224,9 +224,9 @@ eu-west-3 list prices in [`finops/pricing.yaml`](finops/pricing.yaml), captured
 | RDS (instance/standby/replica/storage) | $30.28 | $90.84 | ★ +$60.56 |
 | ALB | $25.84 | $25.84 | |
 | EBS, logs, transfer, secrets | $10.05 | $18.58 | ★ +$2.00 |
-| **Total** | **$280.99** | **$529.73** | **$238.49** |
+| **Total** | **$282.85** | **$533.44** | **$240.49** |
 
-The `$238.49` column is the number to defend in a budget meeting: not "we spend
+The `$240.49` column is the number to defend in a budget meeting: not "we spend
 $438" but "we spend $245 to run it and $193 to survive an AZ failure — here is
 the measured RTO with and without." Every line of the delta is explicitly flagged
 in the model, and a test fails if unattributed cost creeps in.

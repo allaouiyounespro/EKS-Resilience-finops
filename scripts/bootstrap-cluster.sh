@@ -185,6 +185,16 @@ unset GRAFANA_PASSWORD
 kubectl apply -f "${REPO_ROOT}/k8s/monitoring/servicemonitor-witness.yaml"
 kubectl apply -f "${REPO_ROOT}/k8s/monitoring/prometheusrule-resilience.yaml"
 
+# Karpenter's own chart would create this ServiceMonitor - but only if the
+# Prometheus Operator CRD already exists when Helm renders the chart, and we
+# install Karpenter first. Helm skips the object silently. Applying it here, from
+# a file, makes the scrape independent of install order.
+#
+# Missed once already: infra-a ran its whole first campaign with no Karpenter
+# metrics at all, and the "Karpenter nodes" panel was empty for reasons nobody
+# could see.
+kubectl apply -f "${REPO_ROOT}/k8s/monitoring/servicemonitor-karpenter.yaml"
+
 kubectl -n monitoring create configmap grafana-dashboard-resilience \
   --from-file=resilience.json="${REPO_ROOT}/k8s/monitoring/grafana-dashboard-resilience.json" \
   --dry-run=client -o yaml \

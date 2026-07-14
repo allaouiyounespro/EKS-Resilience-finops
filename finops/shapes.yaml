@@ -50,6 +50,12 @@ infra-a:
   secrets_count: 1
   cloudwatch_logs_gb: 5
 
+  # Prometheus PVCs. One replica here: the anti-affinity across zones cannot be
+  # satisfied with a single zone, so the second replica sits Pending forever and
+  # costs nothing. The cluster is saying it has no second failure domain.
+  prometheus_pvc_count: 1
+  prometheus_pvc_gb: 20
+
 infra-b:
   stack: resilience-b
   cost_profile: multi-az-dr
@@ -92,3 +98,10 @@ infra-b:
   alb_lcu_average: 1
   secrets_count: 1
   cloudwatch_logs_gb: 8
+
+  # Two Prometheus replicas, one per zone. The second volume is what keeps the
+  # monitoring stack alive through the AZ failure - infra-a's single replica died
+  # with its zone and its EBS volume was stranded there, so the dashboard went
+  # blank at exactly the moment it mattered.
+  prometheus_pvc_count: 2
+  prometheus_pvc_gb: 20

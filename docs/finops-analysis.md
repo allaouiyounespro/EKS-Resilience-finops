@@ -18,7 +18,7 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 
 ## The bill
 
-### infra-a — single-AZ · **$280.99/month**
+### infra-a — single-AZ · **$282.85/month**
 
 | line item | USD/mo | |
 |---|---:|---|
@@ -32,9 +32,9 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 | CloudWatch Logs | 3.15 | |
 | RDS storage | 2.54 | 20 GiB |
 | Secrets Manager | 0.40 | |
-| **TOTAL** | **280.99** | of which **$0.00** buys resilience |
+| **TOTAL** | **282.85** | of which **$0.00** buys resilience |
 
-### infra-b — multi-AZ + DR · **$529.73/month**
+### infra-b — multi-AZ + DR · **$533.44/month**
 
 | line item | USD/mo | HA? | |
 |---|---:|:--:|---|
@@ -54,11 +54,11 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 | RDS storage | 2.54 | | |
 | Cross-AZ data transfer | 2.00 | ★ | the toll for spreading out |
 | Secrets Manager | 0.40 | | |
-| **TOTAL** | **529.73** | | of which **$238.49** buys resilience |
+| **TOTAL** | **533.44** | | of which **$240.49** buys resilience |
 
 ★ = exists *only* because of the high-availability decision.
 
-**Delta: $248.73/month — $2,985/year.**
+**Delta: $250.59/month — $3,007/year.**
 
 ---
 
@@ -102,7 +102,7 @@ replication — the irreducible toll for not being in one place.
 
 ## The break-even
 
-The question: infra-b costs $2,985/year more. How often must an AZ fail before that
+The question: infra-b costs $3,007/year more. How often must an AZ fail before that
 is the *cheaper* option?
 
 ```

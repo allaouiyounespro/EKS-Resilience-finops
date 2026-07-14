@@ -182,6 +182,33 @@ def compute_cost(shape: dict[str, Any], pricing: dict[str, Any], stack_name: str
         )
     )
 
+    # -- Prometheus volumes -------------------------------------------------
+    # Modelled explicitly because they were missing, and a cost model with a hole
+    # in it is a cost model that gets believed and then contradicted by the bill.
+    prom_pvcs = int(shape.get("prometheus_pvc_count", 0))
+    prom_gb = float(shape.get("prometheus_pvc_gb", 0))
+
+    if prom_pvcs:
+        baseline_pvc = min(prom_pvcs, 1)
+        ha_pvc = max(0, prom_pvcs - 1)
+
+        breakdown.items.append(
+            LineItem(
+                "EBS gp3 (Prometheus)",
+                baseline_pvc * prom_gb * storage["ebs_gp3_per_gb_month"],
+                f"{baseline_pvc} x {prom_gb:.0f} GiB",
+            )
+        )
+        if ha_pvc:
+            breakdown.items.append(
+                LineItem(
+                    "EBS gp3 (Prometheus HA)",
+                    ha_pvc * prom_gb * storage["ebs_gp3_per_gb_month"],
+                    "second replica in another AZ; an EBS volume cannot follow its pod across zones",
+                    resilience_driven=True,
+                )
+            )
+
     # -- NAT ----------------------------------------------------------------
     nat_count = int(shape["nat_gateway_count"])
     nat_hourly_cost = _hourly_to_monthly(network["nat_gateway_hourly"], hours)
