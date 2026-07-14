@@ -16,6 +16,11 @@ output "cluster_endpoint" {
   value       = module.platform.cluster_endpoint
 }
 
+output "vpc_id" {
+  description = "VPC id. Needed by the LB Controller's Helm values, and by scripts/teardown.sh to sweep the security groups that EKS, the CNI and the LB Controller leave behind - they cross-reference each other and block the VPC from being deleted."
+  value       = module.platform.vpc_id
+}
+
 output "region" {
   description = "Region the stack lives in."
   value       = var.region

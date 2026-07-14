@@ -115,7 +115,64 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 2. Workload
+# 2. The system tier - checked BEFORE the workload, because it is what recovers
+#    the workload
+#
+# The infra-a campaign taught this one the hard way. FIS stops every instance in
+# the target AZ, including the system nodes. The managed node group's ASG launches
+# replacements - and if it launches them into the AZ that is still cut off, they
+# boot, fail to reach the control plane, never join, and sit there as zombies:
+# `running` in EC2, status checks green, node group ACTIVE with no health issues,
+# and completely invisible to Kubernetes.
+#
+# In infra-b two system nodes survive in the other AZs, so the cluster keeps
+# working and nothing looks wrong. But Karpenter may be down to one replica, and
+# starting run 2 with a degraded controller measures a crippled system rather than
+# the architecture - which is exactly the class of quiet, plausible, wrong result
+# this whole project exists to refuse.
+# ---------------------------------------------------------------------------
+echo "==> checking the system tier"
+
+SYSTEM_READY="$(kubectl get nodes -l workload-class=system --no-headers 2>/dev/null | grep -c ' Ready' || true)"
+SYSTEM_READY="${SYSTEM_READY:-0}"
+SYSTEM_EXPECTED="${EXPECTED_ZONES:-$(jq -r '.workload_azs.value | length' <<<"${OUT}")}"
+
+KARPENTER_READY="$(
+  kubectl -n kube-system get pods -l app.kubernetes.io/name=karpenter \
+    --field-selector=status.phase=Running --no-headers 2>/dev/null | wc -l || echo 0
+)"
+
+echo "    system nodes Ready: ${SYSTEM_READY}/${SYSTEM_EXPECTED}"
+echo "    Karpenter replicas Running: ${KARPENTER_READY}"
+
+if [[ "${SYSTEM_READY}" -lt "${SYSTEM_EXPECTED}" ]]; then
+  echo >&2
+  echo "ABORT: only ${SYSTEM_READY}/${SYSTEM_EXPECTED} system nodes are Ready." >&2
+  echo >&2
+  echo "The ASG most likely relaunched a node into the AZ while it was still cut" >&2
+  echo "off; it never joined and is now a zombie - running in EC2, green status" >&2
+  echo "checks, invisible to Kubernetes. Terminate it and let the ASG try again:" >&2
+  echo >&2
+  echo "  aws ec2 describe-instances --region ${REGION} \\" >&2
+  echo "    --filters 'Name=tag:kubernetes.io/cluster/${DB_ID%%-*}*,Values=owned' \\" >&2
+  echo "              'Name=instance-state-name,Values=running' \\" >&2
+  echo "    --query 'Reservations[].Instances[].InstanceId'" >&2
+  echo >&2
+  echo "Cross-check against 'kubectl get nodes'. Anything in EC2 but not in" >&2
+  echo "Kubernetes is a zombie. Terminate it." >&2
+  exit 1
+fi
+
+if [[ "${KARPENTER_READY}" -lt 1 ]]; then
+  echo >&2
+  echo "ABORT: no Karpenter replica is Running." >&2
+  echo "Nothing would provision replacement capacity, so the next run would measure" >&2
+  echo "a dead control loop rather than the architecture." >&2
+  exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# 3. Workload
 # ---------------------------------------------------------------------------
 echo "==> waiting for the workload to return to full strength"
 
@@ -144,7 +201,7 @@ if [[ "${ready:-0}" -lt "${EXPECTED_REPLICAS}" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# 3. Placement sanity
+# 4. Placement sanity
 # ---------------------------------------------------------------------------
 echo "==> zone spread"
 kubectl -n witness get pods \
