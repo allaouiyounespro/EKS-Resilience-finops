@@ -119,3 +119,11 @@ down: ## Destroy STACK
 .PHONY: cost-today
 cost-today: ## What the two stacks have actually cost so far, from Cost Explorer
 	@./scripts/cost-explorer.sh
+
+.PHONY: panic
+panic: ## Show everything still running and what it costs per hour
+	@./scripts/panic.sh
+
+.PHONY: panic-destroy
+panic-destroy: ## Kill EVERYTHING tagged for this project, ignoring Terraform state
+	@./scripts/panic.sh --destroy
