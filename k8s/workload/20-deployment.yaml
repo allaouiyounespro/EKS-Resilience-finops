@@ -1,0 +1,263 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# The witness workload. Six replicas, because six divides cleanly by three AZs
+# and by one AZ, so neither architecture gets an accidental rounding advantage.
+#
+# WITNESS_IMAGE is substituted by scripts/bootstrap-cluster.sh.
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: witness-config
+  namespace: witness
+  labels:
+    app.kubernetes.io/name: witness
+    owner: allaouiyounespro
+data:
+  # DB_HOST is patched in by the bootstrap script from the stack's terraform
+  # output. It is identical before and after an RDS failover - the endpoint is a
+  # DNS record that AWS repoints at the standby - which is the entire reason the
+  # app needs no failover logic of its own.
+  DB_HOST: "PLACEHOLDER_DB_HOST"
+  DB_PORT: "5432"
+  DB_NAME: "resilience"
+  DB_USER: "app"
+  DB_PASSWORD_FILE: "/etc/db/password"
+  ZONE_FILE: "/podinfo/zone"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: witness
+  namespace: witness
+  labels:
+    app.kubernetes.io/name: witness
+    app.kubernetes.io/part-of: eks-resilience-finops
+    owner: allaouiyounespro
+spec:
+  replicas: 6
+  revisionHistoryLimit: 3
+
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: witness
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 2
+
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: witness
+        app.kubernetes.io/part-of: eks-resilience-finops
+        owner: allaouiyounespro
+    spec:
+      serviceAccountName: witness
+
+      # 30s is not arbitrary. The NLB takes ~20s to deregister a target, so a
+      # pod that exits immediately on SIGTERM keeps receiving connections it can
+      # no longer serve - manufacturing errors during a *graceful* event and
+      # contaminating the RTO measurement with self-inflicted 502s.
+      terminationGracePeriodSeconds: 30
+
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
+
+      # ---------------------------------------------------------------------
+      # Placement
+      #
+      # This block is where the two architectures diverge at runtime, without a
+      # single line of it changing between them.
+      #
+      # In infra-b, Karpenter has three zones to satisfy the spread constraint
+      # with, so the six replicas land 2/2/2. Losing an AZ costs two pods and
+      # four keep serving.
+      #
+      # In infra-a, the NodePool permits exactly one zone. The spread constraint
+      # is trivially satisfied (skew 0 across one zone) and all six pods sit in
+      # the same failure domain. Losing that AZ costs all six.
+      #
+      # Identical manifest, opposite outcomes. The resilience lives in the
+      # infrastructure, not in the application - which is exactly the claim the
+      # experiment is testing.
+      # ---------------------------------------------------------------------
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          # ScheduleAnyway, not DoNotSchedule. During the fault, DoNotSchedule
+          # would refuse to place replacement pods into the surviving AZs
+          # because doing so would breach the skew against the dead zone - the
+          # constraint would enforce the outage it was meant to survive.
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: witness
+
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app.kubernetes.io/name: witness
+
+      # Application pods belong on Karpenter-provisioned capacity, never on the
+      # system node group. If they could land on the system nodes, the experiment
+      # would be measuring a pre-warmed managed node group and Karpenter would
+      # never be exercised at all.
+      nodeSelector:
+        karpenter.sh/nodepool: witness
+
+      tolerations:
+        - key: workload
+          operator: Equal
+          value: app
+          effect: NoSchedule
+
+      # ---------------------------------------------------------------------
+      # Zone discovery
+      # ---------------------------------------------------------------------
+      initContainers:
+        - name: resolve-zone
+          image: bitnami/kubectl:1.31
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              kubectl get node "${NODE_NAME}" \
+                -o jsonpath='{.metadata.labels.topology\.kubernetes\.io/zone}' \
+                > /podinfo/zone
+              echo "resolved zone: $(cat /podinfo/zone)"
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: podinfo
+              mountPath: /podinfo
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop: ["ALL"]
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              memory: 64Mi
+
+      containers:
+        - name: witness
+          image: WITNESS_IMAGE
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+
+          envFrom:
+            - configMapRef:
+                name: witness-config
+
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+
+          # -----------------------------------------------------------------
+          # Probes
+          #
+          # Liveness never touches the database. Readiness always does. Getting
+          # this backwards is the single most common way to turn a survivable
+          # RDS failover into a cluster-wide crash-loop: every pod would fail
+          # liveness at once, every pod would restart at once, and the outage
+          # you measure would be one you caused.
+          # -----------------------------------------------------------------
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 3
+            # Aggressive on purpose: this interval is a floor on the measured
+            # RTO. A 10s period would put ~10s of pure probe latency into every
+            # recovery number and flatter neither architecture honestly.
+            periodSeconds: 2
+            timeoutSeconds: 2
+            failureThreshold: 2
+            successThreshold: 1
+
+          # Gives the NLB time to pull this target out of rotation before the
+          # process stops answering.
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 15"]
+
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              # Memory limit but no CPU limit. A CPU limit here would throttle
+              # the pod exactly when it is retrying connections during a
+              # failover - adding latency to the recovery being measured.
+              memory: 256Mi
+
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop: ["ALL"]
+
+          volumeMounts:
+            - name: podinfo
+              mountPath: /podinfo
+              readOnly: true
+            - name: db-credentials
+              mountPath: /etc/db
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+
+      volumes:
+        - name: podinfo
+          emptyDir: {}
+        - name: db-credentials
+          secret:
+            # Created by scripts/bootstrap-cluster.sh from the RDS-managed secret
+            # in Secrets Manager. The password never appears in this repo, in the
+            # Terraform state, or in a container env var.
+            secretName: witness-db
+            items:
+              - key: password
+                path: password
+        - name: tmp
+          emptyDir: {}

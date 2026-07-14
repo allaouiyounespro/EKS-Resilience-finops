@@ -1,0 +1,12 @@
+# witness app dependencies
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# Pinned exactly. A resilience experiment whose results shift because a
+# transitive dependency changed its connection-retry behaviour between two runs
+# is not an experiment.
+
+flask==3.0.3
+gunicorn==22.0.0
+psycopg[binary]==3.2.3
+psycopg-pool==3.2.4
+prometheus-client==0.21.0

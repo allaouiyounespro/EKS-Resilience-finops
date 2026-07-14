@@ -1,0 +1,35 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: witness
+  namespace: witness
+  labels:
+    # The kube-prometheus-stack Prometheus only adopts ServiceMonitors carrying
+    # its release label. Omitting it is the classic "my metrics are not being
+    # scraped and there is no error anywhere" failure.
+    release: kube-prometheus-stack
+    owner: allaouiyounespro
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: witness
+
+  endpoints:
+    - port: http
+      path: /metrics
+      # 10s, not the 30s default. Prometheus is the corroborating record for an
+      # RTO measured in tens of seconds; a 30s scrape interval quantises the
+      # evidence more coarsely than the thing being measured.
+      interval: 10s
+      scrapeTimeout: 5s
+
+      relabelings:
+        # Carry the node's AZ onto every sample. Without it there is no way to
+        # ask Prometheus the only question that matters during the fault: "how
+        # many pods are still serving, and in which zones?"
+        - sourceLabels: [__meta_kubernetes_pod_node_name]
+          targetLabel: node
+        - sourceLabels: [__meta_kubernetes_pod_name]
+          targetLabel: pod

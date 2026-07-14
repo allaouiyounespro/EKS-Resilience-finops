@@ -1,0 +1,162 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# Gateway API, not Ingress and not a LoadBalancer Service. Ingress froze years
+# ago with every vendor feature crammed into annotations; the NLB Service this
+# file replaced carried nine of them, and a typo in any one was silently
+# ignored. Gateway API puts the same decisions into typed, versioned fields the
+# API server actually validates - and it splits who-owns-what cleanly: the
+# platform owns the GatewayClass and Gateway, the app team owns its HTTPRoute.
+#
+# Reconciled by the AWS Load Balancer Controller (installed by
+# scripts/bootstrap-cluster.sh with the Gateway API feature gate on) into an
+# internet-facing ALB. AWS-specific tuning that Gateway API deliberately does
+# not model - scheme, health checks, target type - lives in the two
+# gateway.k8s.aws configuration CRDs below, referenced from the Gateway.
+---
+# ClusterIP backend for the HTTPRoute. The route targets a Service, but with
+# target-type "ip" the ALB registers the pod IPs directly - traffic does not
+# hop through kube-proxy, which removes one variable from the RTO measurement.
+apiVersion: v1
+kind: Service
+metadata:
+  name: witness
+  namespace: witness
+  labels:
+    app.kubernetes.io/name: witness
+    owner: allaouiyounespro
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: witness
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+---
+# Headless service for Prometheus. Kept separate from the routed service so
+# that scraping does not depend on a load balancer the experiment is actively
+# trying to break.
+apiVersion: v1
+kind: Service
+metadata:
+  name: witness-metrics
+  namespace: witness
+  labels:
+    app.kubernetes.io/name: witness
+    owner: allaouiyounespro
+spec:
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: witness
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: witness-alb
+  labels:
+    owner: allaouiyounespro
+spec:
+  controllerName: gateway.k8s.aws/alb
+---
+# The AWS-shaped half of the Gateway: everything the portable API has no field
+# for. An ALB is used rather than an NLB for one load-bearing reason: ALB
+# health checks and routing are cross-zone by default and the cross-zone part
+# is free at the load-balancer layer. The NLB predecessor of this file needed
+# cross-zone explicitly enabled and billed - and turning it off to save
+# 5 USD/month would have capped availability at 2/3 during the AZ failure,
+# writing off the entire Multi-AZ spend. The ALB removes that trap outright.
+apiVersion: gateway.k8s.aws/v1beta1
+kind: LoadBalancerConfiguration
+metadata:
+  name: witness
+  namespace: witness
+  labels:
+    owner: allaouiyounespro
+spec:
+  scheme: internet-facing
+
+  # Cost Explorer sees the ALB too. FinOps coverage of load balancers is the
+  # line everyone forgets, because the controller creates them out of band.
+  tags:
+    Project: eks-resilience-finops
+    Owner: allaouiyounespro
+    Portfolio: github.com/allaouiyounespro
+---
+# Health-check tuning for the target group the controller builds. These four
+# numbers are RTO instrumentation, not routing config: at the default 30s
+# interval, a third of a 90-second recovery would be the load balancer being
+# slow to notice, charged unfairly to the architecture under test.
+apiVersion: gateway.k8s.aws/v1beta1
+kind: TargetGroupConfiguration
+metadata:
+  name: witness
+  namespace: witness
+  labels:
+    owner: allaouiyounespro
+spec:
+  targetReference:
+    kind: Service
+    name: witness
+  defaultConfiguration:
+    targetType: ip
+    healthCheckConfig:
+      healthCheckPath: /readyz
+      healthCheckInterval: 10
+      healthCheckTimeout: 5
+      healthyThresholdCount: 2
+      unhealthyThresholdCount: 2
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: witness
+  namespace: witness
+  labels:
+    app.kubernetes.io/name: witness
+    owner: allaouiyounespro
+spec:
+  gatewayClassName: witness-alb
+
+  infrastructure:
+    parametersRef:
+      group: gateway.k8s.aws
+      kind: LoadBalancerConfiguration
+      name: witness
+
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        # Same namespace only. The moment a Gateway accepts routes from
+        # anywhere, any team with a namespace can attach paths to your public
+        # hostname - a privilege-escalation path that Ingress made easy and
+        # Gateway API makes an explicit, auditable choice.
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: witness
+  namespace: witness
+  labels:
+    app.kubernetes.io/name: witness
+    owner: allaouiyounespro
+spec:
+  parentRefs:
+    - name: witness
+
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: witness
+          port: 80

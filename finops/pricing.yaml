@@ -1,0 +1,90 @@
+# AWS list prices, eu-west-3 (Paris), on-demand, USD.
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# captured: 2026-07-14
+# source:   AWS public pricing pages, eu-west-3, on-demand, no commitments
+#
+# These are LIST prices. They are deliberately not "our" prices, and the model
+# reads them from this file rather than hard-coding them for exactly that reason:
+#
+#   - a Savings Plan or Reserved Instance changes the compute line by 30-70%
+#   - EDP discounts change everything
+#   - prices drift, and a number baked into Python is a number nobody re-checks
+#
+# The break-even conclusion is a RATIO between two architectures, and a discount
+# that applies to both moves the numerator and denominator together. That is why
+# the headline finding survives contact with a real bill: it depends on the delta,
+# not on the absolute. Where it would NOT survive is a discount that applies
+# asymmetrically - a Savings Plan covering only the system node group, say.
+#
+# Refresh before quoting these numbers at anyone who signs cheques.
+
+meta:
+  region: eu-west-3
+  currency: USD
+  captured: "2026-07-14"
+  hours_per_month: 730 # 365 * 24 / 12, the convention AWS bills against
+
+compute:
+  # EKS control plane. Fixed, unavoidable, and identical in both architectures -
+  # which makes it the single largest line item that the resilience decision has
+  # no influence over whatsoever. Worth knowing before optimising anything else.
+  eks_cluster_hourly: 0.10
+
+  ec2_hourly:
+    t3.small: 0.0235
+    t3.medium: 0.0470
+    t3.large: 0.0940
+    t4g.medium: 0.0376
+    c6i.large: 0.1044
+    c6i.xlarge: 0.2088
+    m6i.large: 0.1152
+    m6i.xlarge: 0.2304
+    r6i.large: 0.1512
+
+storage:
+  ebs_gp3_per_gb_month: 0.0928
+
+network:
+  # The NAT Gateway is the most under-appreciated line on an AWS bill: it costs
+  # money to exist AND money to carry traffic, and the per-GB charge applies to
+  # ordinary egress that people assume is free.
+  nat_gateway_hourly: 0.050
+  nat_data_per_gb: 0.0054
+
+  # ALB, not NLB, since the move to Gateway API. Worth knowing when comparing
+  # the two: ALB cross-zone routing is always on and free at the LB layer,
+  # where NLB bills it as inter-AZ transfer - the hourly rate is not the whole
+  # comparison.
+  alb_hourly: 0.0270
+  alb_lcu_hourly: 0.0084
+
+  # Charged per direction. Cross-zone load balancing and a Multi-AZ database both
+  # generate it by design - this is the toll for not having a single point of
+  # failure, and it is the line a naive cost review deletes first.
+  cross_az_per_gb: 0.010
+
+database:
+  rds_hourly:
+    db.t4g.small: 0.0380
+    db.t4g.medium: 0.0760
+    db.t4g.large: 0.1520
+    db.m6g.large: 0.2010
+
+  # Multi-AZ is exactly 2x on both instance and storage. Not "about 2x" - AWS
+  # runs a full standby and charges for it as a second instance.
+  multi_az_multiplier: 2.0
+
+  rds_gp3_per_gb_month: 0.127
+
+  # Backup storage is free up to 100% of allocated storage. Both architectures
+  # sit under that, so this line is zero for both - but it is modelled rather
+  # than omitted, because raising backup_retention_period past the free tier is
+  # a very easy way to add cost invisibly.
+  rds_backup_per_gb_month: 0.095
+  rds_backup_free_ratio: 1.0
+
+other:
+  secrets_manager_per_secret_month: 0.40
+  cloudwatch_logs_ingest_per_gb: 0.63
+  cloudwatch_logs_storage_per_gb_month: 0.0324

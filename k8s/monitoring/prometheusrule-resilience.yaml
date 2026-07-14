@@ -1,0 +1,151 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# Recording rules that turn raw counters into the two numbers the whole project
+# is about, plus the alerts that would have paged a human if this were real.
+#
+# A note on why Prometheus is the *corroborating* record and not the primary one:
+# it runs inside the cluster being broken. During the fault its own scrapes fail,
+# its WAL may gap, and if it happened to be scheduled in the destroyed AZ it
+# stops existing entirely. The authoritative RTO comes from scripts/probe.py,
+# which runs outside the blast radius and measures what a user would actually
+# have experienced. These rules explain *why* the outage happened; the external
+# probe establishes *that* it did, and for how long.
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: resilience
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+    owner: allaouiyounespro
+spec:
+  groups:
+    # -----------------------------------------------------------------------
+    - name: witness.sli
+      interval: 10s
+      rules:
+        # Fraction of write attempts that actually committed, over 1 minute.
+        # This is the availability SLI. It is deliberately built from the app's
+        # own view of durability - a write that returned 503 did not commit, and
+        # no amount of load-balancer health looking green changes that.
+        - record: witness:write_success:ratio_rate1m
+          expr: |
+            sum(rate(witness_writes_total[1m]))
+            /
+            clamp_min(
+              sum(rate(witness_writes_total[1m])) + sum(rate(witness_write_failures_total[1m])),
+              1e-9
+            )
+
+        # How many pods can currently reach the database, broken down by AZ.
+        # During the fault this is the shape of the outage: in infra-b it drops
+        # from 6 to 4 and stays there; in infra-a it drops to 0.
+        - record: witness:ready_pods:by_zone
+          expr: sum by (zone) (witness_db_reachable)
+
+        - record: witness:ready_pods:total
+          expr: sum(witness_db_reachable)
+
+        # Write latency p99. The RDS failover shows up here as a spike into the
+        # 10-30s buckets, which is the fingerprint that distinguishes "the
+        # database moved" from "the database died".
+        - record: witness:write_latency:p99_1m
+          expr: |
+            histogram_quantile(
+              0.99,
+              sum by (le) (rate(witness_write_duration_seconds_bucket[1m]))
+            )
+
+        # Zones currently serving at least one healthy pod. Falling to 0 is a
+        # total outage; falling from 3 to 2 is a survived AZ failure. One number,
+        # and it tells the two architectures completely apart.
+        - record: witness:serving_zones:count
+          expr: count(sum by (zone) (witness_db_reachable) > 0) or vector(0)
+
+    # -----------------------------------------------------------------------
+    - name: witness.alerts
+      rules:
+        - alert: WitnessTotalOutage
+          # No pod anywhere can reach the database. In infra-a this fires ~30s
+          # into the experiment and stays firing until AWS restores the AZ. In
+          # infra-b it should never fire at all - and if it does, the 200 USD a
+          # month bought nothing, which is a finding worth having.
+          expr: witness:ready_pods:total == 0
+          for: 30s
+          labels:
+            severity: critical
+            owner: allaouiyounespro
+          annotations:
+            summary: "Total outage: no witness pod can reach the database"
+            description: "Every replica is failing readiness. This is the condition the RTO clock measures."
+
+        - alert: WitnessDegraded
+          # Serving, but with reduced capacity. This is what a *survived* AZ
+          # failure looks like from the inside - and the fact that it is a
+          # warning rather than a page is the entire value proposition of infra-b.
+          expr: witness:ready_pods:total > 0 and witness:ready_pods:total < 6
+          for: 1m
+          labels:
+            severity: warning
+            owner: allaouiyounespro
+          annotations:
+            summary: "Degraded: {{ $value }}/6 replicas healthy"
+            description: "Capacity is reduced but the service is up. Expected during an AZ failure in infra-b."
+
+        - alert: WitnessSingleZone
+          # Fires permanently in infra-a. That is not a bug in the alert - it is
+          # the alert doing its job: this architecture is one AZ event away from
+          # a total outage, all day, every day, and the dashboard should say so
+          # in red rather than waiting for the incident to say it instead.
+          expr: witness:serving_zones:count < 2
+          for: 5m
+          labels:
+            severity: warning
+            owner: allaouiyounespro
+          annotations:
+            summary: "Workload is confined to {{ $value }} availability zone(s)"
+            description: "A single AZ failure would be a total outage. This is infra-a's steady state."
+
+        - alert: WitnessWriteFailures
+          expr: witness:write_success:ratio_rate1m < 0.99
+          for: 1m
+          labels:
+            severity: warning
+            owner: allaouiyounespro
+          annotations:
+            summary: "{{ $value | humanizePercentage }} write success rate"
+            description: "Writes are failing to commit. Every failed write is a potential RPO contribution."
+
+    # -----------------------------------------------------------------------
+    - name: karpenter.recovery
+      interval: 10s
+      rules:
+        # The autoscaler's actual contribution to RTO. Timestamped against the
+        # FIS action start, the first launch here is the moment recovery began -
+        # as opposed to the moment the outage was noticed.
+        - record: karpenter:nodeclaims_launched:rate5m
+          expr: sum(rate(karpenter_nodeclaims_launched_total[5m])) or vector(0)
+
+        - record: karpenter:nodes:by_zone
+          expr: sum by (zone) (karpenter_nodes_created_total) or vector(0)
+
+        - alert: KarpenterCannotProvision
+          # Pods are Pending and Karpenter has launched nothing for two minutes.
+          #
+          # This is infra-a's signature failure and the sharpest single finding
+          # in the project. Karpenter is not slow here - it is *powerless*. Its
+          # NodePool permits exactly one zone, that zone no longer exists, and so
+          # every launch attempt fails. No autoscaler tuning fixes a topology
+          # with nowhere to go.
+          expr: |
+            sum(kube_pod_status_phase{namespace="witness",phase="Pending"}) > 0
+            and
+            karpenter:nodeclaims_launched:rate5m == 0
+          for: 2m
+          labels:
+            severity: critical
+            owner: allaouiyounespro
+          annotations:
+            summary: "Pods Pending and Karpenter is launching nothing"
+            description: "Capacity is needed and cannot be created. Check whether the NodePool's permitted zones still exist."

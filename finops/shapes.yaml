@@ -1,0 +1,91 @@
+# Deployed shape of each architecture.
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# This file mirrors, field for field, the `finops_inputs` output of each
+# Terraform stack. It exists so the cost model can be run, tested and reasoned
+# about without an AWS account - but it is a MIRROR, not the source of truth.
+#
+# For a real number, feed the model the live outputs instead:
+#
+#   terraform -chdir=terraform/stacks/infra-a output -json finops_inputs \
+#     | python3 -m finops.cost_model --shape-json -
+#
+# `make finops-verify` diffs this file against the Terraform outputs and fails if
+# they have drifted. A cost model that quietly describes an architecture you no
+# longer run is worse than no cost model, because it is believed.
+
+infra-a:
+  stack: resilience-a
+  cost_profile: single-az
+
+  nat_gateway_count: 1
+  nat_data_gb: 100
+
+  # System node group: Karpenter, CoreDNS, kube-prometheus-stack.
+  node_instance_type: t3.small
+  node_desired_count: 2
+  node_disk_gb: 20
+
+  # Karpenter-provisioned application capacity. Six witness pods at 100m CPU each
+  # fit comfortably on one t3.medium, and a single-AZ architecture has no reason
+  # to spread them - there is nowhere to spread them to.
+  karpenter_instance_type: t3.medium
+  karpenter_node_count: 1
+  karpenter_disk_gb: 30
+
+  workload_az_count: 1
+  # No cross-AZ traffic worth billing: everything is in one AZ, which is exactly
+  # what makes this architecture cheap AND what makes it fragile. The same fact
+  # produces both properties.
+  cross_az_traffic_gb: 0
+
+  db_instance_class: db.t4g.small
+  db_multi_az: false
+  db_storage_gb: 20
+  db_read_replica: false
+  db_backup_retention: 7
+
+  alb_count: 1
+  alb_lcu_average: 1
+  secrets_count: 1
+  cloudwatch_logs_gb: 5
+
+infra-b:
+  stack: resilience-b
+  cost_profile: multi-az-dr
+
+  # One NAT per AZ. Egress survives losing an AZ, and a node that cannot reach
+  # ECR cannot pull the image of the pod you are trying to reschedule onto it.
+  nat_gateway_count: 3
+  nat_data_gb: 100
+
+  # Three system nodes, one per AZ. The third one is what keeps the Karpenter
+  # controller alive through the AZ failure - without it there is nothing left to
+  # perform the recovery, and every other resilience dollar here is wasted.
+  node_instance_type: t3.small
+  node_desired_count: 3
+  node_disk_gb: 20
+
+  # Two Karpenter nodes rather than one, so the six witness pods spread across
+  # zones. One node would be cheaper and would silently rebuild the single point
+  # of failure this architecture exists to remove.
+  karpenter_instance_type: t3.medium
+  karpenter_node_count: 2
+  karpenter_disk_gb: 30
+
+  workload_az_count: 3
+  # The toll for spreading out: cross-zone load balancing plus Multi-AZ database
+  # replication traffic. Small in absolute terms, and it is the line item a naive
+  # cost review deletes without realising it just wrote off the Multi-AZ spend.
+  cross_az_traffic_gb: 200
+
+  db_instance_class: db.t4g.small
+  db_multi_az: true
+  db_storage_gb: 20
+  db_read_replica: true
+  db_backup_retention: 7
+
+  alb_count: 1
+  alb_lcu_average: 1
+  secrets_count: 1
+  cloudwatch_logs_gb: 8

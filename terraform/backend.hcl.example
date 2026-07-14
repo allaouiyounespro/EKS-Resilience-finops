@@ -1,0 +1,33 @@
+# ---------------------------------------------------------------------------
+# Remote state backend - shared by both stacks
+# owner: allaouiyounespro
+# portfolio: github.com/allaouiyounespro
+#
+# Copy to backend.hcl (gitignored) and fill in your own bucket.
+#
+#   cp terraform/backend.hcl.example terraform/backend.hcl
+#   make init
+#
+# The bucket must exist before the first init. Terraform cannot bootstrap its own
+# state store - the chicken-and-egg is unavoidable:
+#
+#   aws s3api create-bucket \
+#     --bucket allaouiyounespro-tfstate-eks-resilience \
+#     --region eu-west-3 \
+#     --create-bucket-configuration LocationConstraint=eu-west-3
+#   aws s3api put-bucket-versioning \
+#     --bucket allaouiyounespro-tfstate-eks-resilience \
+#     --versioning-configuration Status=Enabled
+#
+# Versioning is not optional. A chaos run that goes sideways mid-apply can leave
+# the state file inconsistent, and the only way back is a previous version.
+# ---------------------------------------------------------------------------
+
+bucket = "allaouiyounespro-tfstate-eks-resilience"
+region = "eu-west-3"
+
+# Native S3 locking (Terraform >= 1.10). No DynamoDB table to provision, pay for,
+# or forget to delete. The lock is an object alongside the state file.
+use_lockfile = true
+
+encrypt = true

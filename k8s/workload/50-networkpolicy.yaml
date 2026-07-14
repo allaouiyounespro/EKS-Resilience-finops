@@ -1,0 +1,105 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# Enforced natively by the VPC CNI - the eks module sets enableNetworkPolicy in
+# the addon config, and without that flag every policy in this file is parsed,
+# stored, and silently ignored. If you are debugging "my NetworkPolicy does
+# nothing" on EKS, that flag is where the afternoon goes.
+#
+# The witness namespace is deliberately boring: traffic in from the ALB and
+# from Prometheus, traffic out to Postgres and DNS, nothing else. The deny is
+# what turns a compromised witness pod from "pivot point into the cluster"
+# into "a pod that can talk to a database it already talked to".
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: witness-default-deny
+  namespace: witness
+  labels:
+    app.kubernetes.io/name: witness
+    owner: allaouiyounespro
+spec:
+  podSelector: {}
+  policyTypes:
+    - Ingress
+    - Egress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: witness-allow
+  namespace: witness
+  labels:
+    app.kubernetes.io/name: witness
+    owner: allaouiyounespro
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: witness
+
+  policyTypes:
+    - Ingress
+    - Egress
+
+  ingress:
+    # The ALB reaches pod IPs directly (target type "ip"), so its health checks
+    # and forwarded requests arrive from ENIs inside the VPC - there is no
+    # namespace or pod selector that matches a load balancer. An ipBlock on the
+    # VPC ranges is as tight as this can honestly be drawn. Both stacks' CIDRs
+    # are listed so one manifest serves both.
+    - from:
+        - ipBlock:
+            cidr: 10.10.0.0/16
+        - ipBlock:
+            cidr: 10.20.0.0/16
+      ports:
+        - protocol: TCP
+          port: 8080
+
+    # Prometheus scrapes /metrics from the monitoring namespace.
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 8080
+
+  egress:
+    # Postgres. The RDS security group is the authoritative gate; this is the
+    # second, cluster-side hand on the same door.
+    - to:
+        - ipBlock:
+            cidr: 10.10.0.0/16
+        - ipBlock:
+            cidr: 10.20.0.0/16
+      ports:
+        - protocol: TCP
+          port: 5432
+
+    # The Kubernetes API, for the resolve-zone initContainer's single
+    # `kubectl get node`. The control plane ENIs sit inside these VPC ranges,
+    # so 443 to the VPC covers it. Miss this and every pod hangs in Init
+    # forever - and because initContainers share the pod's labels, the deny
+    # applies to them too, which is easy to forget.
+    - to:
+        - ipBlock:
+            cidr: 10.10.0.0/16
+        - ipBlock:
+            cidr: 10.20.0.0/16
+      ports:
+        - protocol: TCP
+          port: 443
+
+    # DNS to CoreDNS. Forget this rule and the deny above produces the classic
+    # symptom: every connection fails with a resolution timeout, and nothing in
+    # any log says "NetworkPolicy".
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

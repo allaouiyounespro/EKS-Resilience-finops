@@ -1,0 +1,334 @@
+{
+  "__comment": "owner: allaouiyounespro / portfolio: github.com/allaouiyounespro. The one dashboard you would actually stare at during the experiment. Series colours are the pre-validated categorical slots 1-3 (blue/aqua/yellow) pinned per AZ by field override, so a zone keeps its colour even when it drops out of the query and the survivors are not repainted. Red is reserved for the outage threshold and is never used as a series colour.",
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "datasource", "uid": "grafana" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      },
+      {
+        "datasource": { "type": "prometheus", "uid": "${datasource}" },
+        "enable": true,
+        "expr": "witness:ready_pods:total == 0",
+        "iconColor": "#e34948",
+        "name": "Total outage",
+        "titleFormat": "Total outage"
+      }
+    ]
+  },
+  "description": "AZ failure experiment: availability, blast radius, and how fast Karpenter puts capacity back. Compare infra-a and infra-b side by side.",
+  "editable": true,
+  "graphTooltip": 1,
+  "links": [],
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "panels": [],
+      "title": "Is it up?",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Availability zones with at least one pod that can reach the database. This single number tells the two architectures apart: infra-a sits at 1 permanently and drops to 0 during the fault; infra-b sits at 3 and drops to 2.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [{ "options": { "0": { "text": "DOWN" } }, "type": "value" }],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#e34948", "value": null },
+              { "color": "#eda100", "value": 1 },
+              { "color": "#1baf7a", "value": 2 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "witness:serving_zones:count",
+          "legendFormat": "zones serving",
+          "refId": "A"
+        }
+      ],
+      "title": "Zones serving",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Replicas that can currently commit a write. 6 is healthy; 4 is a survived AZ failure; 0 is the outage the RTO clock measures.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 6,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#e34948", "value": null },
+              { "color": "#eda100", "value": 1 },
+              { "color": "#1baf7a", "value": 5 }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "witness:ready_pods:total",
+          "legendFormat": "healthy replicas",
+          "refId": "A"
+        }
+      ],
+      "title": "Healthy replicas",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Fraction of write attempts that actually committed. Built from the app's own view of durability: a write that returned 503 did not commit, no matter how green the load balancer looks.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "max": 1,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#e34948", "value": null },
+              { "color": "#eda100", "value": 0.95 },
+              { "color": "#1baf7a", "value": 0.99 }
+            ]
+          },
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 1 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "auto"
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "witness:write_success:ratio_rate1m",
+          "legendFormat": "write success",
+          "refId": "A"
+        }
+      ],
+      "title": "Write success rate (1m)",
+      "type": "stat"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 },
+      "id": 101,
+      "panels": [],
+      "title": "Blast radius",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Healthy replicas per availability zone. This is the shape of the outage. In infra-b one band goes to zero and the other two carry on; in infra-a the single band goes to zero and there is nothing underneath it.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisPlacement": "left",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 18,
+            "gradientMode": "none",
+            "lineInterpolation": "stepAfter",
+            "lineWidth": 2,
+            "pointSize": 8,
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "normal" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "min": 0,
+          "unit": "none"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byRegexp", "options": ".*a$" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#3987e5", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": ".*b$" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#199e70", "mode": "fixed" } }]
+          },
+          {
+            "matcher": { "id": "byRegexp", "options": ".*c$" },
+            "properties": [{ "id": "color", "value": { "fixedColor": "#c98500", "mode": "fixed" } }]
+          }
+        ]
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 7 },
+      "id": 4,
+      "options": {
+        "legend": { "calcs": ["lastNotNull"], "displayMode": "table", "placement": "right", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "none" }
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "witness:ready_pods:by_zone",
+          "legendFormat": "{{zone}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Healthy replicas by AZ",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "p99 time from request to COMMIT returning. An RDS Multi-AZ failover has a distinctive fingerprint here: a spike into the 10-30s range followed by a clean return to baseline. A database that simply died does not come back at all.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#3987e5" },
+          "custom": {
+            "axisPlacement": "left",
+            "drawStyle": "line",
+            "fillOpacity": 8,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 8,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 7 },
+      "id": 5,
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "witness:write_latency:p99_1m",
+          "legendFormat": "p99 commit latency",
+          "refId": "A"
+        }
+      ],
+      "title": "Commit latency, p99",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 16 },
+      "id": 102,
+      "panels": [],
+      "title": "Recovery",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "${datasource}" },
+      "description": "Rate at which Karpenter is launching replacement capacity. The gap between the FIS action starting and the first launch here is the autoscaler's true contribution to RTO. In infra-a this line stays flat at zero for the entire fault: the NodePool permits one zone, that zone is gone, and Karpenter has nowhere to launch. It is not slow - it is powerless.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "#199e70" },
+          "custom": {
+            "axisPlacement": "left",
+            "drawStyle": "bars",
+            "fillOpacity": 70,
+            "lineWidth": 1,
+            "pointSize": 8,
+            "showPoints": "never"
+          },
+          "min": 0,
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 17 },
+      "id": 6,
+      "options": {
+        "legend": { "calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": false },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "${datasource}" },
+          "expr": "karpenter:nodeclaims_launched:rate5m",
+          "legendFormat": "node claims launched",
+          "refId": "A"
+        }
+      ],
+      "title": "Karpenter node launches",
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "10s",
+  "schemaVersion": 39,
+  "tags": ["resilience", "finops", "chaos", "allaouiyounespro"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "label": "Data source",
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "refresh": 1,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": { "from": "now-30m", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "EKS resilience - AZ failure",
+  "uid": "eks-resilience-az",
+  "version": 1,
+  "weekStart": ""
+}

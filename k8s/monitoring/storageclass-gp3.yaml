@@ -1,0 +1,29 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# EKS ships a legacy "gp2" StorageClass wired to the in-tree provisioner that
+# Kubernetes removed in 1.27 - it still exists in every new cluster and no
+# longer provisions anything. This one talks to the EBS CSI driver (installed
+# as a managed addon by the eks module) and is what the Prometheus PVC binds to.
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp3
+  labels:
+    owner: allaouiyounespro
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: ebs.csi.aws.com
+
+# WaitForFirstConsumer, not Immediate. An EBS volume is AZ-scoped: Immediate
+# binding picks the AZ before the pod is scheduled, and if the scheduler then
+# wants the pod elsewhere, the pod deadlocks on a volume it can never mount.
+# In a project whose whole subject is AZ placement, that is not a corner case.
+volumeBindingMode: WaitForFirstConsumer
+
+parameters:
+  type: gp3
+  encrypted: "true"
+
+allowVolumeExpansion: true
+reclaimPolicy: Delete

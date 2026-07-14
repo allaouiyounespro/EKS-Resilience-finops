@@ -1,0 +1,16 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: witness
+  labels:
+    app.kubernetes.io/part-of: eks-resilience-finops
+    owner: allaouiyounespro
+    # Enforce the restricted Pod Security Standard. The witness pod runs
+    # non-root with no capabilities, so this costs nothing here - but it means a
+    # future "let me just add a privileged debug sidecar during the incident"
+    # gets refused by the API server rather than by a code review that is not
+    # happening at 3am.
+    pod-security.kubernetes.io/enforce: restricted
+    pod-security.kubernetes.io/enforce-version: latest

@@ -1,0 +1,81 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# Everything here runs WITHOUT AWS credentials. That is a deliberate constraint,
+# not a limitation: a CI pipeline that needs an AWS account to tell you your
+# Terraform is malformed is a pipeline nobody runs on a branch.
+#
+# What this cannot catch is anything that only fails against the real API - an
+# IAM policy that is syntactically valid and functionally wrong, an instance type
+# unavailable in eu-west-3c. Those are caught by `terraform plan` against a real
+# account, which is a manual step, and by the experiment itself.
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: terraform
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+      - name: fmt
+        run: terraform fmt -recursive -check -diff terraform/
+
+      - name: validate every module and both stacks
+        run: |
+          set -e
+          for dir in terraform/modules/* terraform/stacks/*; do
+            echo "::group::$dir"
+            terraform -chdir="$dir" init -backend=false -input=false -no-color
+            terraform -chdir="$dir" validate -no-color
+            echo "::endgroup::"
+          done
+
+  python:
+    name: python
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: install
+        run: pip install pytest pyyaml
+
+      - name: tests
+        run: pytest tests/ -q
+
+      - name: the cost model runs end to end
+        # Not a smoke test for its own sake: this asserts the model still produces
+        # a number after any change to pricing.yaml or shapes.yaml. A YAML typo
+        # there is otherwise only discovered when someone asks for the break-even
+        # in a meeting.
+        run: python3 -m finops.cost_model --json
+
+  shell:
+    name: shell
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: shellcheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y shellcheck
+          shellcheck scripts/*.sh app/entrypoint.sh

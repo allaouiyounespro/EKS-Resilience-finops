@@ -1,0 +1,131 @@
+# kube-prometheus-stack values
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+#   helm upgrade --install kube-prometheus-stack \
+#     prometheus-community/kube-prometheus-stack \
+#     -n monitoring --create-namespace \
+#     -f k8s/monitoring/kube-prometheus-values.yaml
+
+# The monitoring stack must survive the failure it is monitoring. Everything
+# below is downstream of that one requirement.
+#
+# It runs on the managed system node group (not on Karpenter capacity, which the
+# experiment deliberately destroys), and in infra-b it is anti-affine across
+# zones. An observability stack that dies with the AZ produces a dashboard that
+# goes blank at exactly the moment anyone would want to look at it.
+
+prometheus:
+  prometheusSpec:
+    # 15s global scrape. Anything coarser and a 60-90s failover is resolved by
+    # only a handful of samples.
+    scrapeInterval: 15s
+    evaluationInterval: 15s
+
+    retention: 7d
+
+    # Adopt every ServiceMonitor/PrometheusRule in the cluster regardless of
+    # labels. The default is to adopt only those carrying the Helm release label,
+    # which is a well-known way to silently scrape nothing.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+
+    nodeSelector:
+      workload-class: system
+
+    # Persist to EBS. An emptyDir would lose the entire scrape history when the
+    # pod is rescheduled - and the pod being rescheduled is a *likely* outcome of
+    # the experiment, which would destroy the evidence at precisely the moment it
+    # became interesting.
+    #
+    # Note the constraint this creates: an EBS volume is AZ-scoped. If the AZ
+    # holding this volume dies, Prometheus cannot be rescheduled elsewhere until
+    # the AZ returns. That is a real limitation, honestly stated - and the reason
+    # scripts/probe.py exists outside the cluster as the authoritative record.
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          # gp3 via the EBS CSI addon - the legacy gp2 class still present in
+          # every EKS cluster points at the removed in-tree provisioner and
+          # leaves this PVC Pending forever, which kills the monitoring stack
+          # before the experiment starts.
+          storageClassName: gp3
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 20Gi
+
+    resources:
+      requests:
+        cpu: 500m
+        memory: 2Gi
+      limits:
+        memory: 4Gi
+
+grafana:
+  enabled: true
+
+  # Changed at install time by scripts/bootstrap-cluster.sh. Left as a literal
+  # here so that nobody is tempted to commit a real one.
+  adminPassword: CHANGEME
+
+  nodeSelector:
+    workload-class: system
+
+  # ClusterIP + port-forward rather than a LoadBalancer. A public Grafana with a
+  # weak password is a genuinely bad idea, and the experiment does not need one:
+  #
+  #   kubectl -n monitoring port-forward svc/kube-prometheus-stack-grafana 3000:80
+  service:
+    type: ClusterIP
+
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      searchNamespace: ALL
+
+  defaultDashboardsEnabled: true
+
+alertmanager:
+  enabled: true
+
+  alertmanagerSpec:
+    nodeSelector:
+      workload-class: system
+
+  config:
+    route:
+      # 10s, not the default 30s. During a 15-minute experiment, a 30s group_wait
+      # means the alert that marks the start of the outage arrives after a
+      # meaningful slice of the outage is already over.
+      group_wait: 10s
+      group_interval: 30s
+      repeat_interval: 1h
+      receiver: "null"
+
+    receivers:
+      # No pager wired up: this is a lab. In production the WitnessTotalOutage
+      # alert is the one that pages, and WitnessSingleZone is the one that should
+      # have paged an architect months earlier.
+      - name: "null"
+
+# The kubelet, node and control-plane exporters. kube-state-metrics is required,
+# not optional: the KarpenterCannotProvision alert is built on
+# kube_pod_status_phase, which only exists because of it.
+kubeStateMetrics:
+  enabled: true
+
+nodeExporter:
+  enabled: true
+
+prometheus-node-exporter:
+  # Runs on every node including Karpenter's, so it needs to tolerate their taint
+  # - otherwise the exact nodes being destroyed by the experiment are the ones
+  # with no node-level metrics.
+  tolerations:
+    - key: workload
+      operator: Equal
+      value: app
+      effect: NoSchedule
+    - operator: Exists

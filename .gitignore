@@ -1,0 +1,34 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+
+# Terraform
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+
+# The real backend config carries a bucket name. backend.hcl.example is committed.
+terraform/backend.hcl
+
+# terraform.tfvars can carry account ids and IP allowlists.
+*.auto.tfvars
+terraform/stacks/*/terraform.tfvars
+
+# Experiment output. The raw NDJSON timelines are the evidence behind every number
+# in docs/results.md, so a *curated* run is committed under docs/ deliberately -
+# but the working directory of every ad-hoc run is not.
+results/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Rendered Helm values carry no secrets, but they are generated and would be
+# noise in a diff.
+/tmp/karpenter-values-*.yaml
+
+.DS_Store

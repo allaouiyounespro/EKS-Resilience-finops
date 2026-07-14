@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <!-- owner: allaouiyounespro / portfolio: github.com/allaouiyounespro -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#52514e"/>
+    </marker>
+    <marker id="arrowSync" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1baf7a"/>
+    </marker>
+    <marker id="arrowAsync" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#eda100"/>
+    </marker>
+  </defs>
+
+  <rect width="1440" height="900" fill="#fcfcfb"/>
+
+  <!-- ======================= header ======================= -->
+  <text x="720" y="36" text-anchor="middle" font-size="22" font-weight="700" fill="#0b0b0b">EKS Resilience &#183; FinOps — same chaos experiment, two architectures</text>
+  <text x="720" y="58" text-anchor="middle" font-size="13" fill="#52514e">AWS FIS injects an AZ failure (network isolation + node stop + RDS failover) &#183; probes measure real RTO/RPO from outside the blast radius</text>
+
+  <!-- ======================= PANEL A ======================= -->
+  <rect x="20" y="80" width="690" height="790" rx="10" fill="#ffffff" stroke="#d9d8d3" stroke-width="1.5"/>
+  <text x="40" y="112" font-size="18" font-weight="700" fill="#0b0b0b">infra-a &#8212; single-AZ</text>
+  <text x="690" y="112" text-anchor="end" font-size="16" font-weight="700" fill="#2a78d6">$244.83 / month</text>
+
+  <!-- client + ALB -->
+  <text x="365" y="140" text-anchor="middle" font-size="12" fill="#52514e">probe.py + writer.py (external, 1 Hz)</text>
+  <line x1="365" y1="148" x2="365" y2="168" stroke="#52514e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="205" y="170" width="320" height="34" rx="6" fill="#eef4fc" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="365" y="192" text-anchor="middle" font-size="13" font-weight="600" fill="#0b0b0b">ALB &#8212; Gateway API (internet-facing)</text>
+  <line x1="365" y1="204" x2="365" y2="228" stroke="#52514e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- VPC -->
+  <rect x="40" y="232" width="650" height="500" rx="8" fill="none" stroke="#52514e" stroke-width="1.5"/>
+  <text x="52" y="254" font-size="12" font-weight="600" fill="#52514e">VPC 10.10.0.0/16 &#183; EKS 1.34 control plane (AWS-managed, multi-AZ by force)</text>
+
+  <!-- AZ a : blast radius -->
+  <rect x="56" y="268" width="420" height="446" rx="8" fill="#fdf0f0" stroke="#e34948" stroke-width="2" stroke-dasharray="7 4"/>
+  <text x="72" y="292" font-size="13" font-weight="700" fill="#e34948">eu-west-3a &#8212; the blast radius IS the architecture</text>
+  <!-- FIS bolt -->
+  <path d="M 445 238 L 430 272 L 442 272 L 427 302 L 458 264 L 445 264 L 456 238 Z" fill="#e34948" opacity="0.9"/>
+  <text x="421" y="252" text-anchor="end" font-size="12" font-weight="700" fill="#e34948">AWS FIS</text>
+
+  <rect x="72" y="306" width="180" height="40" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="162" y="331" text-anchor="middle" font-size="12" fill="#0b0b0b">NAT Gateway &#215;1</text>
+
+  <rect x="268" y="306" width="192" height="40" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="364" y="325" text-anchor="middle" font-size="12" fill="#0b0b0b">system nodes &#215;2</text>
+  <text x="364" y="339" text-anchor="middle" font-size="10.5" fill="#52514e">Karpenter ctrl &#183; Prometheus</text>
+
+  <rect x="72" y="362" width="388" height="120" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="266" y="384" text-anchor="middle" font-size="12" font-weight="600" fill="#0b0b0b">Karpenter node &#8212; NodePool zones: [eu-west-3a]</text>
+  <g fill="#2a78d6">
+    <circle cx="146" cy="420" r="13"/><circle cx="186" cy="420" r="13"/><circle cx="226" cy="420" r="13"/>
+    <circle cx="266" cy="420" r="13"/><circle cx="306" cy="420" r="13"/><circle cx="346" cy="420" r="13"/>
+  </g>
+  <text x="266" y="462" text-anchor="middle" font-size="11.5" fill="#52514e">witness &#215;6 &#8212; all six replicas in one failure domain</text>
+
+  <rect x="72" y="500" width="388" height="64" rx="6" fill="#fff8ec" stroke="#eda100" stroke-width="1.5"/>
+  <text x="266" y="524" text-anchor="middle" font-size="12.5" font-weight="600" fill="#0b0b0b">RDS PostgreSQL &#8212; single-AZ, pinned to 3a</text>
+  <text x="266" y="544" text-anchor="middle" font-size="11" fill="#52514e">no standby &#183; recovery = point-in-time restore</text>
+
+  <rect x="72" y="580" width="388" height="118" rx="6" fill="none" stroke="#e34948" stroke-width="1"/>
+  <text x="88" y="604" font-size="11.5" font-weight="700" fill="#e34948">when 3a dies:</text>
+  <text x="88" y="624" font-size="11.5" fill="#0b0b0b">&#183; all 6 pods gone &#183; Karpenter has nowhere to launch</text>
+  <text x="88" y="644" font-size="11.5" fill="#0b0b0b">&#183; NAT gone &#8212; survivors (none) lose egress anyway</text>
+  <text x="88" y="664" font-size="11.5" fill="#0b0b0b">&#183; database gone &#8212; up to 5 min of commits with it</text>
+  <text x="88" y="684" font-size="11.5" fill="#0b0b0b">&#183; recovery waits for AWS, not for the autoscaler</text>
+
+  <!-- AZ b : empty -->
+  <rect x="492" y="268" width="182" height="446" rx="8" fill="#f6f6f4" stroke="#a5a49e" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <text x="583" y="292" text-anchor="middle" font-size="13" font-weight="600" fill="#52514e">eu-west-3b</text>
+  <text x="583" y="480" text-anchor="middle" font-size="11.5" fill="#52514e">empty subnets</text>
+  <text x="583" y="498" text-anchor="middle" font-size="10.5" fill="#a5a49e">(EKS + RDS refuse a</text>
+  <text x="583" y="512" text-anchor="middle" font-size="10.5" fill="#a5a49e">&#60; 2-AZ footprint; the</text>
+  <text x="583" y="526" text-anchor="middle" font-size="10.5" fill="#a5a49e">SPOF is placement,</text>
+  <text x="583" y="540" text-anchor="middle" font-size="10.5" fill="#a5a49e">not topology)</text>
+
+  <!-- metrics A -->
+  <rect x="40" y="748" width="315" height="102" rx="8" fill="#fdf0f0" stroke="#e34948"/>
+  <text x="197" y="775" text-anchor="middle" font-size="12" fill="#52514e">predicted RTO</text>
+  <text x="197" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#e34948">20&#8211;40 min</text>
+  <text x="197" y="832" text-anchor="middle" font-size="11" fill="#52514e">total outage &#183; waits on AWS</text>
+  <rect x="375" y="748" width="315" height="102" rx="8" fill="#fdf0f0" stroke="#e34948"/>
+  <text x="532" y="775" text-anchor="middle" font-size="12" fill="#52514e">predicted RPO</text>
+  <text x="532" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#e34948">&#8804; 5 min</text>
+  <text x="532" y="832" text-anchor="middle" font-size="11" fill="#52514e">committed writes lost to PITR gap</text>
+
+  <!-- ======================= PANEL B ======================= -->
+  <rect x="730" y="80" width="690" height="790" rx="10" fill="#ffffff" stroke="#d9d8d3" stroke-width="1.5"/>
+  <text x="750" y="112" font-size="18" font-weight="700" fill="#0b0b0b">infra-b &#8212; multi-AZ + DR</text>
+  <text x="1400" y="112" text-anchor="end" font-size="16" font-weight="700" fill="#2a78d6">$438.38 / month</text>
+
+  <text x="1075" y="140" text-anchor="middle" font-size="12" fill="#52514e">probe.py + writer.py (external, 1 Hz)</text>
+  <line x1="1075" y1="148" x2="1075" y2="168" stroke="#52514e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="915" y="170" width="320" height="34" rx="6" fill="#eef4fc" stroke="#2a78d6" stroke-width="1.5"/>
+  <text x="1075" y="192" text-anchor="middle" font-size="13" font-weight="600" fill="#0b0b0b">ALB &#8212; Gateway API (internet-facing)</text>
+  <line x1="1075" y1="204" x2="1075" y2="228" stroke="#52514e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <rect x="750" y="232" width="650" height="500" rx="8" fill="none" stroke="#52514e" stroke-width="1.5"/>
+  <text x="762" y="254" font-size="12" font-weight="600" fill="#52514e">VPC 10.20.0.0/16 &#183; EKS 1.34 control plane &#183; workload spread by topology constraints</text>
+
+  <!-- AZ a (hit) -->
+  <rect x="766" y="268" width="198" height="360" rx="8" fill="#fdf0f0" stroke="#e34948" stroke-width="2" stroke-dasharray="7 4"/>
+  <text x="865" y="292" text-anchor="middle" font-size="13" font-weight="700" fill="#e34948">eu-west-3a &#9889;</text>
+  <path d="M 895 238 L 880 274 L 893 274 L 875 308 L 911 268 L 896 268 L 908 238 Z" fill="#e34948" opacity="0.9"/>
+  <rect x="782" y="306" width="166" height="34" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="865" y="328" text-anchor="middle" font-size="11.5" fill="#0b0b0b">NAT Gateway</text>
+  <rect x="782" y="352" width="166" height="34" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="865" y="374" text-anchor="middle" font-size="11.5" fill="#0b0b0b">system node</text>
+  <rect x="782" y="398" width="166" height="72" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="865" y="418" text-anchor="middle" font-size="11" fill="#0b0b0b">Karpenter node</text>
+  <g fill="#2a78d6"><circle cx="843" cy="444" r="12"/><circle cx="887" cy="444" r="12"/></g>
+  <text x="865" y="486" text-anchor="middle" font-size="10.5" fill="#52514e">witness &#215;2</text>
+  <rect x="782" y="500" width="166" height="56" rx="6" fill="#fff8ec" stroke="#eda100" stroke-width="1.5"/>
+  <text x="865" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0b0b0b">RDS writer</text>
+  <text x="865" y="540" text-anchor="middle" font-size="10" fill="#52514e">fails over &#8594; 3b</text>
+
+  <!-- AZ b -->
+  <rect x="976" y="268" width="198" height="360" rx="8" fill="#f0faf6" stroke="#1baf7a" stroke-width="1.5"/>
+  <text x="1075" y="292" text-anchor="middle" font-size="13" font-weight="700" fill="#1baf7a">eu-west-3b</text>
+  <rect x="992" y="306" width="166" height="34" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="1075" y="328" text-anchor="middle" font-size="11.5" fill="#0b0b0b">NAT Gateway</text>
+  <rect x="992" y="352" width="166" height="34" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="1075" y="374" text-anchor="middle" font-size="11.5" fill="#0b0b0b">system node</text>
+  <rect x="992" y="398" width="166" height="72" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="1075" y="418" text-anchor="middle" font-size="11" fill="#0b0b0b">Karpenter node</text>
+  <g fill="#2a78d6"><circle cx="1053" cy="444" r="12"/><circle cx="1097" cy="444" r="12"/></g>
+  <text x="1075" y="486" text-anchor="middle" font-size="10.5" fill="#52514e">witness &#215;2</text>
+  <rect x="992" y="500" width="166" height="56" rx="6" fill="#f0faf6" stroke="#1baf7a" stroke-width="1.5"/>
+  <text x="1075" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0b0b0b">RDS standby</text>
+  <text x="1075" y="540" text-anchor="middle" font-size="10" fill="#52514e">synchronous &#183; RPO = 0</text>
+
+  <!-- AZ c -->
+  <rect x="1186" y="268" width="198" height="360" rx="8" fill="#f0faf6" stroke="#1baf7a" stroke-width="1.5"/>
+  <text x="1285" y="292" text-anchor="middle" font-size="13" font-weight="700" fill="#1baf7a">eu-west-3c</text>
+  <rect x="1202" y="306" width="166" height="34" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="1285" y="328" text-anchor="middle" font-size="11.5" fill="#0b0b0b">NAT Gateway</text>
+  <rect x="1202" y="352" width="166" height="34" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="1285" y="374" text-anchor="middle" font-size="11.5" fill="#0b0b0b">system node</text>
+  <rect x="1202" y="398" width="166" height="72" rx="6" fill="#ffffff" stroke="#a5a49e"/>
+  <text x="1285" y="418" text-anchor="middle" font-size="11" fill="#0b0b0b">Karpenter node</text>
+  <g fill="#2a78d6"><circle cx="1263" cy="444" r="12"/><circle cx="1307" cy="444" r="12"/></g>
+  <text x="1285" y="486" text-anchor="middle" font-size="10.5" fill="#52514e">witness &#215;2</text>
+  <rect x="1202" y="500" width="166" height="56" rx="6" fill="#fff8ec" stroke="#eda100"/>
+  <text x="1285" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0b0b0b">read replica</text>
+  <text x="1285" y="540" text-anchor="middle" font-size="10" fill="#52514e">async &#183; regional DR path</text>
+
+  <!-- replication arrows -->
+  <line x1="948" y1="528" x2="990" y2="528" stroke="#1baf7a" stroke-width="2" marker-end="url(#arrowSync)"/>
+  <line x1="1158" y1="528" x2="1200" y2="528" stroke="#eda100" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrowAsync)"/>
+
+  <!-- recovery note -->
+  <rect x="766" y="644" width="618" height="72" rx="6" fill="none" stroke="#1baf7a" stroke-width="1"/>
+  <text x="782" y="668" font-size="11.5" font-weight="700" fill="#1baf7a">when 3a dies:</text>
+  <text x="782" y="688" font-size="11.5" fill="#0b0b0b">&#183; 4/6 pods keep serving &#183; RDS fails over in 60&#8211;120s &#183; Karpenter (alive in 3b/3c) relaunches the two lost pods</text>
+  <text x="782" y="706" font-size="11.5" fill="#0b0b0b">&#183; per-AZ NAT keeps egress up &#183; ALB stops routing to 3a on the second failed /readyz</text>
+
+  <!-- metrics B -->
+  <rect x="750" y="748" width="315" height="102" rx="8" fill="#f0faf6" stroke="#1baf7a"/>
+  <text x="907" y="775" text-anchor="middle" font-size="12" fill="#52514e">predicted RTO</text>
+  <text x="907" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#1baf7a">60&#8211;120 s</text>
+  <text x="907" y="832" text-anchor="middle" font-size="11" fill="#52514e">degraded, never down</text>
+  <rect x="1085" y="748" width="315" height="102" rx="8" fill="#f0faf6" stroke="#1baf7a"/>
+  <text x="1242" y="775" text-anchor="middle" font-size="12" fill="#52514e">predicted RPO</text>
+  <text x="1242" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#1baf7a">0 s</text>
+  <text x="1242" y="832" text-anchor="middle" font-size="11" fill="#52514e">commit = durable in two AZs</text>
+
+  <!-- footer -->
+  <text x="720" y="888" text-anchor="middle" font-size="12" fill="#52514e">&#916; $193.55/month &#8212; break-even at 0.85 AZ incidents/year (at $5k/h of downtime) &#183; github.com/allaouiyounespro</text>
+</svg>

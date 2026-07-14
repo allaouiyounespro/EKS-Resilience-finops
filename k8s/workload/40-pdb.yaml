@@ -1,0 +1,29 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: witness
+  namespace: witness
+  labels:
+    app.kubernetes.io/name: witness
+    owner: allaouiyounespro
+spec:
+  # minAvailable, not maxUnavailable. With 6 replicas this permits 2 to be gone -
+  # exactly one AZ's worth in infra-b.
+  #
+  # A PDB only constrains *voluntary* disruption. It does nothing when an AZ dies:
+  # FIS stops those instances hard, and the pods on them are simply gone, budget
+  # or no budget. What it does protect is everything that happens *afterwards* -
+  # Karpenter consolidating nodes, a cluster upgrade draining them, a Spot reclaim
+  # - and that is precisely the window where a careless eviction turns a recovered
+  # system back into a broken one.
+  #
+  # Setting this to 5 or 6 would be worse, not safer: Karpenter could never drain
+  # a node at all, consolidation would deadlock, and the cluster would slowly fill
+  # with undrainable nodes. A PDB that can never be satisfied is an outage with a
+  # delayed fuse.
+  minAvailable: 4
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: witness
