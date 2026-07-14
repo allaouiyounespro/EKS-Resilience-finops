@@ -94,7 +94,12 @@ trap cleanup EXIT INT TERM
 echo "==> establishing a ${BASELINE_SECONDS}s healthy baseline"
 sleep "${BASELINE_SECONDS}"
 
-BASELINE_FAILURES="$(grep -c '"ok": false' "${RESULTS_DIR}/probe.ndjson" 2>/dev/null || echo 0)"
+# grep -c exits 1 when it counts zero, so `|| echo 0` used to append a second
+# "0" to a line that already said "0" - and the arithmetic test below then choked
+# on "0\n0" with a syntax error. Harmless, but it printed an error on every clean
+# baseline, which is exactly the run where you want no noise at all.
+BASELINE_FAILURES="$(grep -c '"ok": false' "${RESULTS_DIR}/probe.ndjson" 2>/dev/null || true)"
+BASELINE_FAILURES="${BASELINE_FAILURES:-0}"
 if [[ "${BASELINE_FAILURES}" -gt 0 ]]; then
   echo >&2
   echo "ABORT: ${BASELINE_FAILURES} request(s) failed before the fault was even injected." >&2

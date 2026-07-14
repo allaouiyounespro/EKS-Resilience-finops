@@ -29,12 +29,28 @@ spec:
         # This is the availability SLI. It is deliberately built from the app's
         # own view of durability - a write that returned 503 did not commit, and
         # no amount of load-balancer health looking green changes that.
+        #
+        # The `or vector(0)` around the failures term is load-bearing, and its
+        # absence produced one of the more perverse bugs in this project.
+        #
+        # witness_write_failures_total is a labelled counter that does not exist
+        # until the first write fails. Until then, sum(rate(...)) over it returns
+        # an EMPTY VECTOR - not zero. And in PromQL, adding an empty vector to
+        # anything yields an empty vector: the binary operator finds no matching
+        # series on the right-hand side and drops the sample entirely.
+        #
+        # So the denominator vanished, and with it the whole ratio. The
+        # availability panel rendered "No data" precisely when availability was
+        # 100%, and started working the moment the system broke. A monitoring
+        # system that only reports during outages is worse than none, because you
+        # trust it.
         - record: witness:write_success:ratio_rate1m
           expr: |
             sum(rate(witness_writes_total[1m]))
             /
             clamp_min(
-              sum(rate(witness_writes_total[1m])) + sum(rate(witness_write_failures_total[1m])),
+              sum(rate(witness_writes_total[1m]))
+              + (sum(rate(witness_write_failures_total[1m])) or vector(0)),
               1e-9
             )
 
@@ -121,14 +137,48 @@ spec:
     - name: karpenter.recovery
       interval: 10s
       rules:
-        # The autoscaler's actual contribution to RTO. Timestamped against the
-        # FIS action start, the first launch here is the moment recovery began -
-        # as opposed to the moment the outage was noticed.
-        - record: karpenter:nodeclaims_launched:rate5m
-          expr: sum(rate(karpenter_nodeclaims_launched_total[5m])) or vector(0)
+        # How many nodes Karpenter currently has, and where.
+        #
+        # This replaced a rule built on karpenter_nodeclaims_launched_total, and
+        # the reason is worth recording. A Prometheus counter does not exist until
+        # something increments it: if Karpenter launches nothing, the metric is
+        # not zero, it is *absent*. The panel then renders "No data" - which is
+        # visually identical to the finding this project exists to demonstrate
+        # ("Karpenter launched nothing"). A broken graph and the headline result
+        # looked the same, and there was no way to tell them apart.
+        #
+        # karpenter_nodes_allocatable is a gauge that exists for every node
+        # Karpenter owns. Counting it always yields a number: 1 in steady state
+        # for infra-a, 0 while the AZ is gone, and 0 for the entire fault window
+        # because it has nowhere to launch. That flat zero is now real evidence
+        # rather than an absence of evidence.
+        - record: karpenter:nodes:count
+          expr: count(count by (node) (karpenter_nodes_allocatable)) or vector(0)
 
         - record: karpenter:nodes:by_zone
-          expr: sum by (zone) (karpenter_nodes_created_total) or vector(0)
+          expr: |
+            count by (zone) (
+              count by (node, zone) (
+                karpenter_nodes_allocatable
+                * on (node) group_left(zone)
+                  label_replace(
+                    kube_node_labels,
+                    "zone", "$1", "label_topology_kubernetes_io_zone", "(.*)"
+                  )
+              )
+            ) or vector(0)
+
+        # Pods the scheduler cannot place. Paired with the node count above, this
+        # is the whole infra-a story in two lines: six pods Pending, zero nodes,
+        # and nothing changing for twenty minutes. Karpenter is not slow here -
+        # it is trying, failing, and has nowhere to go.
+        - record: witness:pods_pending
+          expr: sum(kube_pod_status_phase{namespace="witness",phase="Pending"}) or vector(0)
+
+        # Kept for the alert below. Absent when nothing launches, which is why
+        # nothing user-facing depends on it anymore.
+        - record: karpenter:nodeclaims_created:rate5m
+          expr: sum(rate(karpenter_nodeclaims_created_total[5m])) or vector(0)
 
         - alert: KarpenterCannotProvision
           # Pods are Pending and Karpenter has launched nothing for two minutes.

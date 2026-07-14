@@ -1,0 +1,41 @@
+# owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
+#
+# Karpenter's own Helm chart can create this, and does not - because the chart
+# only renders a ServiceMonitor if the Prometheus Operator CRD already exists
+# when Helm evaluates it (`.Capabilities.APIVersions.Has`). The bootstrap
+# installs Karpenter before kube-prometheus-stack, so the CRD is not there yet,
+# and Helm skips the object without a word.
+#
+# The result is the worst kind of monitoring failure: the "Karpenter node
+# launches" panel renders an empty graph. An empty graph reads as "nothing
+# happened, all is well" - and in this project, "Karpenter launched nothing" is
+# precisely the finding we are trying to prove for infra-a. A broken panel and
+# the headline result look identical.
+#
+# Shipping the ServiceMonitor explicitly makes the scrape independent of install
+# order. Reordering the bootstrap would also work, but this is the version that
+# still works when someone reinstalls Karpenter alone six months from now.
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: karpenter
+  namespace: kube-system
+  labels:
+    release: kube-prometheus-stack
+    owner: allaouiyounespro
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: karpenter
+
+  endpoints:
+    - port: http-metrics
+      path: /metrics
+      # 10s, matching the witness scrape. The number that matters here is the gap
+      # between the FIS action starting and karpenter_nodeclaims_launched_total
+      # moving - that difference is the autoscaler's true contribution to RTO,
+      # and a 30s interval quantises it more coarsely than the thing being
+      # measured.
+      interval: 10s
+      scrapeTimeout: 5s

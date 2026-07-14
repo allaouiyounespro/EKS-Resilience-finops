@@ -266,13 +266,30 @@ resource "aws_fis_experiment_template" "az_failure" {
       value = "NodesInTargetAZ"
     }
 
-    # Instances come back when the action's duration elapses. This is what makes
-    # the experiment repeatable: the recovery is measured, then the fault is
-    # undone, and the next run starts from the same state as the last.
-    parameter {
-      key   = "startInstancesAfterDuration"
-      value = local.duration
-    }
+    # There is deliberately NO startInstancesAfterDuration here, and the reason
+    # invalidated a whole campaign before it was understood.
+    #
+    # That parameter asks FIS to restart the exact instances it stopped, once the
+    # duration elapses. In a Karpenter cluster those instances no longer exist:
+    # Karpenter sees dead nodes, reclaims them, and launches replacements. When
+    # FIS then tries to resurrect its own, EC2 refuses - "one or more instances
+    # are in an incorrect state" - the action fails, and FIS reacts to a failed
+    # action by STOPPING every other action in the experiment. Including the
+    # network disruption.
+    #
+    # So the fault window collapsed from 15 minutes to about five, the service
+    # recovered early, and the run reported a beautiful RTO of 341s. It was not
+    # measuring a faster recovery. It was measuring a shorter outage. Averaged
+    # with an honest run, it would have halved the headline number and nothing
+    # would have looked wrong.
+    #
+    # Two systems each doing their job correctly, destroying the experiment
+    # between them.
+    #
+    # Removing it is also the more honest model: a real AZ failure does not hand
+    # your instances back on a timer. Capacity returns because the autoscaler
+    # replaces it - which is precisely the behaviour under test, and in infra-a
+    # the behaviour that cannot happen, because Karpenter has nowhere to go.
   }
 
   dynamic "action" {
