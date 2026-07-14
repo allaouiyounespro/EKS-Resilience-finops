@@ -245,14 +245,36 @@ resource "aws_fis_experiment_template" "az_failure" {
       value = local.duration
     }
 
-    # "availability-zone" scope drops traffic crossing the AZ boundary while
-    # leaving intra-AZ traffic intact. That is the accurate model: in a real AZ
-    # event the instances inside it are often still talking to each other, they
-    # just cannot be reached - which is exactly the split-brain that makes these
-    # failures nastier than a clean power-off.
+    # scope = "all", and getting this wrong invalidated an entire campaign.
+    #
+    # The obvious choice is "availability-zone", which drops traffic *crossing*
+    # the AZ boundary while leaving intra-AZ traffic intact. It sounds like the
+    # more accurate model of a real AZ event, and for a multi-AZ workload it
+    # nearly is.
+    #
+    # For a single-AZ workload it is catastrophically wrong, because infra-a
+    # lives entirely inside the target AZ. Nothing it does crosses the boundary.
+    # So the "AZ failure" left the AZ perfectly able to talk to itself: Karpenter
+    # launched replacement nodes *in the dead zone*, they reached the control
+    # plane, pulled images through the NAT next door, joined, and the service was
+    # back in 4m48s - while FIS still had eleven minutes of "outage" left to run.
+    #
+    # The measured RTO was real. It just was not the RTO of an AZ failure. It was
+    # the RTO of "every node was stopped once", which is a different and far less
+    # interesting question - and the number would have been published under the
+    # wrong name.
+    #
+    # "all" cuts every packet in and out of the target subnets: no control plane,
+    # no NAT, no ECR. Replacement capacity cannot join, pods stay Pending, and the
+    # outage lasts as long as the fault does. Which is the point.
+    #
+    # Known limitation, stated because it matters: FIS implements this with
+    # network ACLs, and NACLs do not filter traffic *within* a subnet. A real AZ
+    # loss also means EC2 refuses to launch there at all, and no FIS action can
+    # simulate that. The measured RTO remains a lower bound.
     parameter {
       key   = "scope"
-      value = "availability-zone"
+      value = "all"
     }
   }
 
