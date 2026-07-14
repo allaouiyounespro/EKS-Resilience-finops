@@ -31,9 +31,9 @@ serviceAccount:
 # not because the topology failed, but because the controller did.
 #
 # In infra-a this anti-affinity cannot be satisfied at all (there is only one
-# zone), so the second replica sits Pending forever. That is not a
-# misconfiguration to fix: it is an honest rendering of the fact that infra-a has
-# no second failure domain to put a spare controller in.
+# zone), so the second replica sits Pending forever. Resist the urge to fix it -
+# infra-a simply has no second failure domain to put a spare controller in, and
+# the Pending pod says so out loud.
 replicas: 2
 
 affinity:

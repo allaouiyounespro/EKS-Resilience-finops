@@ -145,7 +145,7 @@ def _init_pool() -> ConnectionPool:
         max_size=8,
         # Hand back a broken connection rather than blocking forever. During a
         # failover every pooled connection is dead; the pool must notice quickly
-        # and rebuild, not queue requests behind corpses.
+        # and rebuild instead of queueing requests behind dead connections.
         timeout=5,
         max_lifetime=300,
         check=ConnectionPool.check_connection,

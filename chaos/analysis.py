@@ -317,7 +317,7 @@ def compute_rpo(acks: Iterable[Ack], db_last_seq: int | None) -> RPOResult:
 
     # The database has everything the client was promised, or more. RPO is zero.
     #
-    # "or more" is a real case, not a defensive branch: a write can commit and
+    # The "or more" branch gets hit in practice. A write can commit and
     # then have its acknowledgement lost on the way back to a client whose
     # connection died with the AZ. The data is there; the client just never heard.
     # That is not data loss, and reporting a negative RPO would be nonsense.

@@ -151,7 +151,7 @@ def compute_cost(shape: dict[str, Any], pricing: dict[str, Any], stack_name: str
     kp_hourly = compute["ec2_hourly"][kp_type]
 
     # The workload fits on one node. Any node beyond the first exists to spread
-    # the pods across failure domains, not to carry load.
+    # the pods across failure domains rather than to carry load.
     kp_baseline = min(kp_count, 1)
     kp_ha = max(0, kp_count - 1)
 
@@ -493,7 +493,7 @@ def main() -> int:
         rto_b, args.revenue_per_hour, args.engineers, args.engineer_hourly_cost
     )
 
-    # The saving per incident is the DIFFERENCE, not infra-a's full outage cost.
+    # What you save per incident is the DIFFERENCE between the two, and it is
     # infra-b is not free during an AZ failure - it still degrades for 94 seconds.
     # Crediting it with the entire avoided outage would overstate the case, and an
     # overstated business case is one a CFO gets to demolish in front of everyone.

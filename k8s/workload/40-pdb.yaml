@@ -9,7 +9,7 @@ metadata:
     app.kubernetes.io/name: witness
     owner: allaouiyounespro
 spec:
-  # minAvailable, not maxUnavailable. With 6 replicas this permits 2 to be gone -
+  # Expressed as minAvailable. With 6 replicas this permits 2 to be gone -
   # exactly one AZ's worth in infra-b.
   #
   # A PDB only constrains *voluntary* disruption. It does nothing when an AZ dies:

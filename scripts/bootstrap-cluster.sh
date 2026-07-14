@@ -17,7 +17,7 @@ set -euo pipefail
 STACK="${1:?usage: bootstrap-cluster.sh <infra-a|infra-b>}"
 WITNESS_IMAGE="${WITNESS_IMAGE:?set WITNESS_IMAGE to the pushed witness image, e.g. ghcr.io/allaouiyounespro/witness:0.1.0}"
 
-# Chart versions are pinned, not "latest": a bootstrap that installs whatever
+# Chart versions are pinned. A bootstrap that installs whatever
 # shipped last night is a bootstrap that behaves differently on every run, and
 # this project's entire premise is controlled comparison. Bump deliberately,
 # against the EKS version in the stack variables, and check the Karpenter

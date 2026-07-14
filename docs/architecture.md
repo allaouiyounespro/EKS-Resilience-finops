@@ -48,9 +48,9 @@ Every other resilience dollar in infra-b is contingent on this one.
 
 The Helm values give Karpenter two replicas with a **hard** anti-affinity across
 zones. In infra-a that constraint cannot be satisfied — there is only one zone —
-so the second replica sits `Pending` forever. That is not a bug to fix. It is an
-honest rendering of the fact that infra-a has no second failure domain to put a
-spare controller in.
+so the second replica sits `Pending` forever. Leave it there: it is an honest
+rendering of the fact that infra-a has no second failure domain to put a spare
+controller in.
 
 ### Karpenter is not *slow* in infra-a. It is *powerless*.
 
@@ -113,7 +113,7 @@ Two reasons, one architectural and one financial:
   always on and free at the load-balancer layer. The trap is not avoided by
   vigilance anymore; it is gone.
 
-### Pod Identity, not IRSA
+### Why we dropped IRSA for Pod Identity
 
 Every controller that talks to AWS (Karpenter, the LB Controller, the EBS CSI
 driver) gets its role through an EKS Pod Identity association, not an IRSA trust

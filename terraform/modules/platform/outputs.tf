@@ -76,8 +76,8 @@ output "karpenter" {
     # Karpenter's EC2NodeClass selects subnets and security groups by tag, and
     # its NodePool constrains topology.kubernetes.io/zone to these AZs. In
     # infra-a that constraint is a single zone, so Karpenter cannot rescue the
-    # workload by launching elsewhere - it has nowhere to go. That is not a bug
-    # in the experiment, it is the finding.
+    # workload by launching elsewhere - it has nowhere to go. The experiment is
+    # not broken here; this is what it was built to expose.
     discovery_tag = module.eks.cluster_name
     workload_azs  = var.workload_azs
   }

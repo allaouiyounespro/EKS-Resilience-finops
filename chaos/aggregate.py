@@ -15,11 +15,11 @@ So the campaign runs each architecture three times and reports a median.
 Two decisions in here are worth defending, because both are places where it
 would be easy to produce a nicer-looking number:
 
-**Median, not mean.** A single run that never recovered, or one that hit a slow
+**We take the median.** A single run that never recovered, or one that hit a slow
 failover, would drag a mean somewhere no individual run ever was. The median is
 a value the system actually produced.
 
-**A run that never recovered is not dropped.** It has no RTO - there is nothing
+**A run that never recovered stays in the count.** It has no RTO - there is nothing
 to average - but silently excluding it would report "infra-a recovers in 22
 minutes" from a set of runs where one never recovered at all. That is the single
 most dishonest thing this file could do. Instead, non-recovery is counted, and

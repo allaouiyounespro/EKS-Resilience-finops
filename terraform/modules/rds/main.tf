@@ -47,7 +47,7 @@ resource "aws_security_group" "this" {
 # VPC range via the CNI, so a CIDR rule here would be indistinguishable from
 # "allow the entire VPC" and would survive any future subnet added to the VPC.
 #
-# count, not for_each. for_each needs its keys known at plan time, and the value
+# We use count here. for_each needs its keys known at plan time, and the value
 # handed in here is the EKS cluster security group id - which does not exist
 # until the cluster is applied. `terraform validate` accepts the for_each
 # version happily; `terraform plan` against a real account rejects it outright.

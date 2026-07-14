@@ -17,9 +17,8 @@
 # the pods stay Pending, and the RTO is bounded not by Karpenter but by how long
 # AWS takes to bring the AZ back.
 #
-# That is the finding, and it is worth being precise about it: Karpenter is not
-# slower in infra-a. It is *powerless*. No amount of autoscaler tuning fixes a
-# topology with nowhere to go.
+# Be precise about what this shows: Karpenter is not slower in infra-a, it is
+# *powerless*. No amount of autoscaler tuning fixes a topology with nowhere to go.
 ---
 apiVersion: karpenter.k8s.aws/v1
 kind: EC2NodeClass
@@ -35,7 +34,7 @@ spec:
   amiSelectorTerms:
     - alias: al2023@latest
 
-  # instanceProfile, not role. Karpenter can create and manage its own instance
+  # We hand Karpenter a profile rather than a role. It can create and manage its own
   # profile if given a role, but that puts an IAM resource outside Terraform's
   # state - it would survive `terraform destroy` and collide with the next apply.
   # The profile is created by the karpenter module and passed in here.
@@ -157,7 +156,7 @@ spec:
     # consolidates pods onto fewer nodes.
     consolidationPolicy: WhenEmptyOrUnderutilized
 
-    # 5 minutes, not the 30-second default. During recovery, pod counts swing
+    # Raised from the 30-second default. During recovery, pod counts swing
     # wildly for a couple of minutes; an eager consolidator would start deleting
     # the very nodes it just created, fighting the recovery it is supposed to be
     # performing. Consolidation is a cost feature, and it must not run while the

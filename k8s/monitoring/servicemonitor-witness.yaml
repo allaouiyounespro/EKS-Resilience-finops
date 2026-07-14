@@ -19,7 +19,7 @@ spec:
   endpoints:
     - port: http
       path: /metrics
-      # 10s, not the 30s default. Prometheus is the corroborating record for an
+      # Tightened from the 30s default. Prometheus corroborates an
       # RTO measured in tens of seconds; a 30s scrape interval quantises the
       # evidence more coarsely than the thing being measured.
       interval: 10s

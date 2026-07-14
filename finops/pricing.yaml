@@ -52,7 +52,7 @@ network:
   nat_gateway_hourly: 0.050
   nat_data_per_gb: 0.0054
 
-  # ALB, not NLB, since the move to Gateway API. Worth knowing when comparing
+  # An ALB since the move to Gateway API. Worth knowing when comparing
   # the two: ALB cross-zone routing is always on and free at the LB layer,
   # where NLB bills it as inter-AZ transfer - the hourly rate is not the whole
   # comparison.

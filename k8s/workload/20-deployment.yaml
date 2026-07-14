@@ -91,7 +91,7 @@ spec:
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: topology.kubernetes.io/zone
-          # ScheduleAnyway, not DoNotSchedule. During the fault, DoNotSchedule
+          # ScheduleAnyway is deliberate. During the fault, DoNotSchedule
           # would refuse to place replacement pods into the surviving AZs
           # because doing so would breach the skew against the dead zone - the
           # constraint would enforce the outage it was meant to survive.
@@ -204,7 +204,7 @@ spec:
               path: /readyz
               port: http
             initialDelaySeconds: 3
-            # Aggressive on purpose: this interval is a floor on the measured
+            # Aggressive on purpose. This interval is a floor on the measured
             # RTO. A 10s period would put ~10s of pure probe latency into every
             # recovery number and flatter neither architecture honestly.
             periodSeconds: 2

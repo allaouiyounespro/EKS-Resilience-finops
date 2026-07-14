@@ -94,10 +94,10 @@ spec:
             description: "Capacity is reduced but the service is up. Expected during an AZ failure in infra-b."
 
         - alert: WitnessSingleZone
-          # Fires permanently in infra-a. That is not a bug in the alert - it is
-          # the alert doing its job: this architecture is one AZ event away from
-          # a total outage, all day, every day, and the dashboard should say so
-          # in red rather than waiting for the incident to say it instead.
+          # Fires permanently in infra-a, and it should. The alert is doing its
+          # job: this architecture is one AZ event away from a total outage, all
+          # day, every day, and the dashboard should say so in red rather than
+          # waiting for the incident to say it instead.
           expr: witness:serving_zones:count < 2
           for: 5m
           labels:

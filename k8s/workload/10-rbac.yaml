@@ -5,7 +5,7 @@
 # narrower permission than "get nodes" for that - node labels are not exposed
 # through the downward API - so this is the floor, not a shortcut.
 #
-# Note what is NOT here: no list, no watch, no access to secrets, no namespace
+# Note what is absent: no list, no watch, no access to secrets, no namespace
 # scope beyond its own. A get on a named node is about as inert as a cluster-
 # scoped permission gets.
 ---

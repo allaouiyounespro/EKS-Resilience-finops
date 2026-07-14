@@ -1,6 +1,6 @@
 # owner: allaouiyounespro / portfolio: github.com/allaouiyounespro
 #
-# Gateway API, not Ingress and not a LoadBalancer Service. Ingress froze years
+# Gateway API rather than Ingress or a LoadBalancer Service. Ingress froze years
 # ago with every vendor feature crammed into annotations; the NLB Service this
 # file replaced carried nine of them, and a typo in any one was silently
 # ignored. Gateway API puts the same decisions into typed, versioned fields the

@@ -3,7 +3,7 @@
 #
 # This file mirrors, field for field, the `finops_inputs` output of each
 # Terraform stack. It exists so the cost model can be run, tested and reasoned
-# about without an AWS account - but it is a MIRROR, not the source of truth.
+# about without an AWS account. It is only a MIRROR, though; Terraform owns the truth.
 #
 # For a real number, feed the model the live outputs instead:
 #
@@ -66,7 +66,7 @@ infra-b:
   node_desired_count: 3
   node_disk_gb: 30
 
-  # THREE Karpenter nodes, not two. An EC2 instance lives in exactly one AZ, so
+  # Three Karpenter nodes. An EC2 instance lives in exactly one AZ, so
   # spreading pods across three zones requires three nodes - there is no way to
   # buy the spread more cheaply. An earlier version of this file said two, which
   # understated the cost of resilience by a whole node and was only caught by

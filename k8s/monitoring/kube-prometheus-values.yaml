@@ -96,7 +96,7 @@ alertmanager:
 
   config:
     route:
-      # 10s, not the default 30s. During a 15-minute experiment, a 30s group_wait
+      # Dropped from the 30s default. During a 15-minute experiment, a 30s group_wait
       # means the alert that marks the start of the outage arrives after a
       # meaningful slice of the outage is already over.
       group_wait: 10s

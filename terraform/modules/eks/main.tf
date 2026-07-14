@@ -3,7 +3,7 @@
 # owner: allaouiyounespro
 # portfolio: github.com/allaouiyounespro
 #
-# Identity note: this module uses EKS Pod Identity, not IRSA. IRSA needs an
+# Identity: this module runs on EKS Pod Identity. IRSA would need an
 # OIDC provider, a tls data source to fingerprint its certificate, and a trust
 # policy with two StringEquals conditions that break silently when the service
 # account is renamed. Pod Identity replaces all of that with one association
