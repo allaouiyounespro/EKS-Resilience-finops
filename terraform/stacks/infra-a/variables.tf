@@ -71,13 +71,13 @@ variable "system_node_group" {
 variable "db_instance_class" {
   description = "RDS instance class. Same in both stacks."
   type        = string
-  default     = "db.t4g.medium"
+  default     = "db.t4g.small"
 }
 
 variable "db_allocated_storage" {
   description = "RDS storage in GiB. Same in both stacks."
   type        = number
-  default     = 50
+  default     = 20
 }
 
 variable "chaos_duration_minutes" {

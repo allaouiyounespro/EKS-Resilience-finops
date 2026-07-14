@@ -18,81 +18,91 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 
 ## The bill
 
-### infra-a — single-AZ · **$244.83/month**
+### infra-a — single-AZ · **$280.99/month**
 
 | line item | USD/mo | |
 |---|---:|---|
 | EKS control plane | 73.00 | fixed; identical in both |
+| EC2 system nodes | 68.62 | 2 × t3.medium |
 | NAT Gateway | 37.04 | 1 gateway + data processing |
-| EC2 system nodes | 34.31 | 2 × t3.small |
 | EC2 Karpenter nodes | 34.31 | 1 × t3.medium |
 | RDS instance | 27.74 | 1 × db.t4g.small |
 | Application Load Balancer | 25.84 | created by the LB Controller from the Gateway |
-| EBS gp3 | 6.50 | 70 GiB |
+| EBS gp3 | 8.35 | 90 GiB |
 | CloudWatch Logs | 3.15 | |
 | RDS storage | 2.54 | 20 GiB |
 | Secrets Manager | 0.40 | |
-| **TOTAL** | **244.83** | of which **$0.00** buys resilience |
+| **TOTAL** | **280.99** | of which **$0.00** buys resilience |
 
-### infra-b — multi-AZ + DR · **$438.38/month**
+### infra-b — multi-AZ + DR · **$529.73/month**
 
 | line item | USD/mo | HA? | |
 |---|---:|:--:|---|
 | EKS control plane | 73.00 | | fixed; identical in both |
 | NAT Gateway (HA) | 73.00 | ★ | 2 extra; egress survives losing an AZ |
+| EC2 system nodes | 68.62 | | 2 × t3.medium |
+| EC2 Karpenter nodes (HA) | 68.62 | ★ | **2 extra — one node per AZ, because an EC2 instance lives in exactly one AZ** |
 | NAT Gateway | 37.04 | | |
-| EC2 system nodes | 34.31 | | 2 × t3.small |
+| EC2 system node (HA) | 34.31 | ★ | **keeps Karpenter alive through the failure** |
 | EC2 Karpenter nodes | 34.31 | | 1 × t3.medium |
-| EC2 Karpenter nodes (HA) | 34.31 | ★ | spreads the workload across AZs |
 | RDS Multi-AZ standby | 30.28 | ★ | **this is what buys RPO = 0** |
 | RDS read replica | 30.28 | ★ | async; regional promotion path |
-| RDS instance | 27.74 | | |
+| RDS instance | 27.74 | | 1 × db.t4g.small |
 | Application Load Balancer | 25.84 | | |
-| EC2 system node (HA) | 17.16 | ★ | **keeps Karpenter alive through the failure** |
-| EBS gp3 | 11.14 | | 120 GiB |
+| EBS gp3 | 16.70 | | 180 GiB |
 | CloudWatch Logs | 5.04 | | |
 | RDS storage | 2.54 | | |
 | Cross-AZ data transfer | 2.00 | ★ | the toll for spreading out |
 | Secrets Manager | 0.40 | | |
-| **TOTAL** | **438.38** | | of which **$187.03** buys resilience |
+| **TOTAL** | **529.73** | | of which **$238.49** buys resilience |
 
 ★ = exists *only* because of the high-availability decision.
 
-**Delta: $193.55/month — $2,323/year.**
+**Delta: $248.73/month — $2,985/year.**
 
 ---
 
-## Three things this table says that people get wrong
+## Four things this table says that people get wrong
 
-**1. HA is +79%, not +100%.**
-The intuition is "high availability costs double". It does not, because the single
-largest line item — the EKS control plane at $73 — is *fixed*. It is 30% of
-infra-a's entire bill, it is identical in both architectures, and it buys nothing
-either way. Any conversation about optimising this platform that does not start
-there is optimising the wrong thing.
+**1. HA is +88%, not +100% — and the reason is the boring line.**
+The intuition is "high availability costs double". It does not, because the
+single largest line item — the EKS control plane at $73 — is *fixed*. It is 26%
+of infra-a's entire bill, it is identical in both architectures, and it buys
+nothing either way. Any conversation about optimising this platform that does not
+start there is optimising the wrong thing.
 
-**2. The resilience premium ($187) is the number to defend, not the total ($437).**
-"We spend $437/month" invites a haircut. "We spend $244 to run it and $193 to
+**2. The biggest resilience line item is not the database. It is the nodes.**
+Everyone expects Multi-AZ RDS to be the expensive part. It is $30/month. The
+compute needed to *spread* the workload — two extra Karpenter nodes and one extra
+system node — is $103/month, more than three times as much.
+
+The reason is a constraint nobody prices in advance: **an EC2 instance lives in
+exactly one AZ.** You cannot spread six pods across three zones with two nodes.
+Three zones means three nodes, minimum, whatever the pods actually need. An
+earlier version of this model said two, understated the cost of resilience by a
+whole node, and was caught only by diffing the model against a real
+`terraform plan`. `make finops-verify` exists so it cannot happen silently again.
+
+**3. The resilience premium ($238) is the number to defend, not the total ($530).**
+"We spend $530/month" invites a haircut. "We spend $281 to run it and $249 to
 survive an AZ failure — here is the measured RTO with and without" is an argument.
-The cost model flags every line item that exists *only* because of the HA decision,
-and `tests/test_cost_model.py` asserts that the delta between the two architectures
-is fully explained by those flagged items. If some cost creeps in that nobody
-decided to spend, the test fails.
+The model flags every line item that exists *only* because of the HA decision,
+and `tests/test_cost_model.py` asserts that the delta between the two
+architectures is fully explained by those flagged items. If some cost creeps in
+that nobody decided to spend, the test fails.
 
-**3. The cheapest line item protects the most expensive one.**
-Cross-AZ data transfer: $2/month. An earlier revision of this project fronted the
-workload with an NLB, where cross-zone routing is off by default and billed when
-on — the exact line a cost review deletes to save $5/month, capping availability
-at 2/3 during an AZ failure and silently writing off the Multi-AZ spend. The move
-to an ALB (via Gateway API) removed that trap: ALB cross-zone routing is always on
-and free at the load-balancer layer. The residual $2 is pod-to-pod spread and
-database replication — the irreducible toll for not being in one place.
-
----
+**4. The cheapest line item protects the most expensive one.**
+Cross-AZ data transfer: $2/month. An earlier revision fronted the workload with
+an NLB, where cross-zone routing is off by default and billed when on — the exact
+line a cost review deletes to save $5/month, capping availability at 2/3 during an
+AZ failure and silently writing off the Multi-AZ spend. The move to an ALB (via
+Gateway API) removed that trap: ALB cross-zone routing is always on and free at
+the load-balancer layer. The residual $2 is pod-to-pod spread and database
+replication — the irreducible toll for not being in one place.
 
 ## The break-even
 
-The question: infra-b costs $2,323/year more. How often must an AZ fail before that
+The question: infra-b costs $2,985/year more. How often must an AZ fail before that
 is the *cheaper* option?
 
 ```
@@ -122,11 +132,10 @@ resilient.
 | Modelled RTO, infra-a | 1,920 s → **$2,859** per incident |
 | Modelled RTO, infra-b | 94 s → **$140** per incident |
 | Saving per avoided incident | **$2,719** |
-| **Break-even** | **0.85 incidents/year** (0.21 per quarter) |
+| **Break-even** | **1.10 incidents/year** (0.27 per quarter) |
 
 At that rate the architecture pays for itself if an AZ impairment happens roughly
-**once every fourteen months**. AWS AZ events are not rare enough to bet against
-that.
+**once a year**. AWS AZ events are not rare enough to bet against that.
 
 ### The same question, inverted — and this is the honest way to ask it
 
@@ -137,7 +146,7 @@ hour of downtime costs you, and it is true at exactly one value of that.
 So the model solves for it instead of asserting it:
 
 > For infra-b to break even at **1 incident per quarter**, an hour of total outage
-> would have to cost **$785**.
+> would have to cost **$1,111**.
 
 That is a coherent figure for a small SaaS. It is nowhere near right for a payments
 company, and it is far too high for an internal tool. **Now you have to decide which

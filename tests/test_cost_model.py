@@ -45,6 +45,52 @@ class TestPricingData(unittest.TestCase):
             self.assertIn(shape["karpenter_instance_type"], ec2, f"{name}: unpriced Karpenter node type")
             self.assertIn(shape["db_instance_class"], rds, f"{name}: unpriced DB class")
 
+    def test_you_cannot_spread_across_more_zones_than_you_have_nodes(self):
+        # An EC2 instance lives in exactly one availability zone. So a workload
+        # spread across three zones needs at least three nodes - not because the
+        # pods need the capacity, but because zones are not divisible.
+        #
+        # This model originally priced infra-b with two Karpenter nodes for three
+        # zones. It understated the cost of resilience by a whole node (~$34/mo),
+        # and it was arithmetically impossible: the third zone had nowhere to put
+        # a pod. Nothing caught it until the shapes were diffed against a real
+        # terraform plan.
+        #
+        # The bug is easy to reintroduce - "we only need two nodes' worth of CPU"
+        # is a true statement and a wrong conclusion - so it gets an assertion.
+        for name, shape in SHAPES.items():
+            with self.subTest(stack=name):
+                self.assertGreaterEqual(
+                    shape["karpenter_node_count"],
+                    shape["workload_az_count"],
+                    f"{name}: {shape['karpenter_node_count']} node(s) cannot cover "
+                    f"{shape['workload_az_count']} zone(s) - an EC2 instance is in one AZ",
+                )
+                self.assertGreaterEqual(
+                    shape["node_desired_count"],
+                    shape["workload_az_count"],
+                    f"{name}: the system tier cannot span {shape['workload_az_count']} zone(s) "
+                    f"with {shape['node_desired_count']} node(s) - and if Karpenter's controller "
+                    f"dies with the AZ, nothing performs the recovery",
+                )
+
+    def test_the_system_nodes_can_actually_hold_the_monitoring_stack(self):
+        # kube-prometheus-stack requests 2Gi for Prometheus alone. A t3.small has
+        # 2GB total and ~1.5Gi allocatable, so the pod would never schedule - the
+        # monitoring stack that is supposed to witness the experiment would never
+        # start, and the cluster would look healthy while measuring nothing.
+        #
+        # The model priced t3.small for months. It was cheaper, and it was fiction.
+        TOO_SMALL = {"t3.micro", "t3.small", "t4g.micro", "t4g.small", "t3a.small"}
+
+        for name, shape in SHAPES.items():
+            with self.subTest(stack=name):
+                self.assertNotIn(
+                    shape["node_instance_type"],
+                    TOO_SMALL,
+                    f"{name}: {shape['node_instance_type']} cannot fit Prometheus's 2Gi request",
+                )
+
     def test_multi_az_is_exactly_double(self):
         # Not "roughly" double. AWS runs a full standby and bills it as a second
         # instance. If this constant ever drifts, the entire RPO=0 line item is
@@ -250,16 +296,16 @@ class TestRealShapes(unittest.TestCase):
         self.b = compute_cost(SHAPES["infra-b"], PRICING, "infra-b")
 
     def test_the_delta_is_in_the_documented_range(self):
-        # docs/finops-analysis.md quotes ~194 USD/month. If a price or a shape
+        # docs/finops-analysis.md quotes ~249 USD/month. If a price or a shape
         # changes, this fails and the documentation gets updated - rather than
         # the README quietly becoming a lie.
         delta = self.b.total - self.a.total
-        self.assertGreater(delta, 150.0)
-        self.assertLess(delta, 250.0)
+        self.assertGreater(delta, 220.0)
+        self.assertLess(delta, 280.0)
 
     def test_infra_b_is_not_double_infra_a(self):
         # A useful sanity check on the framing. The common intuition is "HA costs
-        # twice as much"; here it is +79%, because the largest line item (the EKS
+        # twice as much"; here it is +88%, because the largest line item (the EKS
         # control plane) is fixed and buys nothing either way.
         self.assertLess(self.b.total, 2.0 * self.a.total)
 

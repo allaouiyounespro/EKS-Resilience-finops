@@ -96,13 +96,13 @@ variable "system_node_group" {
 variable "db_instance_class" {
   description = "RDS instance class. Identical in both stacks by design: the cost delta must isolate Multi-AZ, not instance size."
   type        = string
-  default     = "db.t4g.medium"
+  default     = "db.t4g.small"
 }
 
 variable "db_allocated_storage" {
   description = "RDS gp3 storage in GiB."
   type        = number
-  default     = 50
+  default     = 20
 }
 
 variable "db_multi_az" {

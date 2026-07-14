@@ -46,15 +46,21 @@ resource "aws_security_group" "this" {
 # Source-group based rather than CIDR based: pods get addresses from the whole
 # VPC range via the CNI, so a CIDR rule here would be indistinguishable from
 # "allow the entire VPC" and would survive any future subnet added to the VPC.
+#
+# count, not for_each. for_each needs its keys known at plan time, and the value
+# handed in here is the EKS cluster security group id - which does not exist
+# until the cluster is applied. `terraform validate` accepts the for_each
+# version happily; `terraform plan` against a real account rejects it outright.
+# count only needs the *length* of the list, which is known.
 resource "aws_vpc_security_group_ingress_rule" "postgres" {
-  for_each = toset(var.allowed_security_group_ids)
+  count = length(var.allowed_security_group_ids)
 
   security_group_id            = aws_security_group.this.id
-  referenced_security_group_id = each.value
+  referenced_security_group_id = var.allowed_security_group_ids[count.index]
   ip_protocol                  = "tcp"
   from_port                    = 5432
   to_port                      = 5432
-  description                  = "Postgres from ${each.value}"
+  description                  = "Postgres from the EKS cluster security group"
 
   tags = local.tags
 }

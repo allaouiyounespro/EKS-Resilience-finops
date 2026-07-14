@@ -31,7 +31,7 @@ whatever happened.
 | **Predicted RTO** | 20-40 min | 60-120 s |
 | **Predicted RPO** | up to 5 min | 0 s |
 | **Why** | No standby: recovery waits for AWS to restore the AZ. Karpenter cannot help — its NodePool permits one zone, and that zone is gone. | RDS fails over to its synchronous standby (60-120s, and this dominates); Karpenter launches replacement nodes in the surviving AZs in parallel. |
-| **Cost** | $244.83/mo | $438.38/mo |
+| **Cost** | $280.99/mo | $529.73/mo |
 
 The RPO prediction is the sharpest one. infra-a's floor is set by how often RDS
 ships transaction logs to S3 — roughly every 5 minutes — so a point-in-time
@@ -90,8 +90,8 @@ python3 -m finops.cost_model --rto-a <measured> --rto-b <measured> --revenue-per
 
 | | value |
 |---|---|
-| Monthly delta | $193.55 |
-| Annual delta | $2,323 |
+| Monthly delta | $248.73 |
+| Annual delta | $2,985 |
 | Saving per avoided incident | _pending_ |
 | **Break-even incident rate** | _pending_ |
 

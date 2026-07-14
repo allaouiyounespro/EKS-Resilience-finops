@@ -22,9 +22,9 @@ infra-a:
   nat_data_gb: 100
 
   # System node group: Karpenter, CoreDNS, kube-prometheus-stack.
-  node_instance_type: t3.small
+  node_instance_type: t3.medium
   node_desired_count: 2
-  node_disk_gb: 20
+  node_disk_gb: 30
 
   # Karpenter-provisioned application capacity. Six witness pods at 100m CPU each
   # fit comfortably on one t3.medium, and a single-AZ architecture has no reason
@@ -62,15 +62,18 @@ infra-b:
   # Three system nodes, one per AZ. The third one is what keeps the Karpenter
   # controller alive through the AZ failure - without it there is nothing left to
   # perform the recovery, and every other resilience dollar here is wasted.
-  node_instance_type: t3.small
+  node_instance_type: t3.medium
   node_desired_count: 3
-  node_disk_gb: 20
+  node_disk_gb: 30
 
-  # Two Karpenter nodes rather than one, so the six witness pods spread across
-  # zones. One node would be cheaper and would silently rebuild the single point
-  # of failure this architecture exists to remove.
+  # THREE Karpenter nodes, not two. An EC2 instance lives in exactly one AZ, so
+  # spreading pods across three zones requires three nodes - there is no way to
+  # buy the spread more cheaply. An earlier version of this file said two, which
+  # understated the cost of resilience by a whole node and was only caught by
+  # diffing the model against a real terraform plan. `make finops-verify` exists
+  # so it cannot happen again silently.
   karpenter_instance_type: t3.medium
-  karpenter_node_count: 2
+  karpenter_node_count: 3
   karpenter_disk_gb: 30
 
   workload_az_count: 3

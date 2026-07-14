@@ -39,10 +39,30 @@ right.
 Do these **before the first `terraform apply`**. Two of them are irreversible in
 the sense that skipping them cannot be repaired retroactively.
 
-- [ ] **Activate cost allocation tags** — Billing console → Cost allocation tags
-      → activate `Project` and `CostProfile`. **Not retroactive.** Costs incurred
-      before activation are never attributable, and the FinOps reconciliation
-      (`scripts/cost-explorer.sh`) will return nothing for that period.
+- [ ] **Activate cost allocation tags** — `Project`, `Owner`, `CostProfile`.
+
+      ```bash
+      aws ce update-cost-allocation-tags-status --region us-east-1 \
+        --cost-allocation-tags-status TagKey=Project,Status=Active \
+                                      TagKey=Owner,Status=Active \
+                                      TagKey=CostProfile,Status=Active
+      ```
+
+      Two traps here, and they compound:
+
+      **AWS refuses to activate a tag key it has never seen on a resource.** So
+      `CostProfile` — which only exists on stack resources — cannot be activated
+      until after the first `terraform apply`. The call above will succeed for
+      `Project`/`Owner` and return an error for `CostProfile`, which reads like a
+      permissions problem and is not.
+
+      **Activation is not retroactive.** Costs incurred before a tag is active are
+      never attributable to it, by any means, ever.
+
+      Together: run the command now, then **run it again right after the first
+      apply** to pick up `CostProfile`. Miss the second call and
+      `scripts/cost-explorer.sh` cannot split the bill by architecture — which is
+      half of what this project claims to do.
 - [ ] **Budget alarm** at $100/month on the account. The Karpenter NodePool caps
       runaway scaling at 32 vCPU, but a budget alarm catches everything the cap
       does not — including the stack you forgot to destroy.
@@ -261,7 +281,7 @@ Suspected runaway (nodes climbing, § 1): scale the NodePool to zero before
 debugging — `kubectl patch nodepool witness --type merge -p '{"spec":{"limits":{"cpu":"0"}}}'`
 stops new launches while leaving the evidence running.
 
-Both stacks left up cost **~$683/month (~$22/day)**. The meter does not care
+Both stacks left up cost **~$811/month (~$27/day)**. The meter does not care
 that the laptop is closed.
 
 * * *

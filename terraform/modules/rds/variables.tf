@@ -46,21 +46,36 @@ variable "allowed_security_group_ids" {
 }
 
 variable "engine_version" {
-  description = "PostgreSQL major.minor version."
-  type        = string
-  default     = "16.4"
+  description = <<-EOT
+    PostgreSQL major.minor version.
+
+    Verify the minor still exists before pinning it - AWS *removes* old minors
+    from the orderable list, and a version that was valid six months ago is not
+    a version you can create today. `terraform validate` cannot see this; the
+    apply fails ~20 minutes in, after the EKS cluster is already built and
+    billing.
+
+      aws rds describe-orderable-db-instance-options --engine postgres \
+        --db-instance-class db.t4g.small --region eu-west-3 \
+        --query 'OrderableDBInstanceOptions[?starts_with(EngineVersion, `16.`)].EngineVersion'
+
+    16.4 was the original pin here and is already gone.
+  EOT
+
+  type    = string
+  default = "16.14"
 }
 
 variable "instance_class" {
   description = "DB instance class. Identical in both infras so the cost delta isolates Multi-AZ rather than confounding it with a bigger box."
   type        = string
-  default     = "db.t4g.medium"
+  default     = "db.t4g.small"
 }
 
 variable "allocated_storage" {
   description = "Initial gp3 storage in GiB."
   type        = number
-  default     = 50
+  default     = 20
 }
 
 variable "max_allocated_storage" {

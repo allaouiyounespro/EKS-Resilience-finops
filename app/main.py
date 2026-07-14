@@ -117,10 +117,17 @@ def _dsn() -> str:
     else:
         password = os.environ.get("DB_PASSWORD", "")
 
+    # Defaults to require, matching rds.force_ssl=1 in the parameter group. It is
+    # overridable only so the app can be smoke-tested against a throwaway local
+    # Postgres that has no TLS - which is worth doing, because the alternative is
+    # discovering a bug in the RPO instrument twenty minutes into an AWS run.
+    #
+    # Nothing in k8s/ ever sets DB_SSLMODE, so the deployed default stands.
+    sslmode = os.environ.get("DB_SSLMODE", "require")
+
     return (
         f"host={host} port={port} dbname={name} user={user} password={password} "
-        # sslmode=require matches rds.force_ssl=1 in the parameter group.
-        "sslmode=require "
+        f"sslmode={sslmode} "
         # These three are the difference between a 90-second failover and a
         # 15-minute one. Without them, libpq inherits the kernel's TCP timeout
         # and a connection to a database that no longer exists can sit there

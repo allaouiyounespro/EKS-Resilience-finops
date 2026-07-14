@@ -126,21 +126,31 @@ spec:
           operator: In
           values: ["on-demand"]
 
-        - key: karpenter.k8s.aws/instance-category
+        # An explicit allowlist rather than category/generation/size predicates.
+        #
+        # The predicate version of this block (category in c/m/r, generation > 5,
+        # size in large/xlarge) reads more elegantly and costs 2.2x more. Its
+        # cheapest match is c6i.large at ~76 USD/month, and infra-b needs three
+        # of them - one per AZ, because an EC2 instance lives in exactly one AZ
+        # and you cannot spread pods across three zones with two nodes. That is
+        # 228 USD/month of compute to serve a workload doing one request a second.
+        #
+        # Burstable is the right answer for this tier and saying so is the whole
+        # point of a FinOps project: the witness pods request 100m CPU and idle
+        # far below the t3 baseline, so credits never deplete. They would be the
+        # wrong answer for a latency-sensitive tier, and a genuinely bad one for
+        # anything CPU-bound - burstable failure modes are miserable to debug.
+        #
+        # Karpenter picks the cheapest instance that fits, so in practice this
+        # resolves to t3.medium. The larger types stay in the list as headroom if
+        # the workload is ever scaled up, and they cap the size: without an upper
+        # bound Karpenter would happily satisfy six small pods with one big node -
+        # cheaper, and catastrophic here, because it would concentrate the entire
+        # workload into a single AZ and quietly rebuild the SPOF that infra-b
+        # exists to remove.
+        - key: node.kubernetes.io/instance-type
           operator: In
-          values: ["c", "m", "r"]
-
-        - key: karpenter.k8s.aws/instance-generation
-          operator: Gt
-          values: ["5"]
-
-        # Cap instance size. Without this, Karpenter may satisfy six small pods
-        # with one large node - which is cheaper, and catastrophic here: it would
-        # concentrate the entire workload onto a single node in a single AZ and
-        # quietly rebuild the SPOF that infra-b spends 200 USD/month to avoid.
-        - key: karpenter.k8s.aws/instance-size
-          operator: In
-          values: ["large", "xlarge"]
+          values: ["t3.medium", "t3.large", "c6i.large", "m6i.large"]
 
   disruption:
     # WhenEmptyOrUnderutilized is Karpenter's cost-saving mode: it actively
