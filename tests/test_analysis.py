@@ -209,15 +209,27 @@ class TestComputeRPO(unittest.TestCase):
         self.assertEqual(result.rpo_seconds, 0.0)
         self.assertEqual(result.lost_writes, 0)
 
-    def test_database_unreachable_loses_everything(self):
-        # infra-a, worst case: the database never came back. Every acknowledged
-        # write is unaccounted for, and the RPO spans the whole run.
+    def test_an_unreadable_database_is_UNKNOWN_not_total_loss(self):
+        # This assertion exists because the opposite behaviour shipped, ran
+        # against real AWS, and reported "76 acknowledged writes lost, RPO 76s"
+        # about a database that was `available` the entire time with every row
+        # intact.
+        #
+        # GET /last is served by the application. When infra-a's AZ died, every
+        # pod died with it and nothing was left to answer. The code treated an
+        # unanswerable question as a total loss and invented a number.
+        #
+        # An unreadable database means the RPO is UNKNOWN. We cannot prove the
+        # data survived; we cannot prove it did not. Filling the cell with a
+        # fabricated loss is precisely what this project exists to refuse.
         acks = [Ack(seq=i, ts=1000.0 + i, committed=True) for i in range(1, 11)]
         result = compute_rpo(acks, db_last_seq=None)
 
-        self.assertTrue(result.data_loss)
-        self.assertEqual(result.lost_writes, 10)
-        self.assertEqual(result.rpo_seconds, 9.0)  # t=1010 back to t=1001
+        self.assertTrue(result.unknown)
+        self.assertFalse(result.data_loss)
+        self.assertIsNone(result.rpo_seconds)
+        self.assertEqual(result.lost_writes, 0)
+        self.assertIn("UNKNOWN", result.summary())
 
     def test_nothing_was_ever_acknowledged(self):
         acks = [Ack(seq=i, ts=1000.0 + i, committed=False) for i in range(1, 5)]
@@ -282,8 +294,13 @@ class TestLoaders(unittest.TestCase):
 class TestEndToEnd(unittest.TestCase):
     """The two headline scenarios, as the report would produce them."""
 
-    def test_infra_a_shape_total_outage_with_data_loss(self):
-        # Everything dies and stays dead: no pod serves, the database is gone.
+    def test_infra_a_shape_total_outage_and_an_unreadable_database(self):
+        # What infra-a actually produced against real AWS: no pod survived, so
+        # the service never came back inside the observation window AND the
+        # database could not be read - because reading it goes through the app.
+        #
+        # Two distinct unknowns, and the report must keep them distinct: the RTO
+        # is "not recovered" (a fact), the RPO is "unknown" (an absence of fact).
         samples = timeline("..xxxxxxxxxxxxxxxx", start=1000.0)
         acks = [Ack(seq=i, ts=1000.0 + i, committed=(i <= 2)) for i in range(1, 6)]
 
@@ -292,7 +309,8 @@ class TestEndToEnd(unittest.TestCase):
 
         self.assertFalse(rto.recovered)
         self.assertIsNone(rto.rto_seconds)
-        self.assertTrue(rpo.data_loss)
+        self.assertTrue(rpo.unknown)
+        self.assertFalse(rpo.data_loss)
 
     def test_infra_b_shape_degraded_but_never_down(self):
         # Two of six pods die with the AZ; the survivors keep serving. From

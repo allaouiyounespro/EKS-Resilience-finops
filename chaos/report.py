@@ -84,6 +84,7 @@ def main() -> int:
             "seconds": rpo.rpo_seconds,
             "lost_writes": rpo.lost_writes,
             "data_loss": rpo.data_loss,
+            "unknown": rpo.unknown,
             "last_acked_seq": rpo.last_acked_seq,
             "db_last_seq": rpo.db_last_seq,
         },

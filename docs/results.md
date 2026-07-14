@@ -2,146 +2,159 @@
 
 owner: allaouiyounespro · portfolio: github.com/allaouiyounespro
 
-> **STATUS: NOT YET MEASURED.**
->
-> This is a template. Every cell below is empty because the experiment has not
-> been run against real AWS infrastructure yet. The numbers in `finops/` are
-> *modelled predictions*, and this file exists to hold what actually happened
-> once they are tested.
->
-> Filling these cells with plausible-looking numbers would be the single easiest
-> thing to do in this whole project, and it would make the entire repository
-> worthless. A resilience portfolio is a claim that you measure things instead of
-> assuming them; inventing the measurements inverts the claim.
->
-> Run `make up STACK=infra-a && make experiment STACK=infra-a`, then the same for
-> `infra-b`, then paste the contents of `results/<stack>/<run>/result.json` here.
+**infra-a was built on AWS and destroyed by AWS FIS. These are the measurements.**
+infra-b has not been run yet — its cells are empty, and they will stay empty
+until it is. Filling them with plausible numbers would be the easiest thing in
+this repository and would make the whole thing worthless.
 
 ---
 
-## What was predicted
+## infra-a — single-AZ
 
-Before running anything, the architecture predicts the following. Recording the
-prediction *first* is the point: it is what makes the run falsifiable, and it is
-what stops the results from being quietly reinterpreted afterwards to match
-whatever happened.
+![The outage](outage-infra-a.svg)
 
-| | infra-a (single-AZ) | infra-b (multi-AZ + DR) |
+| metric | value |
+|---|---|
+| **RTO** | **NOT RECOVERED** — still down at the end of the observation window |
+| **RPO** | **UNKNOWN** — see below |
+| Availability during the fault | **2.71%** |
+| Failed requests | **502 / 516** |
+| Zones serving during the fault | none |
+| Karpenter nodes launched during the fault | **0** |
+| Pods Pending during the fault | **6 / 6** |
+| Human intervention required to recover | **yes** |
+
+Run: `results/infra-a/20260714T183355Z/` · fault: AWS FIS, `eu-west-3a`, 15 minutes,
+network fully isolated + all nodes stopped.
+
+### What happened
+
+The AZ was cut off and every node in it was stopped. That included the **system
+nodes**, which is where the Karpenter controller runs — and infra-a, by
+definition, has no second AZ to keep a spare controller in.
+
+**Karpenter died with the workload.** With the controller gone, nothing was left
+to provision replacement capacity. The six pods went Pending and stayed Pending.
+
+Then the fault ended, and the service still did not come back.
+
+The Auto Scaling Group had launched replacement instances *during* the network
+outage. They booted, could not reach the control plane or ECR, and never joined
+the cluster — while EC2 reported them `running`, their status checks green, and
+the node group `ACTIVE` with no health issues. **Zombie instances that AWS
+believed were healthy and Kubernetes could not see.**
+
+They had to be terminated by hand before the cluster would come back.
+
+> The measured RTO for infra-a is therefore not "twenty minutes". It is **"as long
+> as it takes an engineer to understand what is happening and intervene"** —
+> which is exactly what `terraform/stacks/infra-b/variables.tf` predicted, in
+> writing, before a single measurement was taken.
+
+### Why the RPO is UNKNOWN and not zero
+
+`GET /last` — the endpoint that reports what the database still holds — is served
+by the application. Every pod was dead, so nothing was left to answer.
+
+The database itself was `available` throughout, with every row intact. But **we
+cannot prove that from inside the experiment**, and an earlier version of the
+analysis did the unforgivable thing: it treated an unanswerable question as a
+total loss and reported *"76 acknowledged writes lost, RPO 76s"* about a database
+that had lost nothing.
+
+An unreadable database means the RPO is unknown. Not zero. Not total loss.
+Unknown. `tests/test_analysis.py` now asserts this.
+
+### The observability died with the workload
+
+This is the finding that was not planned, and it may be the most useful one.
+
+| witness | data during the 15-minute outage |
+|---|---|
+| kube-state-metrics *(in the cluster)* | **3 data points in 90 minutes** |
+| Prometheus, Grafana *(in the cluster)* | pod evicted, EBS volume stranded in the dead AZ |
+| `chaos/probe.py` *(outside the cluster)* | **578 samples, no gap** |
+
+Every in-cluster observer ran on system nodes inside the target AZ. They died
+with it. The Grafana "Pending pods" panel reads **zero** for the entire outage —
+not because no pods were pending, but because **nobody was left alive to count
+them**.
+
+A dashboard that goes blank at exactly the moment you need it is not a monitoring
+system. It is a monitoring system's obituary.
+
+> *"Asking a system to report on its own death produces a suspiciously flattering
+> obituary."* — written in `k8s/monitoring/prometheusrule-resilience.yaml` before
+> any of this was measured. It is no longer a turn of phrase.
+
+The external probe is why this project has any numbers at all.
+
+---
+
+## infra-b — multi-AZ + DR
+
+| metric | value |
+|---|---|
+| RTO | _not yet run_ |
+| RPO | _not yet run_ |
+| Availability during the fault | _not yet run_ |
+| Zones serving during the fault | _not yet run_ |
+
+### What it predicts
+
+Karpenter runs **three replicas with a hard anti-affinity across zones**, so the
+controller survives in `eu-west-3b`/`3c`. The 34 USD/month third system node —
+the line item nobody puts on the invoice — is precisely what buys the difference
+between "the autoscaler replaces the lost capacity" and "there is nobody left to
+ask".
+
+RDS has a synchronous standby, so a commit is durable in two AZs before it is
+acknowledged: **RPO should be exactly zero**, and provably so, because pods in the
+surviving zones will still be alive to answer `GET /last`.
+
+If infra-b does not survive, that is a far more interesting result than if it
+does, and it will be reported as loudly.
+
+---
+
+## The three discarded runs
+
+Kept in `results/infra-a/_discarded/`, with their autopsies. They are not
+results, and none of them is in any number above. They are worth reading anyway,
+because each one produced a **well-formed, plausible, completely wrong answer**
+that nothing in the tooling flagged.
+
+| run | reported | what was actually wrong |
 |---|---|---|
-| **Predicted RTO** | 20-40 min | 60-120 s |
-| **Predicted RPO** | up to 5 min | 0 s |
-| **Why** | No standby: recovery waits for AWS to restore the AZ. Karpenter cannot help — its NodePool permits one zone, and that zone is gone. | RDS fails over to its synchronous standby (60-120s, and this dominates); Karpenter launches replacement nodes in the surviving AZs in parallel. |
-| **Cost** | $280.99/mo | $529.73/mo |
+| 1 | RTO 1006 s | Recovery came from FIS restarting the instances it stopped — not from the architecture. |
+| 2 | RTO 341 s | Karpenter reclaimed the stopped nodes, so FIS could not restart its own; the action failed; and FIS reacts to a failed action by stopping **every** action, including the network disruption. **The fault was truncated from 15 minutes to five.** A shorter outage, reported as a faster recovery. |
+| 3 | RTO 288 s | `scope: availability-zone` only cuts traffic *crossing* the AZ boundary. infra-a lives entirely inside it, so nothing crossed — the "dead" zone happily talked to itself, Karpenter launched replacements **inside the dead zone**, and the service was back in 4m48s with eleven minutes of "outage" left to run. **It was not an AZ failure at all.** |
 
-The RPO prediction is the sharpest one. infra-a's floor is set by how often RDS
-ships transaction logs to S3 — roughly every 5 minutes — so a point-in-time
-restore loses up to 5 minutes of *committed* transactions. infra-b acknowledges
-no commit until it is durable in two AZs, so its RPO should be exactly zero.
-Not "near zero". Zero. If the measurement shows otherwise, something in the
-Multi-AZ story is not what AWS says it is, and that would be the most interesting
-result this project could produce.
+The third one is the one to dwell on. It measured a real thing, correctly and
+reproducibly — the wrong thing. Its only symptom was a Grafana panel showing zero
+Pending pods, which looked like a broken graph and was in fact the graph honestly
+reporting that Karpenter had never been blocked.
+
+**Every number in this file exists because those three were thrown away.**
 
 ---
 
-## What was measured
+## Known limitations
 
-**Protocol: 3 runs per architecture, median reported.** One run is an anecdote —
-RDS failover varies by tens of seconds between runs, and Karpenter's node launch
-depends on whatever capacity EC2 happens to have that minute. The stack stays up
-between runs, and `scripts/reset-stack.sh` returns it to the starting state each
-time (in particular, it fails the RDS writer *back* into the targeted AZ — after
-run #1 it has moved, and a run that isolates an AZ no longer holding the database
-measures a completely different, much gentler fault while looking entirely
-normal).
+Stated plainly, because a portfolio that only lists its strengths is advertising.
 
-Generated by `python3 -m chaos.aggregate --stack <stack> --markdown results/<stack>/*/result.json`.
+1. **One run, not a median.** The result is categorical — the system does not
+   recover — so a median of three would not add much. But it is one run, and it
+   is labelled as one run.
 
-### infra-a — single-AZ
+2. **FIS cannot simulate a real AZ loss.** It implements network disruption with
+   network ACLs, and NACLs do not filter traffic *within* a subnet. A genuine AZ
+   loss also means EC2 refuses to launch there at all — no FIS action can do
+   that. **The measured RTO is a lower bound. Reality is worse.**
 
-| metric | value |
-|---|---|
-| Runs | _pending_ |
-| RTO (median) | _pending_ |
-| RTO (min – max) | _pending_ |
-| RPO (median) | _pending_ |
-| Availability during fault (median) | _pending_ |
-| Acknowledged writes lost (worst run) | _pending_ |
-| Runs that never recovered | _pending_ |
+3. **The witness app is trivial.** No cache to warm, no leader election, no
+   long-lived connections to rebuild. A real application adds its own recovery
+   time on top of the infrastructure's.
 
-### infra-b — multi-AZ + DR
-
-| metric | value |
-|---|---|
-| Runs | _pending_ |
-| RTO (median) | _pending_ |
-| RTO (min – max) | _pending_ |
-| RPO (median) | _pending_ |
-| Availability during fault (median) | _pending_ |
-| Acknowledged writes lost (worst run) | _pending_ |
-| Runs that never recovered | _pending_ |
-
-### The break-even, recomputed from the measurements
-
-Once both RTOs are real, re-run the model with them instead of the predictions:
-
-```bash
-python3 -m finops.cost_model --rto-a <measured> --rto-b <measured> --revenue-per-hour <yours>
-```
-
-| | value |
-|---|---|
-| Monthly delta | $248.73 |
-| Annual delta | $2,985 |
-| Saving per avoided incident | _pending_ |
-| **Break-even incident rate** | _pending_ |
-
----
-
-## Evidence
-
-Each run leaves an immutable trail. Nothing in the table above should be believed
-without it:
-
-| artefact | what it proves |
-|---|---|
-| `results/<stack>/<run>/probe.ndjson` | Second-by-second availability from **outside** the cluster. The authoritative RTO. |
-| `results/<stack>/<run>/acks.ndjson` | Every write the client was *promised* was durable. The authoritative RPO. |
-| `results/<stack>/<run>/result.json` | The computed numbers, re-derivable from the two files above. |
-| FIS experiment log group | When each fault action actually started. The clock everything else is anchored to. |
-| VPC Flow Logs | Independent proof that traffic really did stop crossing the AZ boundary. |
-
-The probe runs outside the blast radius on purpose. Prometheus is *inside* the
-cluster being destroyed — its scrapes fail during the fault, its WAL can gap, and
-if it happened to be scheduled in the doomed AZ it stops existing altogether.
-Asking a system to report on its own death produces a suspiciously flattering
-obituary. Prometheus explains *why* the outage happened; the external probe
-establishes *that* it did, and for how long.
-
----
-
-## Known limitations of the method
-
-Stated up front, because a résumé project that only lists its strengths is
-advertising, not engineering.
-
-1. **Three runs is better than one, and still not many.** The campaign reports a
-   median of 3 runs per architecture rather than a single number, and publishes
-   the min–max spread alongside it so a reader can judge whether the median means
-   anything. A statistician would want more. Three is where the marginal run stops
-   buying much confidence and starts buying mostly AWS bill.
-
-2. **FIS's AZ failure is a simulation, not the real thing.** It disrupts
-   connectivity and stops instances. A genuine AZ event is messier: partial
-   failures, degraded-but-not-dead hardware, control-plane slowness, and a
-   thundering herd of *every other AWS customer* failing over at the same moment.
-   The measured RTO is therefore a **lower bound**. Reality will be worse.
-
-3. **The witness app is trivial.** It has no cache to warm, no leader election, no
-   long-running connections to re-establish. A real application's RTO includes all
-   of that, and it is frequently the dominant term. What is measured here is the
-   *infrastructure's* recovery time, which is a floor under the application's.
-
-4. **Cross-region failure is out of scope.** infra-b survives an AZ. It does not
-   survive a region. The read replica is a manual promotion path, not a tested
-   one, and calling it "DR" is generous — honest DR means measuring a
-   cross-region failover too.
+4. **infra-b survives an AZ, not a region.** The read replica is an untested
+   manual promotion path. Calling it "DR" is generous.

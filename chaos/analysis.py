@@ -130,7 +130,17 @@ class RPOResult:
     rpo_seconds: float | None
     data_loss: bool
 
+    # True when the database could not be read at all, so the RPO is genuinely
+    # unknown - as opposed to known to be zero. The distinction is the whole
+    # difference between "the data survived" and "nobody was left alive to ask".
+    unknown: bool = False
+
     def summary(self) -> str:
+        if self.unknown:
+            return (
+                "RPO = UNKNOWN - the database could not be read after the fault "
+                "(no pod survived to answer). Data loss is neither proven nor ruled out."
+            )
         if not self.data_loss:
             return "RPO = 0s - every acknowledged write survived"
         return (
@@ -332,16 +342,29 @@ def compute_rpo(acks: Iterable[Ack], db_last_seq: int | None) -> RPOResult:
             data_loss=False,
         )
 
-    # The database lost everything, or was never reachable to be read.
+    # The readout failed. This is NOT the same as the database losing data, and
+    # conflating the two produced a genuinely bad result before it was caught.
+    #
+    # GET /last is served by the application. When infra-a's AZ died, every pod
+    # died with it, so nothing was left to answer - and the code used to treat an
+    # unanswerable question as a total loss, reporting "76 acknowledged writes
+    # lost, RPO 76s". The database was `available` the whole time with every row
+    # intact. The number was pure fiction, and it was about to be published.
+    #
+    # An unreadable database means the RPO is UNKNOWN. Saying so is the only
+    # honest answer: we cannot prove the data survived, and we cannot prove it
+    # did not. Inventing a loss to fill the cell is exactly the kind of thing
+    # this project exists to refuse.
     if db_last_seq is None:
         return RPOResult(
             last_acked_seq=last_ack.seq,
             last_acked_ts=last_ack.ts,
             db_last_seq=None,
             db_last_ts=None,
-            lost_writes=len(committed),
-            rpo_seconds=last_ack.ts - committed[0].ts,
-            data_loss=True,
+            lost_writes=0,
+            rpo_seconds=None,
+            data_loss=False,
+            unknown=True,
         )
 
     lost = [a for a in committed if a.seq > db_last_seq]
