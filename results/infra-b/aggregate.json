@@ -1,0 +1,16 @@
+{
+  "stack": "infra-b",
+  "runs": 3,
+  "rto_median": 34.09904623031616,
+  "rto_min": 28.14889621734619,
+  "rto_max": 58.38522171974182,
+  "rto_spread": 30.23632550239563,
+  "runs_recovered": 3,
+  "runs_never_recovered": 0,
+  "runs_survived": 0,
+  "rpo_median": null,
+  "rpo_max": null,
+  "runs_with_data_loss": 0,
+  "lost_writes_max": 0,
+  "availability_median": 0.9880952380952381
+}

@@ -1,0 +1,27 @@
+{
+  "stack": "infra-a",
+  "fault_start": 1784050539.668,
+  "fault_start_iso": "2026-07-14T17:35:39.668000+00:00",
+  "rto": {
+    "seconds": 341.5382070541382,
+    "outage_start_iso": "2026-07-14T17:35:55.744274+00:00",
+    "recovered_at_iso": "2026-07-14T17:41:37.282481+00:00",
+    "detection_seconds": 16.076274156570435,
+    "availability": 0.8448023426061493,
+    "total_samples": 683,
+    "failed_samples": 106,
+    "zones_serving_during_fault": [
+      "eu-west-3a",
+      "unknown"
+    ],
+    "survived": false,
+    "recovered": true
+  },
+  "rpo": {
+    "seconds": 0.0,
+    "lost_writes": 0,
+    "data_loss": false,
+    "last_acked_seq": 710,
+    "db_last_seq": 1374
+  }
+}

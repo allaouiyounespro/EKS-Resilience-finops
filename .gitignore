@@ -15,10 +15,17 @@ terraform/backend.hcl
 *.auto.tfvars
 terraform/stacks/*/terraform.tfvars
 
-# Experiment output. The raw NDJSON timelines are the evidence behind every number
-# in docs/results.md, so a *curated* run is committed under docs/ deliberately -
-# but the working directory of every ad-hoc run is not.
-results/
+# Experiment output IS committed. It was ignored here until the runs stopped being
+# scratch and became the product: every number in docs/results.md is derived from
+# these files, and a repository that publishes the conclusions while gitignoring
+# the evidence is exactly the thing this project argues against.
+#
+# The raw probe timelines are ~50KB per run. Cheap, and they are the only reason
+# anyone should believe the results - including the three discarded runs, whose
+# autopsies are worth more than most of the passing ones.
+#
+# What stays out: nothing. If a run is not worth committing, it should not have
+# been run.
 
 # Python
 __pycache__/

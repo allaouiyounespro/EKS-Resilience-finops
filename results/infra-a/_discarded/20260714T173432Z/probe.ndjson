@@ -1,0 +1,746 @@
+{"ts": 1784050474.705855, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 66.89}
+{"ts": 1784050475.7059624, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.3}
+{"ts": 1784050476.7060313, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.27}
+{"ts": 1784050477.7061307, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.41}
+{"ts": 1784050480.0123394, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 32.62}
+{"ts": 1784050481.0124495, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.93}
+{"ts": 1784050482.0125387, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 33.51}
+{"ts": 1784050483.0126374, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.17}
+{"ts": 1784050484.012737, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.37}
+{"ts": 1784050485.0128345, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.97}
+{"ts": 1784050486.0129464, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.35}
+{"ts": 1784050487.0130503, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.55}
+{"ts": 1784050488.0130923, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.81}
+{"ts": 1784050489.0131378, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.21}
+{"ts": 1784050490.013264, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.03}
+{"ts": 1784050491.0133832, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.79}
+{"ts": 1784050492.0134804, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.6}
+{"ts": 1784050493.0135596, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.2}
+{"ts": 1784050494.01366, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.98}
+{"ts": 1784050495.013742, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.3}
+{"ts": 1784050496.0138385, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.41}
+{"ts": 1784050497.0139616, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.13}
+{"ts": 1784050498.0140498, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.21}
+{"ts": 1784050499.0141528, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.59}
+{"ts": 1784050500.0142477, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.98}
+{"ts": 1784050501.0143383, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 49.09}
+{"ts": 1784050502.014421, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 32.05}
+{"ts": 1784050503.0145192, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.81}
+{"ts": 1784050504.0146399, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.89}
+{"ts": 1784050505.0147297, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.63}
+{"ts": 1784050506.0148153, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.66}
+{"ts": 1784050507.0148668, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.77}
+{"ts": 1784050508.014912, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.71}
+{"ts": 1784050509.015003, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 32.15}
+{"ts": 1784050510.015127, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.15}
+{"ts": 1784050511.0151618, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.43}
+{"ts": 1784050513.3749754, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.63}
+{"ts": 1784050514.37504, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.99}
+{"ts": 1784050515.375097, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.75}
+{"ts": 1784050516.375149, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.53}
+{"ts": 1784050517.375221, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.83}
+{"ts": 1784050518.3753092, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.13}
+{"ts": 1784050519.3754082, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.12}
+{"ts": 1784050520.3755124, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.5}
+{"ts": 1784050521.3755498, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.06}
+{"ts": 1784050522.375631, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.48}
+{"ts": 1784050523.3756971, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.56}
+{"ts": 1784050524.375808, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.71}
+{"ts": 1784050525.3758812, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.87}
+{"ts": 1784050526.3759663, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.11}
+{"ts": 1784050527.3760383, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.34}
+{"ts": 1784050528.3761141, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.31}
+{"ts": 1784050529.3763018, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.52}
+{"ts": 1784050530.3763776, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.62}
+{"ts": 1784050531.3764734, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.8}
+{"ts": 1784050532.3765347, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.87}
+{"ts": 1784050533.376646, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.63}
+{"ts": 1784050534.3767118, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 37.28}
+{"ts": 1784050535.3768034, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.37}
+{"ts": 1784050536.3768954, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.83}
+{"ts": 1784050537.3770118, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.39}
+{"ts": 1784050538.3771052, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.09}
+{"ts": 1784050539.3772082, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.77}
+{"ts": 1784050540.377331, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.38}
+{"ts": 1784050541.3773932, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.88}
+{"ts": 1784050542.377653, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.79}
+{"ts": 1784050543.3778152, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.05}
+{"ts": 1784050544.3778698, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.23}
+{"ts": 1784050546.7432728, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.07}
+{"ts": 1784050547.7433598, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.39}
+{"ts": 1784050548.7434597, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.23}
+{"ts": 1784050549.7435458, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.82}
+{"ts": 1784050550.743624, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.19}
+{"ts": 1784050551.7437646, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.29}
+{"ts": 1784050552.7438753, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.57}
+{"ts": 1784050553.7440877, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.78}
+{"ts": 1784050554.744179, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.03}
+{"ts": 1784050555.7442741, "ok": false, "status": null, "zone": null, "latency_ms": 3017.25, "error": "TimeoutError"}
+{"ts": 1784050558.7616057, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.1}
+{"ts": 1784050559.761721, "ok": false, "status": null, "zone": null, "latency_ms": 3016.9, "error": "TimeoutError"}
+{"ts": 1784050562.778725, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.35}
+{"ts": 1784050563.7788067, "ok": false, "status": null, "zone": null, "latency_ms": 3015.77, "error": "TimeoutError"}
+{"ts": 1784050566.7946858, "ok": false, "status": null, "zone": null, "latency_ms": 3016.92, "error": "TimeoutError"}
+{"ts": 1784050569.811697, "ok": false, "status": 502, "zone": null, "latency_ms": 3004.78, "error": "http_502"}
+{"ts": 1784050572.816646, "ok": false, "status": null, "zone": null, "latency_ms": 3016.12, "error": "TimeoutError"}
+{"ts": 1784050575.8328407, "ok": false, "status": null, "zone": null, "latency_ms": 4345.59, "error": "TimeoutError"}
+{"ts": 1784050580.1785047, "ok": false, "status": null, "zone": null, "latency_ms": 3016.98, "error": "TimeoutError"}
+{"ts": 1784050583.1955545, "ok": false, "status": null, "zone": null, "latency_ms": 3014.75, "error": "TimeoutError"}
+{"ts": 1784050586.2103672, "ok": false, "status": null, "zone": null, "latency_ms": 3020.21, "error": "TimeoutError"}
+{"ts": 1784050589.2306535, "ok": false, "status": null, "zone": null, "latency_ms": 3016.53, "error": "TimeoutError"}
+{"ts": 1784050592.247309, "ok": false, "status": null, "zone": null, "latency_ms": 3016.91, "error": "TimeoutError"}
+{"ts": 1784050595.2643113, "ok": false, "status": null, "zone": null, "latency_ms": 3030.45, "error": "TimeoutError"}
+{"ts": 1784050598.294831, "ok": false, "status": null, "zone": null, "latency_ms": 3015.77, "error": "TimeoutError"}
+{"ts": 1784050601.3106804, "ok": false, "status": null, "zone": null, "latency_ms": 3021.71, "error": "TimeoutError"}
+{"ts": 1784050604.332461, "ok": false, "status": null, "zone": null, "latency_ms": 3017.31, "error": "TimeoutError"}
+{"ts": 1784050607.3498375, "ok": false, "status": null, "zone": null, "latency_ms": 3015.18, "error": "TimeoutError"}
+{"ts": 1784050610.365127, "ok": false, "status": null, "zone": null, "latency_ms": 4340.17, "error": "TimeoutError"}
+{"ts": 1784050614.7053733, "ok": false, "status": null, "zone": null, "latency_ms": 3017.63, "error": "TimeoutError"}
+{"ts": 1784050617.7230978, "ok": false, "status": null, "zone": null, "latency_ms": 3022.37, "error": "TimeoutError"}
+{"ts": 1784050620.7455378, "ok": false, "status": null, "zone": null, "latency_ms": 3017.69, "error": "TimeoutError"}
+{"ts": 1784050623.7632992, "ok": false, "status": null, "zone": null, "latency_ms": 3016.46, "error": "TimeoutError"}
+{"ts": 1784050626.7798285, "ok": false, "status": null, "zone": null, "latency_ms": 3016.76, "error": "TimeoutError"}
+{"ts": 1784050629.7966564, "ok": false, "status": null, "zone": null, "latency_ms": 3017.47, "error": "TimeoutError"}
+{"ts": 1784050632.814198, "ok": false, "status": null, "zone": null, "latency_ms": 3017.74, "error": "TimeoutError"}
+{"ts": 1784050635.832009, "ok": false, "status": null, "zone": null, "latency_ms": 3014.87, "error": "TimeoutError"}
+{"ts": 1784050638.8469396, "ok": false, "status": null, "zone": null, "latency_ms": 3014.83, "error": "TimeoutError"}
+{"ts": 1784050641.8618345, "ok": false, "status": null, "zone": null, "latency_ms": 3016.31, "error": "TimeoutError"}
+{"ts": 1784050644.8782256, "ok": false, "status": null, "zone": null, "latency_ms": 4316.3, "error": "TimeoutError"}
+{"ts": 1784050649.194596, "ok": false, "status": null, "zone": null, "latency_ms": 3020.92, "error": "TimeoutError"}
+{"ts": 1784050652.2155766, "ok": false, "status": null, "zone": null, "latency_ms": 3016.84, "error": "TimeoutError"}
+{"ts": 1784050655.2324898, "ok": false, "status": null, "zone": null, "latency_ms": 3031.06, "error": "TimeoutError"}
+{"ts": 1784050658.2636282, "ok": false, "status": null, "zone": null, "latency_ms": 3014.29, "error": "TimeoutError"}
+{"ts": 1784050661.2780013, "ok": false, "status": null, "zone": null, "latency_ms": 3017.1, "error": "TimeoutError"}
+{"ts": 1784050664.2952113, "ok": false, "status": null, "zone": null, "latency_ms": 3020.34, "error": "TimeoutError"}
+{"ts": 1784050667.315622, "ok": false, "status": null, "zone": null, "latency_ms": 3013.83, "error": "TimeoutError"}
+{"ts": 1784050670.3295252, "ok": false, "status": null, "zone": null, "latency_ms": 3015.02, "error": "TimeoutError"}
+{"ts": 1784050673.3446093, "ok": false, "status": null, "zone": null, "latency_ms": 3014.99, "error": "TimeoutError"}
+{"ts": 1784050676.35967, "ok": false, "status": null, "zone": null, "latency_ms": 4273.04, "error": "TimeoutError"}
+{"ts": 1784050680.6328034, "ok": false, "status": null, "zone": null, "latency_ms": 3021.37, "error": "TimeoutError"}
+{"ts": 1784050683.654264, "ok": false, "status": null, "zone": null, "latency_ms": 3016.4, "error": "TimeoutError"}
+{"ts": 1784050686.6707978, "ok": false, "status": null, "zone": null, "latency_ms": 3015.41, "error": "TimeoutError"}
+{"ts": 1784050689.686285, "ok": false, "status": null, "zone": null, "latency_ms": 3017.59, "error": "TimeoutError"}
+{"ts": 1784050692.7039444, "ok": false, "status": null, "zone": null, "latency_ms": 3017.05, "error": "TimeoutError"}
+{"ts": 1784050695.7210593, "ok": false, "status": null, "zone": null, "latency_ms": 3022.15, "error": "TimeoutError"}
+{"ts": 1784050698.7433162, "ok": false, "status": null, "zone": null, "latency_ms": 3017.09, "error": "TimeoutError"}
+{"ts": 1784050701.7604756, "ok": false, "status": null, "zone": null, "latency_ms": 3016.91, "error": "TimeoutError"}
+{"ts": 1784050704.777481, "ok": false, "status": null, "zone": null, "latency_ms": 3014.52, "error": "TimeoutError"}
+{"ts": 1784050707.792073, "ok": false, "status": null, "zone": null, "latency_ms": 3017.45, "error": "TimeoutError"}
+{"ts": 1784050710.8095942, "ok": false, "status": null, "zone": null, "latency_ms": 4281.72, "error": "TimeoutError"}
+{"ts": 1784050715.0913818, "ok": false, "status": null, "zone": null, "latency_ms": 3029.73, "error": "TimeoutError"}
+{"ts": 1784050718.1211941, "ok": false, "status": null, "zone": null, "latency_ms": 3015.86, "error": "TimeoutError"}
+{"ts": 1784050721.1371505, "ok": false, "status": null, "zone": null, "latency_ms": 3016.63, "error": "TimeoutError"}
+{"ts": 1784050724.1538942, "ok": false, "status": null, "zone": null, "latency_ms": 3017.36, "error": "TimeoutError"}
+{"ts": 1784050727.1713266, "ok": false, "status": null, "zone": null, "latency_ms": 3022.55, "error": "TimeoutError"}
+{"ts": 1784050730.1939914, "ok": false, "status": null, "zone": null, "latency_ms": 3015.93, "error": "TimeoutError"}
+{"ts": 1784050733.2099996, "ok": false, "status": null, "zone": null, "latency_ms": 3016.08, "error": "TimeoutError"}
+{"ts": 1784050736.226154, "ok": false, "status": null, "zone": null, "latency_ms": 3015.34, "error": "TimeoutError"}
+{"ts": 1784050739.2415645, "ok": false, "status": null, "zone": null, "latency_ms": 3016.82, "error": "TimeoutError"}
+{"ts": 1784050742.2584631, "ok": false, "status": null, "zone": null, "latency_ms": 3019.4, "error": "TimeoutError"}
+{"ts": 1784050745.2779324, "ok": false, "status": null, "zone": null, "latency_ms": 4232.36, "error": "TimeoutError"}
+{"ts": 1784050749.5103767, "ok": false, "status": null, "zone": null, "latency_ms": 3018.61, "error": "TimeoutError"}
+{"ts": 1784050752.5290694, "ok": false, "status": null, "zone": null, "latency_ms": 3017.89, "error": "TimeoutError"}
+{"ts": 1784050755.5470772, "ok": false, "status": null, "zone": null, "latency_ms": 3016.72, "error": "TimeoutError"}
+{"ts": 1784050758.563956, "ok": false, "status": null, "zone": null, "latency_ms": 3017.29, "error": "TimeoutError"}
+{"ts": 1784050761.581325, "ok": false, "status": null, "zone": null, "latency_ms": 3016.44, "error": "TimeoutError"}
+{"ts": 1784050764.5978918, "ok": false, "status": null, "zone": null, "latency_ms": 3017.18, "error": "TimeoutError"}
+{"ts": 1784050767.6151702, "ok": false, "status": null, "zone": null, "latency_ms": 3016.83, "error": "TimeoutError"}
+{"ts": 1784050770.6320636, "ok": false, "status": null, "zone": null, "latency_ms": 3016.76, "error": "TimeoutError"}
+{"ts": 1784050773.6488898, "ok": false, "status": null, "zone": null, "latency_ms": 3024.15, "error": "TimeoutError"}
+{"ts": 1784050776.6731231, "ok": false, "status": null, "zone": null, "latency_ms": 3016.85, "error": "TimeoutError"}
+{"ts": 1784050779.690113, "ok": false, "status": null, "zone": null, "latency_ms": 4288.74, "error": "TimeoutError"}
+{"ts": 1784050783.9789338, "ok": false, "status": null, "zone": null, "latency_ms": 3015.56, "error": "TimeoutError"}
+{"ts": 1784050786.9945767, "ok": false, "status": null, "zone": null, "latency_ms": 3017.12, "error": "TimeoutError"}
+{"ts": 1784050790.0117779, "ok": false, "status": null, "zone": null, "latency_ms": 3016.03, "error": "TimeoutError"}
+{"ts": 1784050793.0280044, "ok": false, "status": null, "zone": null, "latency_ms": 3021.35, "error": "TimeoutError"}
+{"ts": 1784050796.0494385, "ok": false, "status": null, "zone": null, "latency_ms": 3017.25, "error": "TimeoutError"}
+{"ts": 1784050799.0667915, "ok": false, "status": null, "zone": null, "latency_ms": 3015.61, "error": "TimeoutError"}
+{"ts": 1784050802.0824823, "ok": false, "status": null, "zone": null, "latency_ms": 3016.1, "error": "TimeoutError"}
+{"ts": 1784050805.098653, "ok": false, "status": null, "zone": null, "latency_ms": 3020.84, "error": "TimeoutError"}
+{"ts": 1784050808.1196575, "ok": false, "status": null, "zone": null, "latency_ms": 3017.15, "error": "TimeoutError"}
+{"ts": 1784050811.1368792, "ok": false, "status": null, "zone": null, "latency_ms": 4292.3, "error": "TimeoutError"}
+{"ts": 1784050815.4292562, "ok": false, "status": null, "zone": null, "latency_ms": 3016.49, "error": "TimeoutError"}
+{"ts": 1784050818.4458117, "ok": false, "status": null, "zone": null, "latency_ms": 3016.82, "error": "TimeoutError"}
+{"ts": 1784050821.4627125, "ok": false, "status": null, "zone": null, "latency_ms": 3020.66, "error": "TimeoutError"}
+{"ts": 1784050824.48346, "ok": false, "status": null, "zone": null, "latency_ms": 3017.37, "error": "TimeoutError"}
+{"ts": 1784050827.5008936, "ok": false, "status": null, "zone": null, "latency_ms": 3016.22, "error": "TimeoutError"}
+{"ts": 1784050830.517194, "ok": false, "status": null, "zone": null, "latency_ms": 3017.43, "error": "TimeoutError"}
+{"ts": 1784050833.534695, "ok": false, "status": null, "zone": null, "latency_ms": 3015.61, "error": "TimeoutError"}
+{"ts": 1784050836.550378, "ok": false, "status": null, "zone": null, "latency_ms": 3031.84, "error": "TimeoutError"}
+{"ts": 1784050839.5822792, "ok": false, "status": null, "zone": null, "latency_ms": 3014.63, "error": "TimeoutError"}
+{"ts": 1784050842.5969882, "ok": false, "status": null, "zone": null, "latency_ms": 3017.62, "error": "TimeoutError"}
+{"ts": 1784050845.6146812, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 31.0}
+{"ts": 1784050846.6147914, "ok": false, "status": null, "zone": null, "latency_ms": 4269.81, "error": "TimeoutError"}
+{"ts": 1784050850.884669, "ok": false, "status": null, "zone": null, "latency_ms": 3016.76, "error": "TimeoutError"}
+{"ts": 1784050853.9015176, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.73}
+{"ts": 1784050854.9015825, "ok": false, "status": null, "zone": null, "latency_ms": 3017.44, "error": "TimeoutError"}
+{"ts": 1784050857.919098, "ok": false, "status": null, "zone": null, "latency_ms": 3015.55, "error": "TimeoutError"}
+{"ts": 1784050860.934728, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 30.4}
+{"ts": 1784050861.9348216, "ok": false, "status": null, "zone": null, "latency_ms": 3016.63, "error": "TimeoutError"}
+{"ts": 1784050864.9515183, "ok": false, "status": null, "zone": null, "latency_ms": 3016.58, "error": "TimeoutError"}
+{"ts": 1784050867.9682267, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.47}
+{"ts": 1784050868.9683454, "ok": false, "status": null, "zone": null, "latency_ms": 3017.43, "error": "TimeoutError"}
+{"ts": 1784050871.985846, "ok": false, "status": null, "zone": null, "latency_ms": 3016.77, "error": "TimeoutError"}
+{"ts": 1784050875.0026953, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.15}
+{"ts": 1784050876.0028005, "ok": false, "status": null, "zone": null, "latency_ms": 3017.62, "error": "TimeoutError"}
+{"ts": 1784050879.0204902, "ok": false, "status": null, "zone": null, "latency_ms": 4193.66, "error": "TimeoutError"}
+{"ts": 1784050883.214241, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.77}
+{"ts": 1784050884.2143707, "ok": false, "status": null, "zone": null, "latency_ms": 3015.98, "error": "TimeoutError"}
+{"ts": 1784050887.2304657, "ok": false, "status": null, "zone": null, "latency_ms": 3017.57, "error": "TimeoutError"}
+{"ts": 1784050890.2481422, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.5}
+{"ts": 1784050891.2482314, "ok": false, "status": null, "zone": null, "latency_ms": 3016.51, "error": "TimeoutError"}
+{"ts": 1784050894.2648075, "ok": false, "status": null, "zone": null, "latency_ms": 3017.6, "error": "TimeoutError"}
+{"ts": 1784050897.2824812, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 39.49}
+{"ts": 1784050898.2825816, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.61}
+{"ts": 1784050899.2826886, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.7}
+{"ts": 1784050900.282795, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.09}
+{"ts": 1784050901.2828953, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.65}
+{"ts": 1784050902.2829914, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.38}
+{"ts": 1784050903.283101, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.46}
+{"ts": 1784050904.2832103, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.5}
+{"ts": 1784050905.283313, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.98}
+{"ts": 1784050906.2834666, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.18}
+{"ts": 1784050907.283551, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.11}
+{"ts": 1784050908.2836478, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.99}
+{"ts": 1784050909.2837412, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.36}
+{"ts": 1784050910.2838356, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.25}
+{"ts": 1784050911.2839406, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.58}
+{"ts": 1784050912.2840514, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.61}
+{"ts": 1784050913.284167, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.0}
+{"ts": 1784050915.5220163, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.88}
+{"ts": 1784050916.5221248, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.21}
+{"ts": 1784050917.5222473, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.15}
+{"ts": 1784050918.5223472, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.73}
+{"ts": 1784050919.52244, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.69}
+{"ts": 1784050920.5225348, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.33}
+{"ts": 1784050921.5226686, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 59.55}
+{"ts": 1784050922.5227573, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.91}
+{"ts": 1784050923.5228398, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.33}
+{"ts": 1784050924.522963, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.18}
+{"ts": 1784050925.5230596, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.96}
+{"ts": 1784050926.523172, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.76}
+{"ts": 1784050927.5233717, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 32.18}
+{"ts": 1784050928.5234575, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.18}
+{"ts": 1784050929.5235646, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.32}
+{"ts": 1784050930.5236692, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.37}
+{"ts": 1784050931.5237918, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.37}
+{"ts": 1784050932.5238957, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.82}
+{"ts": 1784050933.5239944, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.89}
+{"ts": 1784050934.5241039, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.02}
+{"ts": 1784050935.5242088, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.67}
+{"ts": 1784050936.5243084, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.58}
+{"ts": 1784050937.5244074, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.76}
+{"ts": 1784050938.5245347, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.87}
+{"ts": 1784050939.5246415, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.78}
+{"ts": 1784050940.5247517, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.72}
+{"ts": 1784050941.524856, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.81}
+{"ts": 1784050942.5249593, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.03}
+{"ts": 1784050943.5250702, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.29}
+{"ts": 1784050944.525184, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.87}
+{"ts": 1784050945.5253215, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.14}
+{"ts": 1784050946.5254214, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.2}
+{"ts": 1784050948.751175, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.73}
+{"ts": 1784050949.7512612, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.07}
+{"ts": 1784050950.7513585, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.15}
+{"ts": 1784050951.751467, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.94}
+{"ts": 1784050952.7516286, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.58}
+{"ts": 1784050953.7517607, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.1}
+{"ts": 1784050954.751831, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.75}
+{"ts": 1784050955.7518985, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.85}
+{"ts": 1784050956.752007, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 43.77}
+{"ts": 1784050957.7520556, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.18}
+{"ts": 1784050958.752154, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.07}
+{"ts": 1784050959.7522051, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.4}
+{"ts": 1784050960.7523055, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.99}
+{"ts": 1784050961.752395, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 24.89}
+{"ts": 1784050962.7525015, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.82}
+{"ts": 1784050963.7525833, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 39.47}
+{"ts": 1784050964.7526858, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.82}
+{"ts": 1784050965.7527637, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.46}
+{"ts": 1784050966.752857, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.5}
+{"ts": 1784050967.752902, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.92}
+{"ts": 1784050968.7529953, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.19}
+{"ts": 1784050969.7530875, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.56}
+{"ts": 1784050970.7532117, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.55}
+{"ts": 1784050971.753303, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.41}
+{"ts": 1784050972.7533896, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.1}
+{"ts": 1784050973.7534835, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.08}
+{"ts": 1784050974.7535796, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.93}
+{"ts": 1784050975.7536685, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.1}
+{"ts": 1784050976.7537677, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.44}
+{"ts": 1784050977.7538543, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.52}
+{"ts": 1784050978.7539432, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.69}
+{"ts": 1784050979.7540333, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.41}
+{"ts": 1784050981.9796844, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 29.8}
+{"ts": 1784050982.9798038, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.9}
+{"ts": 1784050983.9798796, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.99}
+{"ts": 1784050984.9799585, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.36}
+{"ts": 1784050985.9800365, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.19}
+{"ts": 1784050986.9801302, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.31}
+{"ts": 1784050987.9802227, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.34}
+{"ts": 1784050988.9802964, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.4}
+{"ts": 1784050989.9804416, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.08}
+{"ts": 1784050990.98052, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.57}
+{"ts": 1784050991.980618, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.86}
+{"ts": 1784050992.980671, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.79}
+{"ts": 1784050993.980758, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.97}
+{"ts": 1784050994.9808397, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.74}
+{"ts": 1784050995.9809191, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.83}
+{"ts": 1784050996.981001, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.74}
+{"ts": 1784050997.981117, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.17}
+{"ts": 1784050998.9811954, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.85}
+{"ts": 1784050999.9813068, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.73}
+{"ts": 1784051000.981392, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.62}
+{"ts": 1784051001.9814675, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.46}
+{"ts": 1784051002.981564, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.78}
+{"ts": 1784051003.981674, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.93}
+{"ts": 1784051004.9817624, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 32.92}
+{"ts": 1784051005.9818494, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.37}
+{"ts": 1784051006.9819422, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.14}
+{"ts": 1784051007.982024, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.11}
+{"ts": 1784051008.9821055, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.93}
+{"ts": 1784051009.982217, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.78}
+{"ts": 1784051010.9823499, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.89}
+{"ts": 1784051011.98244, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.6}
+{"ts": 1784051012.9825346, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.75}
+{"ts": 1784051013.9826114, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.58}
+{"ts": 1784051016.2080123, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.87}
+{"ts": 1784051017.208095, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 42.73}
+{"ts": 1784051018.2081625, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.06}
+{"ts": 1784051019.208293, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.26}
+{"ts": 1784051020.2083702, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.75}
+{"ts": 1784051021.208454, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.83}
+{"ts": 1784051022.208535, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.43}
+{"ts": 1784051023.2086296, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.98}
+{"ts": 1784051024.2087102, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 42.31}
+{"ts": 1784051025.2087917, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.88}
+{"ts": 1784051026.2089086, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.59}
+{"ts": 1784051027.2089925, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.66}
+{"ts": 1784051028.2090726, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.98}
+{"ts": 1784051029.209181, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.56}
+{"ts": 1784051030.2092519, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.81}
+{"ts": 1784051031.2093248, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.76}
+{"ts": 1784051032.2093914, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 32.21}
+{"ts": 1784051033.2094743, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.11}
+{"ts": 1784051034.2095397, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.37}
+{"ts": 1784051035.2096045, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.33}
+{"ts": 1784051036.2097151, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.34}
+{"ts": 1784051037.2097964, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.76}
+{"ts": 1784051038.2098422, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.98}
+{"ts": 1784051039.2099252, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 32.41}
+{"ts": 1784051040.2100575, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.75}
+{"ts": 1784051041.2101476, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 34.11}
+{"ts": 1784051042.2102463, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.58}
+{"ts": 1784051043.2103279, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.15}
+{"ts": 1784051044.2104118, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.88}
+{"ts": 1784051045.210494, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.4}
+{"ts": 1784051046.2105517, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.4}
+{"ts": 1784051047.210675, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.92}
+{"ts": 1784051049.4356296, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.88}
+{"ts": 1784051050.4357095, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.02}
+{"ts": 1784051051.435764, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.51}
+{"ts": 1784051052.4358492, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.21}
+{"ts": 1784051053.4359634, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.26}
+{"ts": 1784051054.4360437, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.9}
+{"ts": 1784051055.4361472, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 30.59}
+{"ts": 1784051056.436213, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.82}
+{"ts": 1784051057.4362624, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.35}
+{"ts": 1784051058.4363482, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.46}
+{"ts": 1784051059.436429, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.32}
+{"ts": 1784051060.4364867, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.56}
+{"ts": 1784051061.4365768, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.53}
+{"ts": 1784051062.4366918, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.33}
+{"ts": 1784051063.4367764, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.98}
+{"ts": 1784051064.4368343, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.7}
+{"ts": 1784051065.436893, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.41}
+{"ts": 1784051066.4369907, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.65}
+{"ts": 1784051067.437042, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.68}
+{"ts": 1784051068.437098, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.65}
+{"ts": 1784051069.4372423, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.49}
+{"ts": 1784051070.437334, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.06}
+{"ts": 1784051071.4373927, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.88}
+{"ts": 1784051072.437508, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.67}
+{"ts": 1784051073.4376163, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.93}
+{"ts": 1784051074.437702, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.94}
+{"ts": 1784051075.4378028, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.85}
+{"ts": 1784051076.4378822, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 42.07}
+{"ts": 1784051077.4379454, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.4}
+{"ts": 1784051078.4380171, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.81}
+{"ts": 1784051079.438075, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.66}
+{"ts": 1784051080.438498, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.4}
+{"ts": 1784051082.6627822, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.73}
+{"ts": 1784051083.6628492, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.08}
+{"ts": 1784051084.662958, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.57}
+{"ts": 1784051085.6630392, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.68}
+{"ts": 1784051086.663127, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.29}
+{"ts": 1784051087.6632078, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.99}
+{"ts": 1784051088.6632936, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.23}
+{"ts": 1784051089.6633794, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.38}
+{"ts": 1784051090.6634574, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.55}
+{"ts": 1784051091.663564, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.48}
+{"ts": 1784051092.6636226, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.3}
+{"ts": 1784051093.6637168, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.93}
+{"ts": 1784051094.6637719, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.03}
+{"ts": 1784051095.6638637, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 29.56}
+{"ts": 1784051096.6639352, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.35}
+{"ts": 1784051097.6640258, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.68}
+{"ts": 1784051098.6641693, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.92}
+{"ts": 1784051099.6642478, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.35}
+{"ts": 1784051100.6643054, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 32.58}
+{"ts": 1784051101.6643596, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.81}
+{"ts": 1784051102.6644273, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.79}
+{"ts": 1784051103.6645257, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.78}
+{"ts": 1784051104.6645977, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.24}
+{"ts": 1784051105.664683, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.38}
+{"ts": 1784051106.6647594, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.41}
+{"ts": 1784051107.6648378, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.33}
+{"ts": 1784051108.6648884, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.34}
+{"ts": 1784051109.6649652, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.33}
+{"ts": 1784051110.6650183, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.81}
+{"ts": 1784051111.6651082, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.19}
+{"ts": 1784051112.6651561, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.18}
+{"ts": 1784051113.6652317, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.44}
+{"ts": 1784051115.889413, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.73}
+{"ts": 1784051116.889504, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.41}
+{"ts": 1784051117.8895853, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.4}
+{"ts": 1784051118.8896735, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.32}
+{"ts": 1784051119.8897436, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.25}
+{"ts": 1784051120.8898203, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.94}
+{"ts": 1784051121.8899202, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.84}
+{"ts": 1784051122.8900235, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.67}
+{"ts": 1784051123.8901026, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.28}
+{"ts": 1784051124.8902006, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.0}
+{"ts": 1784051125.8902714, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.16}
+{"ts": 1784051126.890359, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.73}
+{"ts": 1784051127.890442, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.13}
+{"ts": 1784051128.8905287, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.11}
+{"ts": 1784051129.8906152, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.45}
+{"ts": 1784051130.8907158, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.76}
+{"ts": 1784051131.8908086, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.29}
+{"ts": 1784051132.8908863, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.53}
+{"ts": 1784051133.890959, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.78}
+{"ts": 1784051134.8910184, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.74}
+{"ts": 1784051135.891104, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.51}
+{"ts": 1784051136.8912046, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.47}
+{"ts": 1784051137.8912628, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.84}
+{"ts": 1784051138.8913481, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.3}
+{"ts": 1784051139.891427, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.9}
+{"ts": 1784051140.8915234, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.62}
+{"ts": 1784051141.8916025, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.41}
+{"ts": 1784051142.8916798, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.83}
+{"ts": 1784051143.8917642, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.75}
+{"ts": 1784051144.8918674, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.31}
+{"ts": 1784051145.8919578, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.7}
+{"ts": 1784051146.892024, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.4}
+{"ts": 1784051147.892131, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 32.02}
+{"ts": 1784051150.1132863, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.04}
+{"ts": 1784051151.1133723, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.73}
+{"ts": 1784051152.1134782, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.31}
+{"ts": 1784051153.1135726, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 31.62}
+{"ts": 1784051154.1136868, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.55}
+{"ts": 1784051155.1137834, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.81}
+{"ts": 1784051156.1138694, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 65.33}
+{"ts": 1784051157.113978, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.41}
+{"ts": 1784051158.114034, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.73}
+{"ts": 1784051159.1141133, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.3}
+{"ts": 1784051160.1141806, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.01}
+{"ts": 1784051161.114266, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.03}
+{"ts": 1784051162.1143367, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.59}
+{"ts": 1784051163.1144235, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.87}
+{"ts": 1784051164.1144946, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.51}
+{"ts": 1784051165.1146066, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.72}
+{"ts": 1784051166.1146963, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.91}
+{"ts": 1784051167.11478, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.24}
+{"ts": 1784051168.1148708, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.91}
+{"ts": 1784051169.1149411, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.97}
+{"ts": 1784051170.1150212, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.9}
+{"ts": 1784051171.1151168, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.66}
+{"ts": 1784051172.1152241, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.48}
+{"ts": 1784051173.1153126, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.06}
+{"ts": 1784051174.115406, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.69}
+{"ts": 1784051175.1155083, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.98}
+{"ts": 1784051176.1156092, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.79}
+{"ts": 1784051177.11571, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.75}
+{"ts": 1784051178.115816, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.35}
+{"ts": 1784051179.1159062, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.62}
+{"ts": 1784051180.1160026, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.26}
+{"ts": 1784051181.1161091, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.96}
+{"ts": 1784051183.3216584, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.39}
+{"ts": 1784051184.3217628, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.7}
+{"ts": 1784051185.3218825, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.26}
+{"ts": 1784051186.3219712, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.63}
+{"ts": 1784051187.3220632, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.6}
+{"ts": 1784051188.322147, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.92}
+{"ts": 1784051189.3222282, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.9}
+{"ts": 1784051190.3222933, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.21}
+{"ts": 1784051191.3223846, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.15}
+{"ts": 1784051192.3224525, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.57}
+{"ts": 1784051193.322528, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.4}
+{"ts": 1784051194.3226511, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.49}
+{"ts": 1784051195.3227444, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.39}
+{"ts": 1784051196.3227944, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.17}
+{"ts": 1784051197.3228724, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.23}
+{"ts": 1784051198.322944, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.95}
+{"ts": 1784051199.3230376, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.11}
+{"ts": 1784051200.3230977, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.62}
+{"ts": 1784051201.323157, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.49}
+{"ts": 1784051202.323214, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.96}
+{"ts": 1784051203.3232934, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 42.71}
+{"ts": 1784051204.323332, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.55}
+{"ts": 1784051205.3234384, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.23}
+{"ts": 1784051206.323509, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.83}
+{"ts": 1784051207.3235853, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.32}
+{"ts": 1784051208.3237097, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 40.25}
+{"ts": 1784051209.3237948, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.74}
+{"ts": 1784051210.3238828, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.46}
+{"ts": 1784051211.3240044, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.67}
+{"ts": 1784051212.3241, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.8}
+{"ts": 1784051213.324202, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.61}
+{"ts": 1784051214.3243346, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.66}
+{"ts": 1784051216.4625614, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.02}
+{"ts": 1784051217.4626687, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.57}
+{"ts": 1784051218.4627786, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.5}
+{"ts": 1784051219.4628932, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.65}
+{"ts": 1784051220.4629972, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.45}
+{"ts": 1784051221.4630876, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.66}
+{"ts": 1784051222.4631782, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 32.26}
+{"ts": 1784051223.463253, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.81}
+{"ts": 1784051224.463334, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.22}
+{"ts": 1784051225.463421, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.38}
+{"ts": 1784051226.4635153, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.16}
+{"ts": 1784051227.463638, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.26}
+{"ts": 1784051228.4637015, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.87}
+{"ts": 1784051229.4637644, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.02}
+{"ts": 1784051230.4638612, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.62}
+{"ts": 1784051231.463902, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.06}
+{"ts": 1784051232.464, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.35}
+{"ts": 1784051233.4640553, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.1}
+{"ts": 1784051234.4641674, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.01}
+{"ts": 1784051235.4642434, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.25}
+{"ts": 1784051236.4643414, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.77}
+{"ts": 1784051237.4644237, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.83}
+{"ts": 1784051238.4644978, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.71}
+{"ts": 1784051239.4645529, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.6}
+{"ts": 1784051240.4646363, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.92}
+{"ts": 1784051241.464726, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.1}
+{"ts": 1784051242.4648113, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.3}
+{"ts": 1784051243.464861, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.36}
+{"ts": 1784051244.4649346, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.29}
+{"ts": 1784051245.4650335, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.76}
+{"ts": 1784051246.4651406, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.31}
+{"ts": 1784051247.4652102, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.13}
+{"ts": 1784051249.6870165, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.88}
+{"ts": 1784051250.6870852, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.37}
+{"ts": 1784051251.687177, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.94}
+{"ts": 1784051252.6872923, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.93}
+{"ts": 1784051253.6873846, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.88}
+{"ts": 1784051254.6874466, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.89}
+{"ts": 1784051255.6875286, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.68}
+{"ts": 1784051256.6876276, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.98}
+{"ts": 1784051257.6877193, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 31.24}
+{"ts": 1784051258.6878085, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.09}
+{"ts": 1784051259.6878648, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.34}
+{"ts": 1784051260.687916, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.88}
+{"ts": 1784051261.6880486, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.42}
+{"ts": 1784051262.688128, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.13}
+{"ts": 1784051263.6882148, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.17}
+{"ts": 1784051264.6882977, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.85}
+{"ts": 1784051265.6883833, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.71}
+{"ts": 1784051266.68848, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.69}
+{"ts": 1784051267.6885796, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 34.76}
+{"ts": 1784051268.688665, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.63}
+{"ts": 1784051269.6887617, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.49}
+{"ts": 1784051270.6888478, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.96}
+{"ts": 1784051271.6889954, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.83}
+{"ts": 1784051272.6890907, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.86}
+{"ts": 1784051273.6891856, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.31}
+{"ts": 1784051274.6892796, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.54}
+{"ts": 1784051275.6893697, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.79}
+{"ts": 1784051276.6894703, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.63}
+{"ts": 1784051277.6895697, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.69}
+{"ts": 1784051278.6896696, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.69}
+{"ts": 1784051279.689757, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.71}
+{"ts": 1784051280.6898444, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 47.15}
+{"ts": 1784051281.689951, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.45}
+{"ts": 1784051283.789499, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.75}
+{"ts": 1784051284.7895956, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.82}
+{"ts": 1784051285.7897186, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.67}
+{"ts": 1784051286.789842, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.12}
+{"ts": 1784051287.7899482, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 31.22}
+{"ts": 1784051288.7900522, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.09}
+{"ts": 1784051289.7901437, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.0}
+{"ts": 1784051290.79023, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.2}
+{"ts": 1784051291.7902937, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.5}
+{"ts": 1784051292.7904036, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.4}
+{"ts": 1784051293.7904913, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.41}
+{"ts": 1784051294.7906063, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.07}
+{"ts": 1784051295.7906716, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.52}
+{"ts": 1784051296.790772, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.44}
+{"ts": 1784051297.7908547, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.56}
+{"ts": 1784051298.7909439, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.81}
+{"ts": 1784051299.7910292, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.89}
+{"ts": 1784051300.7911162, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.04}
+{"ts": 1784051301.7912176, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.7}
+{"ts": 1784051302.7912996, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.82}
+{"ts": 1784051303.7913356, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.78}
+{"ts": 1784051304.7914245, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.88}
+{"ts": 1784051305.791473, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.66}
+{"ts": 1784051306.7915561, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.52}
+{"ts": 1784051307.791635, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.62}
+{"ts": 1784051308.7916873, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.3}
+{"ts": 1784051309.7917454, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 29.36}
+{"ts": 1784051310.7918417, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.57}
+{"ts": 1784051311.7919116, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.79}
+{"ts": 1784051312.7920094, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.16}
+{"ts": 1784051313.7920883, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.29}
+{"ts": 1784051314.7921844, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.19}
+{"ts": 1784051316.9687805, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.22}
+{"ts": 1784051317.9688957, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 30.04}
+{"ts": 1784051318.9689944, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.21}
+{"ts": 1784051319.9690886, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.07}
+{"ts": 1784051320.9691389, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.96}
+{"ts": 1784051321.9693177, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.34}
+{"ts": 1784051322.969376, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.02}
+{"ts": 1784051323.9694688, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.06}
+{"ts": 1784051324.9695585, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.15}
+{"ts": 1784051325.9696512, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.69}
+{"ts": 1784051326.969756, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.57}
+{"ts": 1784051327.969845, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.35}
+{"ts": 1784051328.9699397, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.01}
+{"ts": 1784051329.9700181, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.37}
+{"ts": 1784051330.9700966, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 39.23}
+{"ts": 1784051331.9701717, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.59}
+{"ts": 1784051332.9702516, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.77}
+{"ts": 1784051333.9703405, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.18}
+{"ts": 1784051334.970404, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.17}
+{"ts": 1784051335.9704986, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.73}
+{"ts": 1784051336.970552, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.98}
+{"ts": 1784051337.9706547, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.96}
+{"ts": 1784051338.970757, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.92}
+{"ts": 1784051339.9708333, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.04}
+{"ts": 1784051340.9709122, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.67}
+{"ts": 1784051341.9710047, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.44}
+{"ts": 1784051342.9711015, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.44}
+{"ts": 1784051343.9712033, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.49}
+{"ts": 1784051344.9712906, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.55}
+{"ts": 1784051345.9713888, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.46}
+{"ts": 1784051346.9715104, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 31.93}
+{"ts": 1784051347.971628, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.59}
+{"ts": 1784051350.1383603, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.79}
+{"ts": 1784051351.1384907, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.06}
+{"ts": 1784051352.1386044, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.26}
+{"ts": 1784051353.1387253, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.54}
+{"ts": 1784051354.1388412, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.63}
+{"ts": 1784051355.138944, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.39}
+{"ts": 1784051356.1390383, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.72}
+{"ts": 1784051357.1391268, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.84}
+{"ts": 1784051358.1392264, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.7}
+{"ts": 1784051359.1393104, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.9}
+{"ts": 1784051360.1394296, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.6}
+{"ts": 1784051361.1395025, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.17}
+{"ts": 1784051362.1396139, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.73}
+{"ts": 1784051363.1397097, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.29}
+{"ts": 1784051364.1397822, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.93}
+{"ts": 1784051365.1399179, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.65}
+{"ts": 1784051366.140081, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.14}
+{"ts": 1784051367.140165, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.49}
+{"ts": 1784051368.140246, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.75}
+{"ts": 1784051369.1403313, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.07}
+{"ts": 1784051370.1404197, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.64}
+{"ts": 1784051371.1405385, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.29}
+{"ts": 1784051372.1406262, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.15}
+{"ts": 1784051373.1407113, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.34}
+{"ts": 1784051374.1407971, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.32}
+{"ts": 1784051375.140942, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.93}
+{"ts": 1784051376.141065, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 41.04}
+{"ts": 1784051377.1411476, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.35}
+{"ts": 1784051378.1412416, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.75}
+{"ts": 1784051379.1413338, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.33}
+{"ts": 1784051380.1413662, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.26}
+{"ts": 1784051381.1414442, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.12}
+{"ts": 1784051383.3083055, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.84}
+{"ts": 1784051384.3083906, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.43}
+{"ts": 1784051385.3085034, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.85}
+{"ts": 1784051386.3086052, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.53}
+{"ts": 1784051387.308634, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.7}
+{"ts": 1784051388.3087332, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.12}
+{"ts": 1784051389.3088198, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 25.81}
+{"ts": 1784051390.3089013, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.64}
+{"ts": 1784051391.3090591, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.47}
+{"ts": 1784051392.309155, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.28}
+{"ts": 1784051393.309254, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 25.53}
+{"ts": 1784051394.3093462, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.75}
+{"ts": 1784051395.3094287, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.47}
+{"ts": 1784051396.3095195, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.16}
+{"ts": 1784051397.3095944, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.32}
+{"ts": 1784051398.3096828, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.92}
+{"ts": 1784051399.309775, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.74}
+{"ts": 1784051400.3098898, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.27}
+{"ts": 1784051401.3099692, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.43}
+{"ts": 1784051402.3100514, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.6}
+{"ts": 1784051403.310161, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.65}
+{"ts": 1784051404.3102505, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.41}
+{"ts": 1784051405.3104951, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.91}
+{"ts": 1784051406.3105907, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.68}
+{"ts": 1784051407.3107433, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 31.57}
+{"ts": 1784051408.3108997, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.49}
+{"ts": 1784051409.311023, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.36}
+{"ts": 1784051410.3111145, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.95}
+{"ts": 1784051411.311215, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.4}
+{"ts": 1784051412.311314, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.42}
+{"ts": 1784051413.311393, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.44}
+{"ts": 1784051414.311479, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.58}
+{"ts": 1784051415.3115664, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.26}
+{"ts": 1784051417.480678, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.91}
+{"ts": 1784051418.4807603, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.68}
+{"ts": 1784051419.4808676, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.73}
+{"ts": 1784051420.4809587, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.46}
+{"ts": 1784051421.4810526, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.18}
+{"ts": 1784051422.4811451, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.42}
+{"ts": 1784051423.4812386, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.97}
+{"ts": 1784051424.4814339, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.02}
+{"ts": 1784051425.4815917, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.32}
+{"ts": 1784051426.4816744, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.67}
+{"ts": 1784051427.4817424, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 30.1}
+{"ts": 1784051428.4818604, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.31}
+{"ts": 1784051429.481977, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.31}
+{"ts": 1784051430.4820755, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.44}
+{"ts": 1784051431.4821723, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.04}
+{"ts": 1784051432.4822676, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.03}
+{"ts": 1784051433.4823673, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 29.1}
+{"ts": 1784051434.4824119, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.99}
+{"ts": 1784051435.4825122, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.79}
+{"ts": 1784051436.4825554, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 39.08}
+{"ts": 1784051437.4826272, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.99}
+{"ts": 1784051438.4827683, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.38}
+{"ts": 1784051439.4828675, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.45}
+{"ts": 1784051440.482972, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.85}
+{"ts": 1784051441.4830103, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.43}
+{"ts": 1784051442.4830508, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.19}
+{"ts": 1784051443.4833124, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.94}
+{"ts": 1784051444.483399, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.87}
+{"ts": 1784051445.4834926, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.62}
+{"ts": 1784051446.4835758, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.45}
+{"ts": 1784051447.4836688, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.89}
+{"ts": 1784051448.4837606, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.42}
+{"ts": 1784051450.5736735, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.25}
+{"ts": 1784051451.5737731, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.41}
+{"ts": 1784051452.5738614, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.72}
+{"ts": 1784051453.5739064, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.98}
+{"ts": 1784051454.5739865, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 26.85}
+{"ts": 1784051455.574075, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.6}
+{"ts": 1784051456.5741568, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.26}
+{"ts": 1784051457.5742664, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.53}
+{"ts": 1784051458.5743635, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.28}
+{"ts": 1784051459.574455, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.26}
+{"ts": 1784051460.5745375, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.98}
+{"ts": 1784051461.5746362, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 28.81}
+{"ts": 1784051462.5747275, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 27.36}
+{"ts": 1784051463.574817, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.47}
+{"ts": 1784051464.574926, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 26.42}
+{"ts": 1784051465.5750217, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.62}
+{"ts": 1784051466.575131, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 28.18}
+{"ts": 1784051467.5752175, "ok": true, "status": 200, "zone": "unknown", "latency_ms": 30.56}
+{"ts": 1784051468.5753016, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.78}
+{"ts": 1784051469.5753891, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.17}
+{"ts": 1784051470.575487, "ok": true, "status": 200, "zone": "eu-west-3a", "latency_ms": 27.27}
