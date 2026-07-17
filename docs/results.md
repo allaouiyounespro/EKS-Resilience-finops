@@ -2,10 +2,21 @@
 
 owner: allaouiyounespro · portfolio: github.com/allaouiyounespro
 
-**infra-a was built on AWS and destroyed by AWS FIS. These are the measurements.**
-infra-b has not been run yet — its cells are empty, and they will stay empty
-until it is. Filling them with plausible numbers would be the easiest thing in
-this repository and would make the whole thing worthless.
+**Both architectures were built on AWS and destroyed by AWS FIS. These are the
+measurements.**
+
+| | infra-a (single-AZ) | infra-b (multi-AZ) |
+|---|---|---|
+| **RTO** | **never recovered** | **34 s** (median of 3; 28–58 s) |
+| **RPO** | **unknown** — nobody survived to ask | **0 s** — proven, 3/3 |
+| **Availability during the fault** | **2.71%** | **98.81%** |
+| **Human intervention** | **required** | none |
+| **Cost** | $285.04/mo | $507.54/mo |
+
+The single-AZ stack did not come back on its own, and the multi-AZ stack never
+went down for longer than a database failover. That is the whole project in one
+table, and every number in it came from a probe running outside the blast
+radius.
 
 ---
 
@@ -91,30 +102,62 @@ The external probe is why this project has any numbers at all.
 
 ---
 
-## infra-b — multi-AZ + DR
+## infra-b — multi-AZ
+
+![The same fault](outage-infra-b.svg)
 
 | metric | value |
 |---|---|
-| RTO | _not yet run_ |
-| RPO | _not yet run_ |
-| Availability during the fault | _not yet run_ |
-| Zones serving during the fault | _not yet run_ |
+| **RTO (median of 3)** | **34 s** |
+| RTO (min – max) | 28 s – 58 s |
+| **RPO** | **0 s** — proven, three times out of three |
+| Availability during the fault (median) | **98.81%** |
+| Acknowledged writes lost | **0** |
+| Runs that never recovered | **0 / 3** |
+| Human intervention required | **none** |
 
-### What it predicts
+Runs: `results/infra-b/2026*/` · same fault as infra-a: AWS FIS, 15 minutes,
+network fully isolated + all nodes stopped + forced RDS failover.
 
-Karpenter runs **three replicas with a hard anti-affinity across zones**, so the
-controller survives in `eu-west-3b`/`3c`. The 34 USD/month third system node —
-the line item nobody puts on the invoice — is precisely what buys the difference
-between "the autoscaler replaces the lost capacity" and "there is nobody left to
-ask".
+### What happened
 
-RDS has a synchronous standby, so a commit is durable in two AZs before it is
-acknowledged: **RPO should be exactly zero**, and provably so, because pods in the
-surviving zones will still be alive to answer `GET /last` - which is exactly what
-infra-a could not do, leaving its RPO permanently unknown.
+The AZ holding the RDS writer was cut off and every node in it was stopped. Two
+of the six pods died with it. **Four kept serving.**
 
-If infra-b does not survive, that is a far more interesting result than if it
-does, and it will be reported as loudly.
+The 34-second median is the RDS failover, not Karpenter. Karpenter was never the
+bottleneck: both of its replicas were alive in the surviving zones and relaunched
+the lost capacity in parallel with the database moving. The 34 USD/month third
+system node - the line item nobody puts on the invoice - did exactly what
+`terraform/stacks/infra-b/variables.tf` predicted, in writing, before anything
+was measured.
+
+### The RPO is zero, and this time that is a measurement
+
+infra-a's RPO is **unknown**: no pod survived to answer `GET /last`, so we cannot
+say what the database kept. infra-b's is **zero**, and provably so, because pods
+in the surviving AZs were alive to be asked. Every write the client was told had
+committed was still there afterwards.
+
+That is the difference between "AWS says Multi-AZ gives RPO 0" and "we asked, and
+it did".
+
+### The observability survived too
+
+| witness | infra-a | infra-b |
+|---|---|---|
+| kube-state-metrics | **3 data points in 90 min** | continuous |
+| Prometheus / Grafana | pod evicted, EBS stranded in the dead AZ | **kept scraping** |
+| `chaos/probe.py` (external) | 578 samples, no gap | 1,216 samples, no gap |
+
+infra-a's dashboard went blank at exactly the moment anyone would have looked at
+it. infra-b's stayed up because Prometheus runs two replicas anti-affine across
+zones - a fix that only exists because infra-a's failure made the need obvious.
+
+### The spread of 28–58 s is the point of running it three times
+
+RDS failover time varies. A single run would have reported 58 s or 28 s with
+equal confidence and equal meaninglessness. The median with its range is a claim
+that survives someone re-running it.
 
 ---
 

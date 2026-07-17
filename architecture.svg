@@ -78,13 +78,13 @@
 
   <!-- metrics A -->
   <rect x="40" y="748" width="315" height="102" rx="8" fill="#fdf0f0" stroke="#e34948"/>
-  <text x="197" y="775" text-anchor="middle" font-size="12" fill="#52514e">predicted RTO</text>
-  <text x="197" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#e34948">20&#8211;40 min</text>
-  <text x="197" y="832" text-anchor="middle" font-size="11" fill="#52514e">total outage &#183; waits on AWS</text>
+  <text x="197" y="775" text-anchor="middle" font-size="12" fill="#52514e">measured RTO</text>
+  <text x="197" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#e34948">never</text>
+  <text x="197" y="832" text-anchor="middle" font-size="11" fill="#52514e">2.71% availability &#183; needed a human</text>
   <rect x="375" y="748" width="315" height="102" rx="8" fill="#fdf0f0" stroke="#e34948"/>
-  <text x="532" y="775" text-anchor="middle" font-size="12" fill="#52514e">predicted RPO</text>
-  <text x="532" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#e34948">&#8804; 5 min</text>
-  <text x="532" y="832" text-anchor="middle" font-size="11" fill="#52514e">committed writes lost to PITR gap</text>
+  <text x="532" y="775" text-anchor="middle" font-size="12" fill="#52514e">measured RPO</text>
+  <text x="532" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#e34948">unknown</text>
+  <text x="532" y="832" text-anchor="middle" font-size="11" fill="#52514e">nobody survived to ask the database</text>
 
   <!-- ======================= PANEL B ======================= -->
   <rect x="730" y="80" width="690" height="790" rx="10" fill="#ffffff" stroke="#d9d8d3" stroke-width="1.5"/>
@@ -158,14 +158,14 @@
 
   <!-- metrics B -->
   <rect x="750" y="748" width="315" height="102" rx="8" fill="#f0faf6" stroke="#1baf7a"/>
-  <text x="907" y="775" text-anchor="middle" font-size="12" fill="#52514e">predicted RTO</text>
-  <text x="907" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#1baf7a">60&#8211;120 s</text>
-  <text x="907" y="832" text-anchor="middle" font-size="11" fill="#52514e">degraded, never down</text>
+  <text x="907" y="775" text-anchor="middle" font-size="12" fill="#52514e">measured RTO</text>
+  <text x="907" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#1baf7a">34 s</text>
+  <text x="907" y="832" text-anchor="middle" font-size="11" fill="#52514e">median of 3 &#183; 98.81% availability</text>
   <rect x="1085" y="748" width="315" height="102" rx="8" fill="#f0faf6" stroke="#1baf7a"/>
-  <text x="1242" y="775" text-anchor="middle" font-size="12" fill="#52514e">predicted RPO</text>
+  <text x="1242" y="775" text-anchor="middle" font-size="12" fill="#52514e">measured RPO</text>
   <text x="1242" y="805" text-anchor="middle" font-size="24" font-weight="700" fill="#1baf7a">0 s</text>
-  <text x="1242" y="832" text-anchor="middle" font-size="11" fill="#52514e">commit = durable in two AZs</text>
+  <text x="1242" y="832" text-anchor="middle" font-size="11" fill="#52514e">proven 3/3 &#183; survivors answered</text>
 
   <!-- footer -->
-  <text x="720" y="888" text-anchor="middle" font-size="12" fill="#52514e">&#916; $222.50/month &#8212; break-even at 1.1 AZ incidents/year (at $5k/h of downtime) &#183; github.com/allaouiyounespro</text>
+  <text x="720" y="888" text-anchor="middle" font-size="12" fill="#52514e">&#916; $222.50/month &#8212; break-even at 0.5 AZ incidents/year (1h to notice, $5k/h) &#183; github.com/allaouiyounespro</text>
 </svg>

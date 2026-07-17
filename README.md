@@ -48,8 +48,9 @@ $ diff terraform/stacks/infra-a/main.tf terraform/stacks/infra-b/main.tf
 | RDS PostgreSQL 16 | single-AZ, PITR only | Multi-AZ synchronous standby |
 | Karpenter permitted zones | 1 | 3 |
 | **Cost** | **$285.04/mo** | **$507.54/mo** |
-| Predicted RTO | 20–40 min | 60–120 s |
-| Predicted RPO | ≤ 5 min | 0 s |
+| **Measured RTO** | **never recovered** | **34 s** (median of 3) |
+| **Measured RPO** | **unknown** — nobody survived to ask | **0 s** — proven, 3/3 |
+| **Availability during the fault** | **2.71%** | **98.81%** |
 
 * * *
 
@@ -64,23 +65,24 @@ money the business loses per hour, true at exactly one value of that number.
 This project measures both halves and does the arithmetic. Three findings up
 front:
 
-1. **The expensive part of resilience is not the database — it's the nodes.**
-   Everyone expects Multi-AZ RDS to dominate. It's $30/month. The compute needed
-   to *spread* the workload is $103/month, because **an EC2 instance lives in
-   exactly one AZ**: three zones means three nodes, minimum, whatever the pods
-   actually need.
-2. **At $5,000/hour of downtime, infra-b breaks even at 1.1 AZ incidents per
-   year.** For the popular "one per quarter" claim to hold, an hour of outage
-   would have to cost exactly **$1,111** — the model solves for it instead of
-   asserting it.
-3. **Karpenter is not slow in infra-a. It is powerless.** Its NodePool permits
-   one zone; when that zone dies, every launch attempt fails. No autoscaler
-   tuning fixes a topology with nowhere to go.
+1. **infra-a does not recover — at all.** Not "slowly". The AZ came back and the
+   cluster still did not: Karpenter had died with it, and the replacement nodes
+   the ASG launched into the dead zone became zombies that EC2 called healthy and
+   Kubernetes could not see. It took a human. The RTO is not a duration, it is
+   "how long until someone works it out".
+2. **infra-b's RPO is zero, and that is a measurement.** Three runs, three times
+   zero, proven by pods in the surviving zones answering `GET /last`. infra-a's
+   RPO is *unknown* — nothing survived to ask. The difference between "AWS says
+   Multi-AZ gives RPO 0" and "we asked, and it did".
+3. **The expensive part of resilience is not the database — it's the nodes.**
+   Multi-AZ RDS is $32/month. The compute to *spread* the workload is $103,
+   because an EC2 instance lives in exactly one AZ: three zones means three
+   nodes, whatever the pods need.
 
-> **The RTO/RPO figures are predictions, not measurements.**
-> [`docs/results.md`](docs/results.md) is deliberately an empty template — filling
-> it with plausible numbers would be the easiest thing in this repo and would make
-> the whole thing worthless. Run the experiment; then it means something.
+> **These are measurements, not predictions.** Both stacks were built on AWS,
+> destroyed by AWS FIS, and observed by a probe running outside the blast radius.
+> [`docs/results.md`](docs/results.md) has the timelines, the three discarded
+> runs, and the four things that went wrong along the way.
 
 * * *
 
