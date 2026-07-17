@@ -73,9 +73,37 @@ variable "system_node_group" {
 }
 
 variable "db_instance_class" {
-  description = "RDS instance class. Same in both stacks - the cost delta must isolate Multi-AZ, not instance size."
-  type        = string
-  default     = "db.t4g.small"
+  description = <<-EOT
+    RDS instance class.
+
+    db.t3.small, and NOT db.t4g.small like infra-a, for a reason that is a finding
+    in its own right: on 2026-07-17 AWS had no capacity to sell the resilient
+    architecture in eu-west-3.
+
+      db.t4g.small   no capacity in eu-west-3b -> the standby could not be built.
+                     RDS gave up, put the instance back to "available" as
+                     SINGLE-AZ, and reported success. Twice.
+      db.t4g.medium  no capacity in eu-west-3c -> the modify was rejected outright.
+      db.t3.small    accepted. x86 pool, and it had room where Graviton did not.
+
+    The whole t4g family was saturated. describe-orderable-db-instance-options
+    had listed every one of them as available in all three AZs - declared
+    availability is not capacity, and only one of the two can be queried.
+
+    The consequence for the comparison: the two stacks now run different instance
+    classes, so the cost delta would silently include an instance-size difference
+    on top of the Multi-AZ decision. finops/shapes.yaml prices BOTH stacks at
+    db.t3.small to keep the delta honest, and docs/results.md states that infra-a
+    was measured on t4g.small. The RTO/RPO comparison is unaffected - instance
+    class does not change failover semantics.
+
+    The deeper point belongs in the FinOps analysis: a cost model that says
+    "+30 USD/month for the standby" quietly assumes the standby is purchasable.
+    It took three attempts and an architecture change to find out it was not.
+  EOT
+
+  type    = string
+  default = "db.t3.small"
 }
 
 variable "db_allocated_storage" {

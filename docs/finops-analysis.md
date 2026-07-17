@@ -18,7 +18,7 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 
 ## The bill
 
-### infra-a — single-AZ · **$282.85/month**
+### infra-a — single-AZ · **$285.04/month**
 
 | line item | USD/mo | |
 |---|---:|---|
@@ -26,15 +26,15 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 | EC2 system nodes | 68.62 | 2 × t3.medium |
 | NAT Gateway | 37.04 | 1 gateway + data processing |
 | EC2 Karpenter nodes | 34.31 | 1 × t3.medium |
-| RDS instance | 27.74 | 1 × db.t4g.small |
+| RDS instance | 29.93 | 1 × db.t3.small |
 | Application Load Balancer | 25.84 | created by the LB Controller from the Gateway |
 | EBS gp3 | 8.35 | 90 GiB |
 | CloudWatch Logs | 3.15 | |
 | RDS storage | 2.54 | 20 GiB |
 | Secrets Manager | 0.40 | |
-| **TOTAL** | **282.85** | of which **$0.00** buys resilience |
+| **TOTAL** | **285.04** | of which **$0.00** buys resilience |
 
-### infra-b — multi-AZ (no read replica) · **$503.16/month**
+### infra-b — multi-AZ (no read replica) · **$507.54/month**
 
 | line item | USD/mo | HA? | |
 |---|---:|:--:|---|
@@ -45,19 +45,19 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 | NAT Gateway | 37.04 | | |
 | EC2 system node (HA) | 34.31 | ★ | **keeps Karpenter alive through the failure** |
 | EC2 Karpenter nodes | 34.31 | | 1 × t3.medium |
-| RDS Multi-AZ standby | 30.28 | ★ | **this is what buys RPO = 0** |
-| RDS instance | 27.74 | | 1 × db.t4g.small |
+| RDS Multi-AZ standby | 32.47 | ★ | **this is what buys RPO = 0** |
+| RDS instance | 29.93 | | 1 × db.t3.small |
 | Application Load Balancer | 25.84 | | |
 | EBS gp3 | 16.70 | | 180 GiB |
 | CloudWatch Logs | 5.04 | | |
 | RDS storage | 2.54 | | |
 | Cross-AZ data transfer | 2.00 | ★ | the toll for spreading out |
 | Secrets Manager | 0.40 | | |
-| **TOTAL** | **503.16** | | of which **$210.07** buys resilience |
+| **TOTAL** | **507.54** | | of which **$212.26** buys resilience |
 
 ★ = exists *only* because of the high-availability decision.
 
-**Delta: $220.31/month — $2,644/year.**
+**Delta: $222.50/month — $2,670/year.**
 
 ---
 
@@ -82,7 +82,7 @@ earlier version of this model said two, understated the cost of resilience by a
 whole node, and was caught only by diffing the model against a real
 `terraform plan`. `make finops-verify` exists so it cannot happen silently again.
 
-**3. The resilience premium ($210) is the number to defend, not the total ($503).**
+**3. The resilience premium ($212) is the number to defend, not the total ($503).**
 "We spend $503/month" invites a haircut. "We spend $283 to run it and $220 to
 survive an AZ failure — here is the measured RTO with and without" is an argument.
 The model flags every line item that exists *only* because of the HA decision,
@@ -101,7 +101,7 @@ replication — the irreducible toll for not being in one place.
 
 ## The break-even
 
-The question: infra-b costs $2,644/year more. How often must an AZ fail before that
+The question: infra-b costs $2,670/year more. How often must an AZ fail before that
 is the *cheaper* option?
 
 ```
@@ -131,7 +131,7 @@ resilient.
 | Modelled RTO, infra-a | 1,920 s → **$2,859** per incident |
 | Modelled RTO, infra-b | 94 s → **$140** per incident |
 | Saving per avoided incident | **$2,719** |
-| **Break-even** | **0.97 incidents/year** (0.24 per quarter) |
+| **Break-even** | **0.98 incidents/year** (0.24 per quarter) |
 
 At that rate the architecture pays for itself if an AZ impairment happens roughly
 **once a year**. AWS AZ events are not rare enough to bet against that.
@@ -174,7 +174,7 @@ rotation that works for an async DR path that this project's own results.md
 already called "generous to describe as DR".
 
 What is interesting is the arithmetic. Removing it moved the break-even from
-**1.10 to 0.97 incidents/year** - a 12% improvement - because the replica was
+**1.10 to 0.98 incidents/year** - a 12% improvement - because the replica was
 pure cost with **zero contribution to either measured number**. It did nothing for
 RPO (the synchronous standby covers that) and nothing for RTO (promotion is
 manual). It sat on the wrong side of the ledger and made the architecture harder

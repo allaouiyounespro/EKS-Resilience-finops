@@ -39,7 +39,11 @@ infra-a:
   # produces both properties.
   cross_az_traffic_gb: 0
 
-  db_instance_class: db.t4g.small
+  # Priced at db.t3.small like infra-b, so the delta isolates the Multi-AZ
+  # decision rather than smuggling in an instance-class difference. infra-a was
+  # MEASURED on db.t4g.small; the difference is 2.19 USD/month, or 1% of the
+  # delta, and it changes no conclusion. Stated here rather than buried.
+  db_instance_class: db.t3.small
   db_multi_az: false
   db_storage_gb: 20
   db_read_replica: false
@@ -88,7 +92,9 @@ infra-b:
   # cost review deletes without realising it just wrote off the Multi-AZ spend.
   cross_az_traffic_gb: 200
 
-  db_instance_class: db.t4g.small
+  # db.t3.small was not a choice. AWS had no capacity for any t4g class able to
+  # host a Multi-AZ standby in eu-west-3 that day.
+  db_instance_class: db.t3.small
   db_multi_az: true
   db_storage_gb: 20
   # No read replica: AWS refuses to create one for a Postgres instance whose

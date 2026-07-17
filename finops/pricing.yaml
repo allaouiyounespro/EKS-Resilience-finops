@@ -66,6 +66,11 @@ network:
 
 database:
   rds_hourly:
+    # db.t3.small is what both stacks are priced at, because on 2026-07-17 it was
+    # the only class AWS had capacity to sell a Multi-AZ Postgres in eu-west-3.
+    # The whole t4g family was saturated - see terraform/stacks/infra-b/variables.tf.
+    # 8% dearer than its Graviton equivalent: the x86 premium, paid for existing.
+    db.t3.small: 0.0410
     db.t4g.small: 0.0380
     db.t4g.medium: 0.0760
     db.t4g.large: 0.1520
