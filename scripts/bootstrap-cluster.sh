@@ -207,8 +207,20 @@ kubectl -n monitoring create configmap grafana-dashboard-resilience \
 echo "==> deploying the witness workload"
 kubectl apply -f "${REPO_ROOT}/k8s/workload/10-rbac.yaml"
 
+# MIN_DOMAINS is the pod topology spread's minDomains, and it is the only value
+# in the deployment that differs between the two architectures - because it is
+# exactly what differs between them: how many failure domains exist.
+#
+# Without it the spread constraint is decoration. Karpenter bin-packs onto one
+# node, consolidation reclaims the empty ones, and infra-b ends up with six pods
+# in one zone - infra-a wearing a 222 USD/month costume, with every dashboard
+# green. Learned by deploying it.
+MIN_DOMAINS="$(jq -r '.workload_azs.value | length' <<<"${OUT}")"
+echo "    minDomains:   ${MIN_DOMAINS}"
+
 sed -e "s|PLACEHOLDER_DB_HOST|${DB_HOST}|g" \
     -e "s|WITNESS_IMAGE|${WITNESS_IMAGE}|g" \
+    -e "s|MIN_DOMAINS|${MIN_DOMAINS}|g" \
     "${REPO_ROOT}/k8s/workload/20-deployment.yaml" \
   | kubectl apply -f -
 

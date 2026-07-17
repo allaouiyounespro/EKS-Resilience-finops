@@ -108,11 +108,69 @@ spec:
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: topology.kubernetes.io/zone
-          # ScheduleAnyway is deliberate. During the fault, DoNotSchedule
-          # would refuse to place replacement pods into the surviving AZs
-          # because doing so would breach the skew against the dead zone - the
-          # constraint would enforce the outage it was meant to survive.
-          whenUnsatisfiable: ScheduleAnyway
+
+          # DoNotSchedule. This was ScheduleAnyway, and ScheduleAnyway does
+          # nothing:
+          #
+          # It is a preference, not a rule. Karpenter dutifully provisioned three
+          # nodes, one per zone - and the kube-scheduler put all six pods on
+          # whichever node reached Ready first, because a soft constraint gives it
+          # no reason to wait. infra-b came up with 6/0/0. It was infra-a wearing
+          # a 222 USD/month costume, and every dashboard was green.
+          #
+          # Worse, consolidateAfter would then have reclaimed the two empty nodes
+          # and left one node in one zone - the exact single point of failure this
+          # architecture exists to remove, arrived at automatically, five minutes
+          # after a successful deploy.
+          #
+          # The comment that used to live here argued DoNotSchedule was unsafe:
+          # that during the fault it would refuse to place replacement pods into
+          # the surviving zones, because doing so breaches maxSkew against the
+          # dead zone sitting at zero. That reasoning was wrong, and the fix is
+          # the line below it.
+          whenUnsatisfiable: DoNotSchedule
+
+          # nodeTaintsPolicy: Honor is what makes DoNotSchedule safe, and it is
+          # the whole trick.
+          #
+          # Spread domains are computed from nodes. The default (Ignore) counts a
+          # dead zone's nodes as a domain holding zero pods - so rescheduling into
+          # a surviving zone breaches the skew and gets refused, which is exactly
+          # the deadlock the old comment feared.
+          #
+          # Honor excludes nodes carrying taints the pod does not tolerate. A node
+          # whose AZ has been cut off is tainted node.kubernetes.io/unreachable
+          # within seconds; the witness tolerates only workload=app. So the dead
+          # zone stops being a domain, the skew is computed across the survivors
+          # alone, and the pods reschedule immediately.
+          #
+          # Steady state: the spread is mandatory. During the fault: the dead zone
+          # evaporates from the calculation. Both properties, no tradeoff.
+          nodeTaintsPolicy: Honor
+
+          # minDomains is the line that actually forces the spread, and without it
+          # DoNotSchedule is decoration.
+          #
+          # Spread is computed across domains that EXIST. Karpenter bin-packs, then
+          # consolidateAfter reclaims the empty nodes, and five minutes after a
+          # green deploy there is exactly one node in one zone. One domain. Skew 0.
+          # The constraint is satisfied, perfectly, by the single point of failure
+          # it was written to prevent.
+          #
+          # minDomains tells the scheduler to count MIN_DOMAINS domains whether or
+          # not they have nodes. With 6 pods in one zone and minDomains 3, the
+          # global minimum is 0, the skew is 6, DoNotSchedule refuses, the pods go
+          # Pending - and Karpenter, which reacts to Pending pods, has no choice
+          # but to launch capacity in the other zones.
+          #
+          # MIN_DOMAINS is substituted by scripts/bootstrap-cluster.sh from
+          # len(workload_azs): 1 for infra-a, 3 for infra-b. It is the only value
+          # in this file that differs between the two architectures, and it is
+          # exactly the thing that differs between them - how many failure domains
+          # they have. In infra-a, minDomains 1 makes the constraint a no-op, which
+          # is honest: there is nowhere to spread to.
+          minDomains: MIN_DOMAINS
+
           labelSelector:
             matchLabels:
               app.kubernetes.io/name: witness

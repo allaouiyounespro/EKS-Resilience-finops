@@ -130,8 +130,20 @@ module "fis" {
   name         = var.name
   cluster_name = module.eks.cluster_name
 
-  target_az          = var.chaos_target_az
-  target_subnet_arns = [module.vpc.subnet_arns_by_az[var.chaos_target_az]]
+  # For a Multi-AZ database the target is wherever RDS put the writer, not
+  # wherever we guessed it would be.
+  #
+  # You cannot pin a Multi-AZ instance's AZ - the API rejects it - so RDS chooses,
+  # and it chose eu-west-3c on the first infra-b apply while chaos_target_az said
+  # eu-west-3a. Killing 3a would have missed the database entirely, and the
+  # failover this stack exists to measure would never have fired. The run would
+  # have completed, reported a number, and measured nothing.
+  #
+  # Targeting the writer's AZ also keeps reset-stack.sh honest: a Multi-AZ
+  # failover swaps writer and standby between the two AZs RDS picked, so failing
+  # back always lands on this one.
+  target_az          = var.db_multi_az ? module.rds.availability_zone : var.chaos_target_az
+  target_subnet_arns = [module.vpc.subnet_arns_by_az[var.db_multi_az ? module.rds.availability_zone : var.chaos_target_az]]
 
   db_instance_arn = module.rds.db_instance_arn
 

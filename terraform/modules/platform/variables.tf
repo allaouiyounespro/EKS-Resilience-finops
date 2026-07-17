@@ -124,13 +124,13 @@ variable "db_backup_retention_period" {
 
 variable "chaos_target_az" {
   description = <<-EOT
-    AZ the FIS experiment takes out. Must be one of workload_azs, otherwise the
-    experiment resolves zero node targets and refuses to start.
+    AZ the FIS experiment takes out, for a SINGLE-AZ stack.
 
-    For infra-a this is necessarily the only workload AZ - there is nowhere else
-    to aim. For infra-b it is workload_azs[0], the AZ holding the RDS writer, so
-    the experiment forces a genuine cross-AZ failover rather than merely
-    inconveniencing a standby.
+    Ignored when db_multi_az is true: a Multi-AZ instance's placement cannot be
+    pinned (the API rejects an explicit AZ alongside multi_az), so RDS chooses,
+    and the experiment targets whatever it chose. Aiming anywhere else means the
+    fault misses the database and the failover never fires - a run that completes,
+    reports a number, and measures nothing.
   EOT
 
   type = string
