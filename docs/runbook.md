@@ -303,6 +303,31 @@ terraform -chdir=terraform/stacks/<stack> destroy -auto-approve
 view of the world rather than Terraform's, and the moment you need it is, by
 definition, the moment those two have diverged.
 
+### 7.1c Two more that bit us on the infra-b teardown
+
+**A state lock survives a killed destroy.** If `terraform destroy` is interrupted
+mid-write - an expired SSO session will do it - the S3 backend keeps the lock, and
+the next run fails with `Error acquiring the state lock`. The error prints the
+lock ID; use it:
+
+```bash
+terraform -chdir=terraform/stacks/<stack> force-unlock -force <lock-id>
+```
+
+The lock ID is the UUID after `ID:`, not the retry counter next to it. Read it
+from the error, do not guess.
+
+**The Prometheus EBS volumes outlive everything.** Two replicas, two 20 GiB
+volumes, created by the CSI driver and unknown to Terraform. If the teardown was
+interrupted before its sweep ran, they sit there `available`, billing ~$3.72/month
+between them, in no state file and on no dashboard. `teardown.sh` deletes them on
+a clean run; after an interrupted one, check by hand:
+
+```bash
+aws ec2 describe-volumes --region eu-west-3 --filters Name=status,Values=available \
+  --query 'Volumes[?Tags[?Key==`kubernetes.io/created-for/pvc/name`]].VolumeId' --output text
+```
+
 ### 7.2 Verify nothing survived
 
 ```bash
