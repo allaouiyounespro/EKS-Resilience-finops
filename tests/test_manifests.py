@@ -168,16 +168,59 @@ class TestWitnessDeployment(unittest.TestCase):
         container = next(c for c in self.spec["containers"] if c["name"] == "witness")
         self.assertLessEqual(container["readinessProbe"]["periodSeconds"], 3)
 
-    def test_zone_spread_does_not_block_rescheduling_during_the_fault(self):
-        # whenUnsatisfiable: DoNotSchedule on the zone key would refuse to place
-        # replacement pods into the surviving AZs during the fault, because doing
-        # so breaches the skew against the dead zone. The constraint would enforce
-        # the very outage it exists to survive.
+    def test_the_zone_spread_is_actually_enforced(self):
+        # This test used to assert ScheduleAnyway, on the theory that
+        # DoNotSchedule would deadlock recovery. Deploying it proved the opposite:
+        # ScheduleAnyway is a preference, so Karpenter provisioned three nodes and
+        # the scheduler put all six pods on whichever reached Ready first.
+        # consolidateAfter then reclaimed the empty two. infra-b came up with six
+        # pods in one zone - infra-a with a bigger bill and a green dashboard.
         zone_constraint = next(
             c for c in self.spec["topologySpreadConstraints"]
             if c["topologyKey"] == "topology.kubernetes.io/zone"
         )
-        self.assertEqual(zone_constraint["whenUnsatisfiable"], "ScheduleAnyway")
+
+        self.assertEqual(
+            zone_constraint["whenUnsatisfiable"], "DoNotSchedule",
+            "ScheduleAnyway is a preference; Karpenter bin-packs and consolidation "
+            "finishes the job. The spread has to be a rule or it does not happen.",
+        )
+
+        # minDomains is what gives DoNotSchedule anything to enforce. Spread is
+        # computed across domains that EXIST: with one node there is one domain
+        # and a skew of zero, so the constraint is satisfied by the single point
+        # of failure it was written to prevent. minDomains makes the scheduler
+        # count zones with no nodes, which forces pods Pending - and Pending pods
+        # are the only thing Karpenter reacts to.
+        self.assertIn(
+            "minDomains", zone_constraint,
+            "without minDomains, DoNotSchedule is satisfied trivially by one node "
+            "in one zone",
+        )
+
+        # Honor is what makes DoNotSchedule safe once the AZ is gone. The default
+        # (Ignore) counts the dead zone's nodes as a domain holding zero pods, so
+        # rescheduling into a survivor breaches the skew and gets refused - the
+        # deadlock the original comment feared. Honor drops nodes carrying taints
+        # the pod does not tolerate, and a cut-off AZ's nodes are tainted
+        # unreachable within seconds.
+        self.assertEqual(
+            zone_constraint.get("nodeTaintsPolicy"), "Honor",
+            "without nodeTaintsPolicy: Honor, the dead zone still counts as a "
+            "domain and DoNotSchedule blocks the recovery it was meant to allow",
+        )
+
+    def test_min_domains_is_templated_not_hardcoded(self):
+        # minDomains is the one value that must differ between the two stacks: 1
+        # for infra-a (one failure domain, so the constraint is honestly a no-op)
+        # and 3 for infra-b. Hardcoding either number breaks the other stack -
+        # infra-a's pods would pend forever on a spread it cannot satisfy.
+        text = (K8S / "workload" / "20-deployment.yaml").read_text(encoding="utf-8")
+        bootstrap = (REPO / "scripts" / "bootstrap-cluster.sh").read_text(encoding="utf-8")
+
+        self.assertIn("minDomains: MIN_DOMAINS", text)
+        self.assertIn("MIN_DOMAINS", bootstrap)
+        self.assertIn("workload_azs.value | length", bootstrap)
 
     def test_no_cpu_limit(self):
         # A CPU limit would throttle the pod exactly while it is retrying
