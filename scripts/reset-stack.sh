@@ -9,9 +9,9 @@
 #
 # The trap this exists to close:
 #
-#   Run #1 forces the RDS writer to fail over from eu-west-3a to its standby in
-#   eu-west-3b. The FIS template, however, targets eu-west-3a - that AZ is baked
-#   into the template at terraform apply time and does not follow the database.
+#   Run #1's fault forces the RDS writer onto its standby in another AZ. The FIS
+#   template, however, targets the AZ it was applied with, and that does not
+#   follow the database.
 #
 #   So run #2 isolates an AZ that no longer holds the writer. The database is
 #   never touched. Fewer pods die. The RTO comes out flatteringly low, the
@@ -20,8 +20,8 @@
 #
 #   Nothing errors. Nothing warns. That is what makes it dangerous.
 #
-# So: fail the writer back to the target AZ, wait for the workload to return to
-# full strength, and only then hand control back to the runner.
+# So: re-point the fault at wherever the writer is now, wait for the workload to
+# return to full strength, and only then hand control back to the runner.
 
 set -euo pipefail
 
@@ -46,72 +46,53 @@ DB_ID="$(jq -r '.db_endpoint.value' <<<"${OUT}" | cut -d. -f1)"
 echo "==> resetting ${STACK} (target AZ: ${TARGET_AZ})"
 
 # ---------------------------------------------------------------------------
-# 1. Database placement
+# 1. Point the fault at wherever the writer actually is
+#
+# This used to force the writer BACK to the template's target AZ with
+# reboot-db-instance --force-failover. It does not work reliably: on the infra-b
+# campaign the failover reported "completed" in the RDS event log and left the
+# writer exactly where it started. Two failovers, same AZ, no error anywhere.
+#
+# The premise was wrong anyway. A Multi-AZ failover swaps writer and standby
+# between the two AZs RDS chose - you cannot aim it, you can only ask for a swap
+# and hope. Building the experiment on top of that means every run depends on an
+# operation with no guarantee of outcome, and it costs 40 seconds and a real
+# mini-outage each time.
+#
+# Inverting it removes the whole problem: the FIS template already computes its
+# target from module.rds.availability_zone, so a terraform apply re-reads where
+# RDS actually put the writer and re-points the fault there. No failover, no
+# hoping, and the invariant is stated rather than enforced: the fault always
+# hits the AZ holding the writer.
 # ---------------------------------------------------------------------------
-current_az() {
-  aws rds describe-db-instances \
-    --db-instance-identifier "${DB_ID}" \
-    --region "${REGION}" \
-    --query 'DBInstances[0].AvailabilityZone' --output text
-}
+echo "==> re-pointing the fault at the current writer"
 
-wait_available() {
-  local deadline=$(( SECONDS + 900 ))
-  while [[ ${SECONDS} -lt ${deadline} ]]; do
-    local status
-    status="$(aws rds describe-db-instances \
-      --db-instance-identifier "${DB_ID}" --region "${REGION}" \
-      --query 'DBInstances[0].DBInstanceStatus' --output text)"
-    [[ "${status}" == "available" ]] && return 0
-    printf '\r    database: %-24s' "${status}"
-    sleep 15
-  done
+DB_AZ="$(aws rds describe-db-instances \
+  --db-instance-identifier "${DB_ID}" --region "${REGION}" \
+  --query 'DBInstances[0].AvailabilityZone' --output text)"
+echo "    writer is in ${DB_AZ}"
+
+if [[ "${DB_AZ}" != "${TARGET_AZ}" ]]; then
+  echo "    template targets ${TARGET_AZ} - updating it to ${DB_AZ}"
+
+  terraform -chdir="${STACK_DIR}" apply -refresh-only -auto-approve -no-color >/dev/null
+  terraform -chdir="${STACK_DIR}" apply -auto-approve -no-color >/dev/null
+
+  OUT="$(terraform -chdir="${STACK_DIR}" output -json)"
+  TARGET_AZ="$(jq -r '.fis_target_az.value' <<<"${OUT}")"
+  echo "    template now targets ${TARGET_AZ}"
+fi
+
+if [[ "${DB_AZ}" != "${TARGET_AZ}" ]]; then
+  # For a single-AZ stack the writer is pinned by terraform and cannot move; if
+  # it has, someone changed the stack underneath us. For Multi-AZ, the apply
+  # above should have converged. Either way, refusing beats measuring a fault
+  # that misses the database.
   echo >&2
-  echo "database never returned to 'available'" >&2
-  return 1
-}
-
-DB_AZ="$(current_az)"
-echo "    database is in ${DB_AZ}"
-
-if [[ "${DB_MULTI_AZ}" == "true" && "${DB_AZ}" != "${TARGET_AZ}" ]]; then
-  # The writer drifted out of the blast radius during the previous run. Fail it
-  # back so the next run injects the same fault the first one did.
-  echo "    writer drifted out of the target AZ - failing back to ${TARGET_AZ}"
-
-  aws rds reboot-db-instance \
-    --db-instance-identifier "${DB_ID}" \
-    --force-failover \
-    --region "${REGION}" >/dev/null
-
-  sleep 20
-  wait_available
-  echo
-
-  DB_AZ="$(current_az)"
-  echo "    database is now in ${DB_AZ}"
-
-  if [[ "${DB_AZ}" != "${TARGET_AZ}" ]]; then
-    # A Multi-AZ failover swaps writer and standby, so one failback is normally
-    # enough. Landing somewhere else means the standby is not where we think it
-    # is - and guessing would produce exactly the silent corruption this script
-    # exists to prevent.
-    echo >&2
-    echo "ABORT: expected the writer in ${TARGET_AZ}, found it in ${DB_AZ}." >&2
-    echo "The next run would isolate an AZ that does not hold the database, and" >&2
-    echo "would report a low RTO for the wrong reason. Investigate before rerunning." >&2
-    exit 1
-  fi
-
-elif [[ "${DB_MULTI_AZ}" != "true" && "${DB_AZ}" != "${TARGET_AZ}" ]]; then
-  # A single-AZ instance is pinned by terraform and cannot move on its own. If it
-  # has, someone changed the stack underneath us.
-  echo >&2
-  echo "ABORT: single-AZ database is in ${DB_AZ}, not the pinned ${TARGET_AZ}." >&2
+  echo "ABORT: the writer is in ${DB_AZ} and the fault targets ${TARGET_AZ}." >&2
+  echo "The run would isolate an AZ with no database in it, complete happily, and" >&2
+  echo "report a number that measures nothing." >&2
   exit 1
-
-else
-  echo "    writer already in the target AZ - no failback needed"
 fi
 
 # ---------------------------------------------------------------------------
