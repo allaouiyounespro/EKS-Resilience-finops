@@ -17,7 +17,7 @@
 locals {
   az_count = length(var.azs)
 
-  # One NAT Gateway total, or one per AZ. This single boolean is worth ~64 USD
+  # One NAT Gateway total, or one per AZ. This single boolean is worth ~73 USD
   # a month between infra-a and infra-b, and it is also the difference between
   # "the AZ dies and everything dies with it" and "the AZ dies and the other
   # two keep talking to the internet".

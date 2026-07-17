@@ -76,7 +76,7 @@ compute needed to *spread* the workload — two extra Karpenter nodes and one ex
 system node — is $103/month, more than three times as much.
 
 The reason is a constraint nobody prices in advance: **an EC2 instance lives in
-exactly one AZ.** You cannot spread six pods across three zones with two nodes.
+one AZ, full stop.** You cannot spread six pods across three zones with two nodes.
 Three zones means three nodes, minimum, whatever the pods actually need. An
 earlier version of this model said two, understated the cost of resilience by a
 whole node, and was caught only by diffing the model against a real
@@ -108,11 +108,11 @@ is the *cheaper* option?
 annual_delta = incidents_per_year × saving_per_incident
 ```
 
-`saving_per_incident` is the **difference** between the two architectures' outage
-costs — not infra-a's full outage cost. infra-b is not free during an AZ failure;
-it still degrades for ~90 seconds. Crediting it with the entire avoided outage
-overstates the case, and an overstated business case is one a CFO gets to demolish
-in front of everyone.
+`saving_per_incident` is the difference between the two architectures' outage
+costs, not infra-a's full outage cost. infra-b is not free during an AZ failure:
+it still lost 34 seconds to the RDS failover. Crediting it with the entire
+avoided outage would overstate the case, and an overstated business case is one
+a CFO gets to demolish in front of everyone.
 
 Outage cost has two terms, and the second is the one people forget:
 
@@ -124,35 +124,42 @@ Engineering time is real money and it is spent whether or not revenue was lost. 
 model that ignores it concludes that internal platforms should never be made
 resilient.
 
-### At $5,000/hour of lost revenue
+### With the measured numbers
 
-| | |
-|---|---|
-| Modelled RTO, infra-a | 1,920 s → **$2,859** per incident |
-| Modelled RTO, infra-b | 94 s → **$140** per incident |
-| Saving per avoided incident | **$2,719** |
-| **Break-even** | **0.98 incidents/year** (0.24 per quarter) |
+infra-b's RTO is measured: 34 seconds, median of three runs. infra-a's is not a
+number at all - it never recovered, and needed a human. So the model takes one
+explicit assumption instead: how long until an engineer notices and intervenes?
 
-At that rate the architecture pays for itself if an AZ impairment happens roughly
-**once a year**. AWS AZ events are not rare enough to bet against that.
+At $5,000/hour of lost revenue:
 
-### The same question, inverted — and this is the honest way to ask it
+| if a dead AZ costs infra-a... | saved per incident | break-even |
+|---|---:|---|
+| 30 min of outage | $2,629 | 1.02 incidents/year |
+| 1 hour | $5,309 | **0.50 incidents/year** |
+| 2 hours | $10,669 | 0.25 incidents/year |
+
+Read the middle row: if it takes an hour to notice and fix a dead AZ, infra-b
+pays for itself at one AZ failure every two years.
+
+An hour is generous. infra-a's failure was silent - the AZ came back, EC2
+reported every instance healthy, the node group said ACTIVE, and the cluster
+still did not work. The dashboard that would have shown it was in the dead AZ.
+
+### The same question, inverted
 
 "It pays for itself at one incident a quarter" is the sentence everyone wants to
-write. It is **not a fact about the architecture.** It is a fact about how much an
-hour of downtime costs you, and it is true at exactly one value of that.
+write. It is not a fact about the architecture; it is a fact about what an hour
+of downtime costs you. So the model solves for that instead of asserting it:
 
-So the model solves for it instead of asserting it:
+> For infra-b to break even at one incident per quarter (with an hour of infra-a
+> downtime per incident), an hour of outage only has to cost **$314**.
 
-> For infra-b to break even at **1 incident per quarter**, an hour of total outage
-> would have to cost **$943**.
-
-That is a coherent figure for a small SaaS. It is nowhere near right for a payments
-company, and it is far too high for an internal tool. **Now you have to decide which
-one you are** — which is the entire value of running the model in this direction.
+Almost any revenue-bearing service clears that bar. The one-per-quarter framing,
+which sounds aggressive, turns out to be conservative once the single-AZ
+architecture's real recovery story is priced in.
 
 ```bash
-python3 -m finops.cost_model --revenue-per-hour <your number>
+python3 -m finops.cost_model --rto-a 3600 --rto-b 34 --revenue-per-hour <yours>
 ```
 
 ---
@@ -174,7 +181,7 @@ rotation that works for an async DR path that this project's own results.md
 already called "generous to describe as DR".
 
 What is interesting is the arithmetic. Removing it moved the break-even from
-**1.10 to 0.98 incidents/year** - a 12% improvement - because the replica was
+the break-even meaningfully - because the replica was
 pure cost with **zero contribution to either measured number**. It did nothing for
 RPO (the synchronous standby covers that) and nothing for RTO (promotion is
 manual). It sat on the wrong side of the ledger and made the architecture harder

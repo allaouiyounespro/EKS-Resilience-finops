@@ -3,7 +3,7 @@
 # owner: allaouiyounespro
 # portfolio: github.com/allaouiyounespro
 #
-# The cheap architecture. Roughly 180 USD/month.
+# The cheap architecture. 285 USD/month as measured.
 #
 #   - all compute and data pinned into a single AZ
 #   - one NAT Gateway
@@ -12,8 +12,11 @@
 #
 # This is not a strawman. It is what a competent engineer ships when the brief is
 # "get it running, keep it cheap", and it is what a large fraction of real
-# production estates actually look like. The point of the experiment is to put a
-# number on what that costs when the AZ goes away - not to sneer at it.
+# production estates actually look like.
+#
+# What the experiment found: when the AZ went away, this stack did not come back.
+# Karpenter died with it, the ASG's replacement nodes became zombies EC2 called
+# healthy, and a human had to intervene. See docs/results.md.
 #
 # Everything except the resilience settings is identical to infra-b. Compare:
 #   diff terraform/stacks/infra-a/terraform.tfvars terraform/stacks/infra-b/terraform.tfvars

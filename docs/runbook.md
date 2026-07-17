@@ -4,8 +4,8 @@
 |---|---|
 | **Service** | eks-resilience-finops (witness platform, both stacks) |
 | **Owner** | allaouiyounespro · [github.com/allaouiyounespro](https://github.com/allaouiyounespro) |
-| **Document version** | 1.1 |
-| **Last reviewed** | 2026-07-14 |
+| **Document version** | 1.2 |
+| **Last reviewed** | 2026-07-17 — after both campaigns |
 | **Review cadence** | before every experiment campaign, and after any change to `terraform/modules/fis` |
 | **Audience** | the engineer running the experiment; assumes working AWS + kubectl fluency |
 | **Escalation** | none — lab account. In production this row is the most important line of the document. |
@@ -27,7 +27,7 @@ right.
 |---|---|---|
 | infra-b degraded to 4/6 replicas during the fault window | **Expected** | none — this is the finding |
 | infra-a total outage during the fault window | **Expected** | none — this is the finding |
-| `WitnessTotalOutage` firing on **infra-b** | **SEV-2 equivalent** | the $193/month bought nothing; capture everything, § 6 |
+| `WitnessTotalOutage` firing on **infra-b** | **SEV-2 equivalent** | the $222/month bought nothing; capture everything, § 6 |
 | Fault window elapsed +10 min, infra-a still down | **Expected-degraded** | AZ restoration is AWS's clock, not yours; keep observing |
 | Spend anomaly (Karpenter node count climbing) | **SEV-2 equivalent** | § 5 abort, then § 7.3 |
 | Blast radius outside the target stack | **SEV-1 equivalent** | § 5 abort immediately, then investigate the FIS target selectors |
@@ -87,7 +87,7 @@ cp terraform/backend.hcl.example terraform/backend.hcl    # then edit
 
 ## 3. Pre-flight — per campaign
 
-- [ ] `make check` green locally (9 Terraform dirs validate, 83 tests pass).
+- [ ] `make check` green locally (9 Terraform dirs validate, 102 tests pass).
 - [ ] `make init plan STACK=<stack>` — read the plan. An unexpected replace on
       the RDS instance means the run starts with an empty ledger.
 - [ ] No other experiment running: `aws fis list-experiments --region eu-west-3
@@ -326,7 +326,7 @@ Suspected runaway (nodes climbing, § 1): scale the NodePool to zero before
 debugging — `kubectl patch nodepool witness --type merge -p '{"spec":{"limits":{"cpu":"0"}}}'`
 stops new launches while leaving the evidence running.
 
-Both stacks left up cost **~$811/month (~$27/day)**. The meter does not care
+Both stacks left up cost **~$793/month (~$26/day)**. The meter does not care
 that the laptop is closed.
 
 * * *

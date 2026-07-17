@@ -31,7 +31,7 @@ owner: **allaouiyounespro** · portfolio: [github.com/allaouiyounespro](https://
 
 ## 🏗️ Architecture Overview
 
-![Architecture — infra-a (single-AZ) vs infra-b (multi-AZ + DR)](architecture.svg)
+![Architecture: infra-a (single-AZ) vs infra-b (multi-AZ)](architecture.svg)
 
 Same modules, same region, same workload, same fault. The entire difference
 between the $285.04/month architecture and the $507.54/month one is a **15-line
@@ -58,9 +58,9 @@ $ diff terraform/stacks/infra-a/main.tf terraform/stacks/infra-b/main.tf
 
 Everyone knows multi-AZ costs more. Almost nobody can say *how much more*, what it
 buys in seconds, or at what incident rate it becomes the cheaper option. The claim
-"it pays for itself at one incident a quarter" appears in design docs constantly —
-and it is not a fact about any architecture. It is a statement about how much
-money the business loses per hour, true at exactly one value of that number.
+"it pays for itself at one incident a quarter" appears in design docs constantly.
+It is not a fact about any architecture. It is a statement about how much money
+the business loses per hour, and it only holds at one value of that number.
 
 This project measures both halves and does the arithmetic. Three findings up
 front:
@@ -76,13 +76,19 @@ front:
    Multi-AZ gives RPO 0" and "we asked, and it did".
 3. **The expensive part of resilience is not the database — it's the nodes.**
    Multi-AZ RDS is $32/month. The compute to *spread* the workload is $103,
-   because an EC2 instance lives in exactly one AZ: three zones means three
+   because an EC2 instance lives in one AZ and one only: three zones means three
    nodes, whatever the pods need.
 
-> **These are measurements, not predictions.** Both stacks were built on AWS,
-> destroyed by AWS FIS, and observed by a probe running outside the blast radius.
-> [`docs/results.md`](docs/results.md) has the timelines, the three discarded
-> runs, and the four things that went wrong along the way.
+The same fault, seen by the same external probe, one request per second:
+
+![infra-a: the AZ fails and nothing brings it back](docs/outage-infra-a.svg)
+
+![infra-b: the same fault, and the service keeps serving](docs/outage-infra-b.svg)
+
+> Both stacks were built on AWS, destroyed by AWS FIS, and observed from outside
+> the blast radius. [`docs/results.md`](docs/results.md) has the full timelines,
+> the three discarded runs, and their autopsies - which taught more than most of
+> the passing runs did.
 
 * * *
 
@@ -103,7 +109,7 @@ EKS-Resilience-finops/
 │   │   └── platform/          # composes all six; stacks differ only by inputs
 │   └── stacks/
 │       ├── infra-a/           # single-AZ   (~$285/mo)
-│       └── infra-b/           # multi-AZ+DR (~$508/mo)
+│       └── infra-b/           # multi-AZ    (~$508/mo)
 ├── app/                       # witness service: /healthz /readyz /write /last
 ├── k8s/
 │   ├── workload/              # Deployment, Gateway API (ALB), PDB, NetworkPolicy
@@ -112,7 +118,7 @@ EKS-Resilience-finops/
 ├── chaos/                     # probe, writer, pure RTO/RPO analysis
 ├── finops/                    # priced line-item model + break-even solver
 ├── scripts/                   # bootstrap, experiment runner, cost reconciliation
-├── tests/                     # 83 tests — analysis math, cost model, manifests
+├── tests/                     # 102 tests: analysis math, cost model, manifests, wiring
 └── docs/                      # architecture, finops, results, runbook
 ```
 
@@ -167,7 +173,7 @@ The workload is exposed through `Gateway` + `HTTPRoute` (reconciled into an ALB)
 not an Ingress: typed, versioned fields instead of nine annotations, explicit
 route-attachment policy, and health-check tuning in CRDs. The ALB also retires an
 NLB trap: cross-zone routing is always on and free, so no future cost review can
-switch it off and silently cap availability at 2/3 during an AZ failure.
+switch it off and cap availability at 2/3 during an AZ failure without noticing.
 
 ### `terraform/modules/fis`
 
@@ -228,10 +234,10 @@ eu-west-3 list prices in [`finops/pricing.yaml`](finops/pricing.yaml), captured
 | EBS, logs, transfer, secrets | $10.05 | $18.58 | ★ +$2.00 |
 | **Total** | **$285.04** | **$507.54** | **$212.26** |
 
-The `$212.26` column is the number to defend in a budget meeting: not "we spend
-$438" but "we spend $245 to run it and $193 to survive an AZ failure — here is
-the measured RTO with and without." Every line of the delta is explicitly flagged
-in the model, and a test fails if unattributed cost creeps in.
+The `$212.26` column is the number to defend in a budget meeting. "We spend $508"
+invites a haircut. "We spend $285 to run it and $222 to survive an AZ failure,
+and here is the measured RTO with and without" is an argument. Every line of the
+delta is flagged in the model, and a test fails if unattributed cost creeps in.
 
 Reconciliation against the real bill: `./scripts/cost-explorer.sh` groups actual
 spend by the `CostProfile` tag. A few percent of disagreement is healthy; tens of
@@ -270,32 +276,33 @@ percent means the model is missing a line item.
 **Offline — free, runs in CI:**
 
 ```bash
-make check          # terraform fmt + validate (9 dirs), 83 Python tests
+make check          # terraform fmt + validate (9 dirs), 102 Python tests
 make finops         # price both architectures, solve the break-even
 ```
 
-**Against AWS — costs real money (~$810/month if both stacks run):**
+**Against AWS — costs real money (~$793/month if both stacks run):**
 
 ```bash
 cp terraform/backend.hcl.example terraform/backend.hcl   # your state bucket
-export WITNESS_IMAGE=<your-registry>/witness:0.1.0        # docker build app/
+export WITNESS_IMAGE=<your-registry>/witness:0.2.0        # docker build app/
 
-make init  STACK=infra-a
-make up    STACK=infra-a        # apply + bootstrap (LBC, Karpenter, monitoring, workload)
-make experiment STACK=infra-a   # baseline → inject → observe → report
-make down  STACK=infra-a        # tear down; the meter is running
+make init STACK=infra-a
+make up   STACK=infra-a           # apply + bootstrap (LBC, Karpenter, monitoring, workload)
+make campaign STACK=infra-a RUNS=3   # reset -> inject -> observe -> report, three times
+make down STACK=infra-a           # tear down; the meter is running
 ```
 
-Then the same for `infra-b`, and paste both `result.json` files into
-[`docs/results.md`](docs/results.md). Operational detail, safety rails and
-troubleshooting live in the [runbook](docs/runbook.md).
+Then the same for `infra-b`. Operational detail, safety rails and troubleshooting
+live in the [runbook](docs/runbook.md) - including how the teardown deals with
+the resources Terraform cannot see.
 
 * * *
 
 ## ⚠️ What This Project Does Not Claim
 
-- **One run is an anecdote.** RDS failover varies by tens of seconds between
-  runs; a defensible RTO is a median of 5+.
+- **Three runs is a median, not a distribution.** infra-b's RTO ranged from 28
+  to 58 seconds across runs, which is exactly why the spread is published next
+  to the median. More runs would tighten it; three was the budget.
 - **FIS is a simulation.** A real AZ event adds partial failures, degraded
   hardware, and every other AWS customer failing over simultaneously. The
   measured RTO is a **lower bound**.
@@ -324,5 +331,5 @@ troubleshooting live in the [runbook](docs/runbook.md).
 |---|---|
 | [`docs/architecture.md`](docs/architecture.md) | Every resilience decision, what it costs, what it buys |
 | [`docs/finops-analysis.md`](docs/finops-analysis.md) | The full bill and the break-even, assumptions exposed |
-| [`docs/results.md`](docs/results.md) | The measurements (template — run the experiment) |
+| [`docs/results.md`](docs/results.md) | The measurements, the discarded runs, and their autopsies |
 | [`docs/runbook.md`](docs/runbook.md) | Production-style operations document for the experiment |

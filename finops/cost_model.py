@@ -495,23 +495,21 @@ def main() -> int:
     cost_b = compute_cost(shapes["infra-b"], pricing, "infra-b")
 
     # ------------------------------------------------------------------
-    # RTO defaults: MODELLED, NOT MEASURED.
+    # RTO defaults, after the campaigns.
     #
-    # These are the values the architecture predicts, derived from the documented
-    # behaviour of each component (RDS failover 60-120s; Karpenter node launch
-    # plus kubelet join 40-90s; AZ restoration, for infra-a, entirely at AWS's
-    # discretion). They are placeholders so the model runs end-to-end before a
-    # single dollar is spent on AWS.
+    # rto_b defaults to 34s: the measured median of three runs (28-58s), all of
+    # it RDS failover time. See docs/results.md and results/infra-b/.
     #
-    # They are NOT experiment results, and nothing in this repo will present them
-    # as such. Run scripts/run-experiment.sh against both stacks and pass the
-    # real numbers in via --rto-a / --rto-b. docs/results.md is a template with
-    # empty cells for exactly that reason - a resilience portfolio whose headline
-    # numbers were invented is worth less than no portfolio at all.
+    # rto_a has no measured value to default to, because infra-a never recovered.
+    # The AZ came back and the cluster stayed down - Karpenter had died with the
+    # zone, and the ASG's replacement nodes were zombies EC2 called healthy. A
+    # human had to intervene. So the default is an ASSUMPTION, one hour, standing
+    # in for "time until an engineer notices and fixes it", and the output labels
+    # it as such. Override it with your own on-call reality.
     # ------------------------------------------------------------------
-    rto_a = args.rto_a if args.rto_a is not None else 1_920.0
-    rto_b = args.rto_b if args.rto_b is not None else 94.0
-    measured = args.rto_a is not None and args.rto_b is not None
+    rto_a = args.rto_a if args.rto_a is not None else 3_600.0
+    rto_b = args.rto_b if args.rto_b is not None else 34.0
+    rto_a_assumed = args.rto_a is None
 
     incident_cost_a = downtime_cost(
         rto_a, args.revenue_per_hour, args.engineers, args.engineer_hourly_cost
@@ -561,16 +559,17 @@ def main() -> int:
     print(f"  difference         {delta:>10.2f} USD/month  ({delta * 12:,.0f}/year)")
     print(f"  of which HA        {cost_b.resilience_premium:>10.2f} USD/month in infra-b")
 
-    label = "measured" if measured else "MODELLED"
+    label_a = "ASSUMED " if rto_a_assumed else "measured"
 
     print("\n=== the break-even ===\n")
-    if not measured:
-        print("  !! RTOs below are MODELLED, not measured. Run scripts/run-experiment.sh")
-        print("     against both stacks and pass --rto-a / --rto-b to get a real answer.\n")
+    if rto_a_assumed:
+        print("  infra-a never recovered in the experiment, so its RTO is an assumption:")
+        print("  one hour of 'time until an engineer notices and fixes it'. Override")
+        print("  with --rto-a to match your on-call reality.\n")
 
     print(f"  assumed revenue    {args.revenue_per_hour:>10,.0f} USD/hour of outage")
-    print(f"  {label:<8} RTO A     {rto_a:>10,.0f} s   -> {incident_cost_a:>12,.0f} USD/incident")
-    print(f"  {label:<8} RTO B     {rto_b:>10,.0f} s   -> {incident_cost_b:>12,.0f} USD/incident")
+    print(f"  {label_a} RTO A     {rto_a:>10,.0f} s   -> {incident_cost_a:>12,.0f} USD/incident")
+    print(f"  measured RTO B     {rto_b:>10,.0f} s   -> {incident_cost_b:>12,.0f} USD/incident")
     print(f"  saved per incident {saving_per_incident:>10,.0f} USD")
     print()
     print(f"  {be.summary()}")

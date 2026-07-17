@@ -126,10 +126,10 @@ of the six pods died with it. **Four kept serving.**
 
 The 34-second median is the RDS failover, not Karpenter. Karpenter was never the
 bottleneck: both of its replicas were alive in the surviving zones and relaunched
-the lost capacity in parallel with the database moving. The 34 USD/month third
-system node - the line item nobody puts on the invoice - did exactly what
-`terraform/stacks/infra-b/variables.tf` predicted, in writing, before anything
-was measured.
+the lost capacity while the database was still moving. The 34 USD/month third
+system node - the line item nobody puts on the invoice - did what
+`terraform/stacks/infra-b/variables.tf` predicted it would, in writing, before
+anything was measured.
 
 ### The RPO is zero, and this time that is a measurement
 
@@ -170,8 +170,8 @@ So the honest claim is narrower than "infra-b self-heals":
 > restore its own redundancy without one.**
 
 It survives the *next* failure only if someone cleared the last one. That cost is
-real, it is invisible from every AWS console, and it is why `reset-stack.sh` reaps
-zombies before each run instead of trusting the platform to.
+real, no AWS console shows it, and it is why `reset-stack.sh` reaps zombies
+before each run instead of trusting the platform to.
 
 ### The spread of 28–58 s is the point of running it three times
 

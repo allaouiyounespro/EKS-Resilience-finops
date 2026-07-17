@@ -175,10 +175,12 @@ transaction logs to S3 roughly every 5 minutes. The floor on infra-a's RPO is
 therefore "up to 5 minutes of committed transactions, gone" — and the RTO is however
 long a PITR takes, which is tens of minutes.
 
-The read replica in infra-b contributes **nothing** to RPO (it is asynchronous). It
-is the manual promotion path for a region-level event, and a read-scaling story. It
-is listed honestly as such in the cost model rather than being smuggled in as part
-of the RPO=0 claim.
+There is no read replica, and not by choice: AWS refuses to create one for a
+Postgres instance whose master password RDS manages. Between credential rotation
+that works and an async promotion path that was never going to be tested, rotation
+won - and removing the replica actually improved the break-even, because it was
+pure cost with no contribution to either measured number. The full story is in
+docs/finops-analysis.md.
 
 ---
 

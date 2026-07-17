@@ -10,8 +10,8 @@
 # they would drift - someone would bump an instance type in one and not the
 # other - and the cost comparison would quietly stop being apples-to-apples.
 #
-# Here, the entire difference between the 180 USD/month architecture and the
-# 380 USD/month one is a diff between two tfvars files. That diff is the
+# Here, the entire difference between the 285 USD/month architecture and the
+# 507 USD/month one is a diff between two stack files. That diff is the
 # deliverable.
 # ---------------------------------------------------------------------------
 
