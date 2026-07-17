@@ -114,6 +114,50 @@ fi
 # ---------------------------------------------------------------------------
 echo "==> checking the system tier"
 
+# Reap the zombies first.
+#
+# FIS stops the system nodes; the ASG launches replacements; and if it launches
+# one into the AZ that is still cut off, that instance boots, cannot reach the
+# control plane, never joins, and stays there. EC2 calls it `running` with green
+# status checks. The node group calls itself ACTIVE with no health issues.
+# Kubernetes has never heard of it. Nothing reconciles this, ever - infra-a's
+# cluster had to be repaired by hand.
+#
+# Anything tagged for this cluster and running in EC2 but absent from `kubectl
+# get nodes` is a zombie. Terminating it is the only thing that makes the ASG
+# try again, now that the AZ is reachable.
+CLUSTER="$(jq -r '.cluster_name.value' <<<"${OUT}")"
+
+K8S_NODES="$(kubectl get nodes -o jsonpath='{range .items[*]}{.spec.providerID}{"\n"}{end}' 2>/dev/null \
+  | awk -F/ '{print $NF}' | grep -v '^$' | sort -u || true)"
+
+EC2_NODES="$(aws ec2 describe-instances --region "${REGION}" \
+  --filters "Name=tag:kubernetes.io/cluster/${CLUSTER},Values=owned" \
+            "Name=instance-state-name,Values=running" \
+  --query 'Reservations[].Instances[].InstanceId' --output text 2>/dev/null | tr '\t' '\n' | sort -u || true)"
+
+ZOMBIES=""
+for i in ${EC2_NODES}; do
+  grep -qx "${i}" <<<"${K8S_NODES}" || ZOMBIES="${ZOMBIES} ${i}"
+done
+
+if [[ -n "${ZOMBIES// /}" ]]; then
+  echo "    zombies (running in EC2, unknown to Kubernetes):${ZOMBIES}"
+  echo "    terminating them so the ASG retries into a reachable AZ"
+  # shellcheck disable=SC2086
+  aws ec2 terminate-instances --region "${REGION}" --instance-ids ${ZOMBIES} >/dev/null 2>&1 || true
+
+  echo "    waiting for the system tier to come back"
+  deadline=$(( SECONDS + 600 ))
+  while [[ ${SECONDS} -lt ${deadline} ]]; do
+    n="$(kubectl get nodes -l workload-class=system --no-headers 2>/dev/null | grep -c ' Ready' || true)"
+    [[ "${n:-0}" -ge "$(jq -r '.workload_azs.value | length' <<<"${OUT}")" ]] && break
+    printf '\r      %s node(s) Ready' "${n:-0}"
+    sleep 20
+  done
+  echo
+fi
+
 SYSTEM_READY="$(kubectl get nodes -l workload-class=system --no-headers 2>/dev/null | grep -c ' Ready' || true)"
 SYSTEM_READY="${SYSTEM_READY:-0}"
 SYSTEM_EXPECTED="${EXPECTED_ZONES:-$(jq -r '.workload_azs.value | length' <<<"${OUT}")}"
@@ -128,19 +172,9 @@ echo "    Karpenter replicas Running: ${KARPENTER_READY}"
 
 if [[ "${SYSTEM_READY}" -lt "${SYSTEM_EXPECTED}" ]]; then
   echo >&2
-  echo "ABORT: only ${SYSTEM_READY}/${SYSTEM_EXPECTED} system nodes are Ready." >&2
-  echo >&2
-  echo "The ASG most likely relaunched a node into the AZ while it was still cut" >&2
-  echo "off; it never joined and is now a zombie - running in EC2, green status" >&2
-  echo "checks, invisible to Kubernetes. Terminate it and let the ASG try again:" >&2
-  echo >&2
-  echo "  aws ec2 describe-instances --region ${REGION} \\" >&2
-  echo "    --filters 'Name=tag:kubernetes.io/cluster/${DB_ID%%-*}*,Values=owned' \\" >&2
-  echo "              'Name=instance-state-name,Values=running' \\" >&2
-  echo "    --query 'Reservations[].Instances[].InstanceId'" >&2
-  echo >&2
-  echo "Cross-check against 'kubectl get nodes'. Anything in EC2 but not in" >&2
-  echo "Kubernetes is a zombie. Terminate it." >&2
+  echo "ABORT: only ${SYSTEM_READY}/${SYSTEM_EXPECTED} system nodes are Ready, and" >&2
+  echo "reaping the zombies did not bring them back. Something else is wrong -" >&2
+  echo "check the node group's health and the subnets it launches into." >&2
   exit 1
 fi
 
