@@ -119,9 +119,49 @@ variable "backup_retention_period" {
 }
 
 variable "create_read_replica" {
-  description = "Provision an async read replica in another AZ. Not needed for RPO (the Multi-AZ standby covers that) - it is the manual-promotion escape hatch for a region-level event, and the read-scaling story."
-  type        = bool
-  default     = false
+  description = <<-EOT
+    Provision an async read replica in another AZ.
+
+    Contributes nothing to RPO - the Multi-AZ standby covers that. It is the
+    manual-promotion escape hatch for a region-level event, and the read-scaling
+    story.
+
+    MUTUALLY EXCLUSIVE with manage_master_user_password on Postgres. AWS refuses:
+
+      InvalidParameterValue: Creating read replicas for source instance with
+      engine postgres where ManageMasterUserPassword is enabled is not supported
+
+    Two AWS best practices that cannot coexist, and the choice is not close. The
+    managed password means RDS generates and rotates it into Secrets Manager and
+    nothing sensitive ever reaches the Terraform state file. The replica is an
+    async, never-tested promotion path that this project's own results.md already
+    calls "generous to describe as DR".
+
+    Giving up rotation and putting a password in state to buy an untested DR path
+    would be trading a real security property for a theoretical one. So the
+    replica goes, and the 30 USD/month with it.
+  EOT
+
+  type    = bool
+  default = false
+
+  validation {
+    condition     = !var.create_read_replica || !var.manage_master_password
+    error_message = "create_read_replica and manage_master_password cannot both be true: AWS rejects read replicas on a Postgres instance with an RDS-managed master password."
+  }
+}
+
+variable "manage_master_password" {
+  description = <<-EOT
+    Let RDS generate and rotate the master password into Secrets Manager, so it
+    never touches the Terraform state file.
+
+    Only turn this off if you genuinely need a read replica (see above), and know
+    that you are choosing an untested DR path over credential rotation.
+  EOT
+
+  type    = bool
+  default = true
 }
 
 variable "deletion_protection" {

@@ -34,7 +34,7 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 | Secrets Manager | 0.40 | |
 | **TOTAL** | **282.85** | of which **$0.00** buys resilience |
 
-### infra-b — multi-AZ + DR · **$533.44/month**
+### infra-b — multi-AZ (no read replica) · **$503.16/month**
 
 | line item | USD/mo | HA? | |
 |---|---:|:--:|---|
@@ -46,7 +46,6 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 | EC2 system node (HA) | 34.31 | ★ | **keeps Karpenter alive through the failure** |
 | EC2 Karpenter nodes | 34.31 | | 1 × t3.medium |
 | RDS Multi-AZ standby | 30.28 | ★ | **this is what buys RPO = 0** |
-| RDS read replica | 30.28 | ★ | async; regional promotion path |
 | RDS instance | 27.74 | | 1 × db.t4g.small |
 | Application Load Balancer | 25.84 | | |
 | EBS gp3 | 16.70 | | 180 GiB |
@@ -54,11 +53,11 @@ make finops-verify             # fails if shapes.yaml has drifted from what is d
 | RDS storage | 2.54 | | |
 | Cross-AZ data transfer | 2.00 | ★ | the toll for spreading out |
 | Secrets Manager | 0.40 | | |
-| **TOTAL** | **533.44** | | of which **$240.49** buys resilience |
+| **TOTAL** | **503.16** | | of which **$210.07** buys resilience |
 
 ★ = exists *only* because of the high-availability decision.
 
-**Delta: $250.59/month — $3,007/year.**
+**Delta: $220.31/month — $2,644/year.**
 
 ---
 
@@ -83,8 +82,8 @@ earlier version of this model said two, understated the cost of resilience by a
 whole node, and was caught only by diffing the model against a real
 `terraform plan`. `make finops-verify` exists so it cannot happen silently again.
 
-**3. The resilience premium ($238) is the number to defend, not the total ($530).**
-"We spend $530/month" invites a haircut. "We spend $281 to run it and $249 to
+**3. The resilience premium ($210) is the number to defend, not the total ($503).**
+"We spend $503/month" invites a haircut. "We spend $283 to run it and $220 to
 survive an AZ failure — here is the measured RTO with and without" is an argument.
 The model flags every line item that exists *only* because of the HA decision,
 and `tests/test_cost_model.py` asserts that the delta between the two
@@ -102,7 +101,7 @@ replication — the irreducible toll for not being in one place.
 
 ## The break-even
 
-The question: infra-b costs $3,007/year more. How often must an AZ fail before that
+The question: infra-b costs $2,644/year more. How often must an AZ fail before that
 is the *cheaper* option?
 
 ```
@@ -132,7 +131,7 @@ resilient.
 | Modelled RTO, infra-a | 1,920 s → **$2,859** per incident |
 | Modelled RTO, infra-b | 94 s → **$140** per incident |
 | Saving per avoided incident | **$2,719** |
-| **Break-even** | **1.10 incidents/year** (0.27 per quarter) |
+| **Break-even** | **0.97 incidents/year** (0.24 per quarter) |
 
 At that rate the architecture pays for itself if an AZ impairment happens roughly
 **once a year**. AWS AZ events are not rare enough to bet against that.
@@ -146,7 +145,7 @@ hour of downtime costs you, and it is true at exactly one value of that.
 So the model solves for it instead of asserting it:
 
 > For infra-b to break even at **1 incident per quarter**, an hour of total outage
-> would have to cost **$1,111**.
+> would have to cost **$943**.
 
 That is a coherent figure for a small SaaS. It is nowhere near right for a payments
 company, and it is far too high for an internal tool. **Now you have to decide which
@@ -155,6 +154,35 @@ one you are** — which is the entire value of running the model in this directi
 ```bash
 python3 -m finops.cost_model --revenue-per-hour <your number>
 ```
+
+---
+
+## The line item that was removed, and why it made the case stronger
+
+infra-b originally carried a $30/month RDS read replica. It is gone, and not for
+cost reasons: **AWS refuses to create a read replica for a Postgres instance whose
+master password RDS manages.**
+
+```
+InvalidParameterValue: Creating read replicas for source instance with engine
+postgres where ManageMasterUserPassword is enabled is not supported
+```
+
+Two of AWS's own best practices, mutually exclusive. Keeping the replica meant
+generating the password in Terraform and storing it in state - trading credential
+rotation that works for an async DR path that this project's own results.md
+already called "generous to describe as DR".
+
+What is interesting is the arithmetic. Removing it moved the break-even from
+**1.10 to 0.97 incidents/year** - a 12% improvement - because the replica was
+pure cost with **zero contribution to either measured number**. It did nothing for
+RPO (the synchronous standby covers that) and nothing for RTO (promotion is
+manual). It sat on the wrong side of the ledger and made the architecture harder
+to justify.
+
+The general lesson is the useful one: **an untested resilience feature is not
+resilience, it is cost**. The only way to tell the difference is to measure, which
+is what this whole repository is for.
 
 ---
 

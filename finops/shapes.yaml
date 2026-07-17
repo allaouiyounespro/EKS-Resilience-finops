@@ -91,7 +91,10 @@ infra-b:
   db_instance_class: db.t4g.small
   db_multi_az: true
   db_storage_gb: 20
-  db_read_replica: true
+  # No read replica: AWS refuses to create one for a Postgres instance whose
+  # master password it manages, and rotation is worth more than an async DR path
+  # that was never going to be tested. See terraform/stacks/infra-b/main.tf.
+  db_read_replica: false
   db_backup_retention: 7
 
   alb_count: 1

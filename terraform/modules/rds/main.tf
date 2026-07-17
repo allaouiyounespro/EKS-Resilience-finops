@@ -171,7 +171,10 @@ resource "aws_db_instance" "this" {
 
   # RDS generates and rotates the password into Secrets Manager. Nothing sensitive
   # ends up in the Terraform state file, and the app resolves the secret at runtime.
-  manage_master_user_password = true
+  #
+  # Mutually exclusive with a read replica on Postgres - see the variable's
+  # documentation for why the replica is the one that loses.
+  manage_master_user_password = var.manage_master_password
 
   db_subnet_group_name   = aws_db_subnet_group.this.name
   parameter_group_name   = aws_db_parameter_group.this.name
@@ -223,6 +226,29 @@ resource "aws_db_instance" "this" {
     precondition {
       condition     = !(var.multi_az && var.availability_zone != null)
       error_message = "availability_zone cannot be set when multi_az is true: RDS chooses the writer and standby placement itself."
+    }
+
+    # Assert that we got the architecture we asked for.
+    #
+    # This is not paranoia. On the first infra-b apply, AWS ran out of
+    # db.t4g.small capacity in eu-west-3b, gave up on building the standby, put
+    # the instance back to "available" as SINGLE-AZ, and reported success. The
+    # RDS event log says it plainly:
+    #
+    #   Applying modification to convert to a Multi-AZ DB Instance
+    #   Insufficient instance capacity for instance type db.t4g.small in
+    #   availability zone eu-west-3b; putting database instance into available
+    #
+    # Terraform read multi_az=false back into state and did not care. No error,
+    # no drift, exit 0. The stack whose entire premise is a synchronous standby
+    # came up without one, and the only way to find out was to ask AWS directly.
+    #
+    # A postcondition turns that into a failed apply, which is the only honest
+    # outcome: an infra-b without a standby is not infra-b, it is infra-a with a
+    # bigger bill.
+    postcondition {
+      condition     = self.multi_az == var.multi_az
+      error_message = "RDS reports multi_az=${self.multi_az} but ${var.multi_az} was requested. AWS most likely had no capacity for ${var.instance_class} in the standby AZ and silently kept the instance single-AZ - check `aws rds describe-events`. This stack's whole premise is the synchronous standby; without it the experiment measures nothing."
     }
   }
 }

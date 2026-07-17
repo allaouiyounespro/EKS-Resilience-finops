@@ -8,7 +8,6 @@
 #
 #   ~64 USD  two extra NAT Gateways    - egress survives losing an AZ
 #   ~90 USD  RDS Multi-AZ standby      - RPO goes from "up to 5 minutes" to zero
-#   ~30 USD  RDS read replica          - a promotion path for a regional event
 #   ~30 USD  a third system node       - Karpenter itself survives the blast
 #   ~ 5 USD  cross-AZ data transfer    - the tax you pay for spreading out
 #
@@ -41,10 +40,22 @@ module "platform" {
 
   # Synchronous standby in another AZ: a commit is not acknowledged until it is
   # durable in two places, so an AZ loss costs zero committed transactions.
+  #
+  # No read replica, and not by choice. AWS refuses to create one for a Postgres
+  # instance whose master password it manages:
+  #
+  #   InvalidParameterValue: Creating read replicas for source instance with
+  #   engine postgres where ManageMasterUserPassword is enabled is not supported
+  #
+  # Two of AWS's own best practices, mutually exclusive. Keeping the replica would
+  # have meant generating the password in Terraform and storing it in state - and
+  # trading credential rotation that works for an async DR path that was never
+  # going to be tested is not a trade worth making. It costs 30 USD/month less,
+  # and the resulting infra-b is one whose every claim survives being checked.
   db_instance_class          = var.db_instance_class
   db_allocated_storage       = var.db_allocated_storage
   db_multi_az                = true
-  db_create_read_replica     = true
+  db_create_read_replica     = false
   db_backup_retention_period = 7
 
   # Aim at the AZ holding the RDS writer. Targeting a quiet AZ would be a much

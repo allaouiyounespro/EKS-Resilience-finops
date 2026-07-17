@@ -110,7 +110,8 @@ ask".
 
 RDS has a synchronous standby, so a commit is durable in two AZs before it is
 acknowledged: **RPO should be exactly zero**, and provably so, because pods in the
-surviving zones will still be alive to answer `GET /last`.
+surviving zones will still be alive to answer `GET /last` - which is exactly what
+infra-a could not do, leaving its RPO permanently unknown.
 
 If infra-b does not survive, that is a far more interesting result than if it
 does, and it will be reported as loudly.
@@ -156,5 +157,8 @@ Stated plainly, because a portfolio that only lists its strengths is advertising
    long-lived connections to rebuild. A real application adds its own recovery
    time on top of the infrastructure's.
 
-4. **infra-b survives an AZ, not a region.** The read replica is an untested
-   manual promotion path. Calling it "DR" is generous.
+4. **infra-b survives an AZ, not a region.** There is no cross-region story: the
+   read replica that would have been one had to go, because AWS refuses to create
+   a Postgres replica for an instance whose master password RDS manages. Between
+   credential rotation that works and a DR path that was never going to be
+   tested, rotation won. See docs/finops-analysis.md.

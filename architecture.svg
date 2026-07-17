@@ -88,8 +88,8 @@
 
   <!-- ======================= PANEL B ======================= -->
   <rect x="730" y="80" width="690" height="790" rx="10" fill="#ffffff" stroke="#d9d8d3" stroke-width="1.5"/>
-  <text x="750" y="112" font-size="18" font-weight="700" fill="#0b0b0b">infra-b &#8212; multi-AZ + DR</text>
-  <text x="1400" y="112" text-anchor="end" font-size="16" font-weight="700" fill="#2a78d6">$533.44 / month</text>
+  <text x="750" y="112" font-size="18" font-weight="700" fill="#0b0b0b">infra-b &#8212; multi-AZ</text>
+  <text x="1400" y="112" text-anchor="end" font-size="16" font-weight="700" fill="#2a78d6">$503.16 / month</text>
 
   <text x="1075" y="140" text-anchor="middle" font-size="12" fill="#52514e">probe.py + writer.py (external, 1 Hz)</text>
   <line x1="1075" y1="148" x2="1075" y2="168" stroke="#52514e" stroke-width="1.5" marker-end="url(#arrow)"/>
@@ -143,8 +143,8 @@
   <g fill="#2a78d6"><circle cx="1263" cy="444" r="12"/><circle cx="1307" cy="444" r="12"/></g>
   <text x="1285" y="486" text-anchor="middle" font-size="10.5" fill="#52514e">witness &#215;2</text>
   <rect x="1202" y="500" width="166" height="56" rx="6" fill="#fff8ec" stroke="#eda100"/>
-  <text x="1285" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0b0b0b">read replica</text>
-  <text x="1285" y="540" text-anchor="middle" font-size="10" fill="#52514e">async &#183; regional DR path</text>
+  <text x="1285" y="522" text-anchor="middle" font-size="11.5" font-weight="600" fill="#0b0b0b">no replica</text>
+  <text x="1285" y="540" text-anchor="middle" font-size="10" fill="#52514e">AWS: replica vs managed password</text>
 
   <!-- replication arrows -->
   <line x1="948" y1="528" x2="990" y2="528" stroke="#1baf7a" stroke-width="2" marker-end="url(#arrowSync)"/>
@@ -167,5 +167,5 @@
   <text x="1242" y="832" text-anchor="middle" font-size="11" fill="#52514e">commit = durable in two AZs</text>
 
   <!-- footer -->
-  <text x="720" y="888" text-anchor="middle" font-size="12" fill="#52514e">&#916; $250.59/month &#8212; break-even at 1.1 AZ incidents/year (at $5k/h of downtime) &#183; github.com/allaouiyounespro</text>
+  <text x="720" y="888" text-anchor="middle" font-size="12" fill="#52514e">&#916; $220.31/month &#8212; break-even at 1.1 AZ incidents/year (at $5k/h of downtime) &#183; github.com/allaouiyounespro</text>
 </svg>

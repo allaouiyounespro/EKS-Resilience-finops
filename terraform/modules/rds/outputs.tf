@@ -45,8 +45,8 @@ output "multi_az" {
 }
 
 output "master_user_secret_arn" {
-  description = "Secrets Manager ARN holding the RDS-managed master credentials. The app and the RPO probe both resolve the password from here."
-  value       = aws_db_instance.this.master_user_secret[0].secret_arn
+  description = "Secrets Manager ARN holding the RDS-managed master credentials, or null when manage_master_password is off - in which case you own the password and the bootstrap cannot find it for you."
+  value       = var.manage_master_password ? aws_db_instance.this.master_user_secret[0].secret_arn : null
 }
 
 output "security_group_id" {

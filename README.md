@@ -34,7 +34,7 @@ owner: **allaouiyounespro** · portfolio: [github.com/allaouiyounespro](https://
 ![Architecture — infra-a (single-AZ) vs infra-b (multi-AZ + DR)](architecture.svg)
 
 Same modules, same region, same workload, same fault. The entire difference
-between the $282.85/month architecture and the $533.44/month one is a **15-line
+between the $282.85/month architecture and the $503.16/month one is a **15-line
 diff between two `main.tf` files**:
 
 ```console
@@ -45,9 +45,9 @@ $ diff terraform/stacks/infra-a/main.tf terraform/stacks/infra-b/main.tf
 |---|---|---|
 | Workload placement | one AZ (pinned) | three AZs (topology spread) |
 | NAT Gateways | 1 | 3 (one per AZ) |
-| RDS PostgreSQL 16 | single-AZ, PITR only | Multi-AZ standby + read replica |
+| RDS PostgreSQL 16 | single-AZ, PITR only | Multi-AZ synchronous standby |
 | Karpenter permitted zones | 1 | 3 |
-| **Cost** | **$282.85/mo** | **$533.44/mo** |
+| **Cost** | **$282.85/mo** | **$503.16/mo** |
 | Predicted RTO | 20–40 min | 60–120 s |
 | Predicted RPO | ≤ 5 min | 0 s |
 
@@ -101,7 +101,7 @@ EKS-Resilience-finops/
 │   │   └── platform/          # composes all six; stacks differ only by inputs
 │   └── stacks/
 │       ├── infra-a/           # single-AZ   (~$283/mo)
-│       └── infra-b/           # multi-AZ+DR (~$533/mo)
+│       └── infra-b/           # multi-AZ+DR (~$503/mo)
 ├── app/                       # witness service: /healthz /readyz /write /last
 ├── k8s/
 │   ├── workload/              # Deployment, Gateway API (ALB), PDB, NetworkPolicy
@@ -221,12 +221,12 @@ eu-west-3 list prices in [`finops/pricing.yaml`](finops/pricing.yaml), captured
 | EKS control plane | $73.00 | $73.00 | |
 | NAT Gateways | $37.04 | $110.04 | ★ +$73.00 |
 | EC2 (system + Karpenter) | $68.62 | $120.09 | ★ +$51.47 |
-| RDS (instance/standby/replica/storage) | $30.28 | $90.84 | ★ +$60.56 |
+| RDS (instance + standby + storage) | $30.28 | $60.56 | ★ +$30.28 |
 | ALB | $25.84 | $25.84 | |
 | EBS, logs, transfer, secrets | $10.05 | $18.58 | ★ +$2.00 |
-| **Total** | **$282.85** | **$533.44** | **$240.49** |
+| **Total** | **$282.85** | **$503.16** | **$210.07** |
 
-The `$240.49` column is the number to defend in a budget meeting: not "we spend
+The `$210.07` column is the number to defend in a budget meeting: not "we spend
 $438" but "we spend $245 to run it and $193 to survive an AZ failure — here is
 the measured RTO with and without." Every line of the delta is explicitly flagged
 in the model, and a test fails if unattributed cost creeps in.
@@ -299,8 +299,10 @@ troubleshooting live in the [runbook](docs/runbook.md).
   measured RTO is a **lower bound**.
 - **The witness is trivial.** No cache warmup, no leader election — real
   applications add their own recovery time on top of the infrastructure's.
-- **infra-b survives an AZ, not a region.** The read replica is an untested
-  manual promotion path; calling it "DR" is generous.
+- **infra-b survives an AZ, not a region.** There is no cross-region story at
+  all: the read replica that would have been one is gone, because AWS will not
+  create a Postgres replica for an instance whose password it manages, and
+  credential rotation was worth more than an untested promotion path.
 
 * * *
 
