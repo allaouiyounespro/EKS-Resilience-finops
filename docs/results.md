@@ -100,6 +100,13 @@ system. It is a monitoring system's obituary.
 
 The external probe is why this project has any numbers at all.
 
+![Grafana during the infra-a fault: zones serving falls to 1 and the panels go dark](evidence/grafana-infra-a.png)
+
+*The dashboard, captured live during the fault. Zones serving drops to 1; the
+blast-radius panels stop updating around the moment the AZ was cut, because the
+data source that fed them was inside it. Compare with infra-b below, where it
+never blinks.*
+
 ---
 
 ## infra-b — multi-AZ
@@ -152,6 +159,14 @@ it did".
 infra-a's dashboard went blank at exactly the moment anyone would have looked at
 it. infra-b's stayed up because Prometheus runs two replicas anti-affine across
 zones - a fix that only exists because infra-a's failure made the need obvious.
+
+![Grafana across the three infra-b faults: zones serving holds at 3, Pending pods spike and recover three times](evidence/grafana-infra-b.png)
+
+*Three runs in one view. Zones serving holds at 3 throughout. The bottom panel is
+the whole story: Pending pods spike to 2 and drain back to 0 three times - the
+three faults - while Karpenter relaunches the lost capacity and write success
+never leaves 100%. The dashboard is still reporting because it survived the thing
+it was reporting on.*
 
 ### What infra-b does not do by itself
 

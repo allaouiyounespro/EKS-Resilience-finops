@@ -79,16 +79,27 @@ front:
    because an EC2 instance lives in one AZ and one only: three zones means three
    nodes, whatever the pods need.
 
-The same fault, seen by the same external probe, one request per second:
+The same fault, seen by the same external probe, one request per second — the
+red never comes back, the green barely dips:
 
 ![infra-a: the AZ fails and nothing brings it back](docs/outage-infra-a.svg)
 
 ![infra-b: the same fault, and the service keeps serving](docs/outage-infra-b.svg)
 
-> Both stacks were built on AWS, destroyed by AWS FIS, and observed from outside
-> the blast radius. [`docs/results.md`](docs/results.md) has the full timelines,
-> the three discarded runs, and their autopsies - which taught more than most of
-> the passing runs did.
+And the same fault from *inside* the cluster, on the Grafana dashboard. This is
+the part a diagram cannot show:
+
+| infra-a — single-AZ | infra-b — multi-AZ |
+|---|---|
+| ![Grafana during the infra-a fault](docs/evidence/grafana-infra-a.png) | ![Grafana across three infra-b faults](docs/evidence/grafana-infra-b.png) |
+| Zones serving drops to **1**, then the panels go dark: kube-state-metrics and Prometheus were in the dying AZ, so the dashboard blinds itself at the one moment you would look at it. | Zones serving holds at **3**. Pending pods spike to 2 and recover three times — the three runs — while write success stays at 100%. The monitoring survived because it runs two replicas across zones. |
+
+> You are literally watching the observability die in one column and survive in
+> the other. Both stacks were built on AWS, destroyed by AWS FIS, and observed
+> from outside the blast radius too, in case the inside went dark.
+> [`docs/results.md`](docs/results.md) has the full timelines, the three
+> discarded runs, and their autopsies — which taught more than most of the
+> passing runs did.
 
 * * *
 
