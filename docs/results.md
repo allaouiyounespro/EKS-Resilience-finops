@@ -153,6 +153,26 @@ infra-a's dashboard went blank at exactly the moment anyone would have looked at
 it. infra-b's stayed up because Prometheus runs two replicas anti-affine across
 zones - a fix that only exists because infra-a's failure made the need obvious.
 
+### What infra-b does not do by itself
+
+Every run left a zombie. FIS stops the system node in the target AZ; the ASG
+launches a replacement while the AZ is still cut off; that instance boots, never
+joins, and stays — `running` in EC2, green status checks, node group `ACTIVE` with
+no health issues, and unknown to Kubernetes. Nothing in AWS reconciles it.
+
+After run 3 the system tier was 2/3 and `prometheus-0` sat Pending, because its
+EBS volume was stranded in the AZ whose system node was a zombie. Terminating the
+zombie brought both back in minutes.
+
+So the honest claim is narrower than "infra-b self-heals":
+
+> **infra-b stays up through an AZ failure without intervention. It does not
+> restore its own redundancy without one.**
+
+It survives the *next* failure only if someone cleared the last one. That cost is
+real, it is invisible from every AWS console, and it is why `reset-stack.sh` reaps
+zombies before each run instead of trusting the platform to.
+
 ### The spread of 28–58 s is the point of running it three times
 
 RDS failover time varies. A single run would have reported 58 s or 28 s with
