@@ -28,6 +28,32 @@ DESTROY=false
 command -v aws >/dev/null || { echo "aws cli not found" >&2; exit 1; }
 command -v jq  >/dev/null || { echo "jq not found" >&2; exit 1; }
 
+# Fail loudly if we cannot talk to AWS at all.
+#
+# Every query below ends in `|| true` or `|| echo 0`, because a describe-* that
+# errors on one resource type should not abort the sweep of the others. The
+# consequence, discovered the hard way: with an expired session EVERY query
+# fails, every counter falls back to zero, and this script cheerfully prints
+# "Nothing is running. You owe AWS nothing."
+#
+# It had not looked at anything. It could not. And it said you were safe.
+#
+# That is the exact failure this whole project is about - a green signal that
+# means "I could not check" rather than "everything is fine" - and a panic button
+# is the worst possible place to have one, because it is read by someone in a
+# hurry who wants to stop worrying.
+if ! aws sts get-caller-identity >/dev/null 2>&1; then
+  echo "CANNOT REACH AWS - your session is expired or the region is wrong." >&2
+  echo >&2
+  echo "This script is refusing to answer rather than telling you nothing is" >&2
+  echo "running, which is what it would print if it just kept going: every query" >&2
+  echo "below would fail, every counter would read zero, and you would be told" >&2
+  echo "you owe nothing while an EKS cluster quietly billed away." >&2
+  echo >&2
+  echo "  aws login" >&2
+  exit 2
+fi
+
 # Hourly burn rates, so the output answers the question you actually have at 2am:
 # "how fast is this costing me?" Figures are eu-west-3 list prices.
 COST_EKS=0.10
