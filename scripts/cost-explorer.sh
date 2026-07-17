@@ -40,9 +40,9 @@ RESULT="$(
     --output json 2>/dev/null || echo '{}'
 )"
 
-GROUPS="$(jq -r '[.ResultsByTime[]?.Groups[]?] | length' <<<"${RESULT}")"
+group_count="$(jq -r '[.ResultsByTime[]?.Groups[]?] | length' <<<"${RESULT}")"
 
-if [[ "${GROUPS}" == "0" || -z "${GROUPS}" ]]; then
+if [[ "${group_count}" == "0" || -z "${group_count}" ]]; then
   echo "  No data." >&2
   echo >&2
   echo "  The usual cause is not a missing stack - it is that the CostProfile tag" >&2

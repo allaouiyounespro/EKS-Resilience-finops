@@ -40,7 +40,6 @@ done
 OUT="$(terraform -chdir="${STACK_DIR}" output -json)"
 REGION="$(jq -r '.region.value'         <<<"${OUT}")"
 TARGET_AZ="$(jq -r '.fis_target_az.value' <<<"${OUT}")"
-DB_MULTI_AZ="$(jq -r '.db_multi_az.value' <<<"${OUT}")"
 DB_ID="$(jq -r '.db_endpoint.value' <<<"${OUT}" | cut -d. -f1)"
 
 echo "==> resetting ${STACK} (target AZ: ${TARGET_AZ})"
